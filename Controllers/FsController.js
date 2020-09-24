@@ -1,6 +1,6 @@
 /**Amoung us costs  :( 
 Programmer: Matt/AuthoredEntropy*/
-
+const colors = require('colors/safe');
 const Config = require("../FileSys/Config.json");
 const utility = require("../Utility/util");
 const util = new utility();
@@ -64,24 +64,100 @@ module.exports.fs = class FsController{
     }
     
 }
-module.exports.map = class map {
+module.exports.map = class {
+    
+    constructor(){
+        colors.setTheme({
+            funny: 'rainbow',
+            merica: "america",
+            normal: 'green',
+            tasks: 'yellow',
+            emergency: 'red'
+        });
+    }
+    currentMap;
+    BaseMap = require("../FileSys/BaseMap");
     StatusTypes = require("../Utility/Enum/StatusEnum")
     Statuses = {
-        UpperEngine : this.StatusTypes.NORMAL,
-        Reactor : this.StatusTypes.NORMAL,
-        LowerEngine : this.StatusTypes.NORMAL,
+        "Upper Engine" : this.StatusTypes.NORMAL,
+        "Reactors" : this.StatusTypes.NORMAL,
+        "Lower Engine" : this.StatusTypes.NORMAL,
         Security : this.StatusTypes.NORMAL,
         MedBay : this.StatusTypes.NORMAL,
         Electrical : this.StatusTypes.NORMAL,
-        Storage_ : this.StatusTypes.NORMAL,
-        Communication : this.StatusTypes.NORMAL,
+        "Storage" : this.StatusTypes.NORMAL,
+        Communications : this.StatusTypes.NORMAL,
         Shields : this.StatusTypes.NORMAL,
         Admin : this.StatusTypes.NORMAL,
-        Cafe : this.StatusTypes.NORMAL,
+        Cafeteria : this.StatusTypes.NORMAL,
         O2 : this.StatusTypes.NORMAL,
         Weapons : this.StatusTypes.NORMAL,
         Navigation : this.StatusTypes.NORMAL
     }
-    
-    BaseMap = require("../FileSys/BaseMap");
+    Names = {
+        UpperEngine : "Upper Engine",
+        Reactor : "Reactors",
+        LowerEngine : "Lower Engine",
+        Security : "Security",
+        MedBay : "MedBay",
+        Electrical : "Electrical",
+        Storage_ : "Storage",
+        Communications : "Communications",
+        Shields : "Shields",
+        Admin : "Admin",
+        Cafe : "Cafeteria",
+        O2 : "O2",
+        Weapons : "Weapons",
+        Navigation : "Navigation"
+    }
+    RandomizeMapStatuses(){
+        var StatusArr = Object.keys(this.Statuses);
+        return new Promise(resolve => {
+            
+            StatusArr.forEach(name => {
+                switch (Math.floor((Math.random() * 3) +1)) {
+                    case 1:
+                        this.Statuses[name] = this.StatusTypes.NORMAL;
+                        break;
+                    case 2:
+                        this.Statuses[name] = this.StatusTypes.TASKSAVAILABLE;
+                        break;
+                    case 3:
+                        this.Statuses[name] = this.StatusTypes.EMERGENCY;
+                        break;
+                    default:
+                        break;
+                } 
+            });
+            resolve();
+        })
+        
+    }
+    UpdateMapStatuses(){
+        if(!this.currentMap){this.currentMap = this.BaseMap}
+        return new Promise(resolve => {
+            var NamesArr = Object.values(this.Names);
+            console.log(NamesArr);
+            NamesArr.forEach(name => {
+                if(name == "Lower-Engine"){console.log(name)}
+            var status = this.Statuses[name];
+            var coloredName = name;
+            switch (status) {
+                case "Sabotaged":
+                    coloredName = colors.emergency(name);
+                    break;
+                case "TasksHere":
+                    coloredName = colors.tasks(name);
+                    break;
+                case "Normal":
+                    coloredName = colors.normal(name);
+                    break;
+                default:
+                    break;
+            }
+            this.currentMap = this.currentMap.replace(name, coloredName);
+        });
+        resolve(this.currentMap)
+        })
+}
 }

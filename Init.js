@@ -15,6 +15,7 @@ FsController;
 CommandController;
 TFCMDs;
 CMDs;
+map = new this._FileSystem.map();
 BaseFileSys  = new this._FileSystem.baseFileSys(Config.BasePrompt);
 util = new util();
     BasicGameInit(){
@@ -23,10 +24,11 @@ util = new util();
     BaseInit(){
         //initalizing controllers into filesystem
         this.FsController = new this._FileSystem.fs();
+       
         if(Config.Verbose)console.log("--Init: Fs Controller Initialized into Filesystem--")
         this.CommandController = require("./Controllers/CommandController");
-        this.TFCMDs = new this.CommandController.TF();
-        if(Config.Verbose)console.log("--Init: TF Command Controller Initialized into Filesystem--")
+        // this.TFCMDs = new this.CommandController.TF();
+        // if(Config.Verbose)console.log("--Init: TF Command Controller Initialized into Filesystem--")
         this.CMDs = new this.CommandController.CMD();
         if(Config.Verbose)console.log("--Init: Command Controller Initialized into Filesystem--")
         this.IOController = new this.IO_Controller.IO();
@@ -35,8 +37,8 @@ util = new util();
         //initalizing filesystem into controllers
         this.FsController.LoadFileSys(this);
         if(Config.Verbose)console.log("--Init: FileSystem Initialized into Fs Controller--")
-        this.TFCMDs.LoadFileSys(this);
-        if(Config.Verbose)console.log("--Init: FileSystem Initialized into Tf Command Controller--")
+        // this.TFCMDs.LoadFileSys(this);
+        // if(Config.Verbose)console.log("--Init: FileSystem Initialized into Tf Command Controller--")
         this.CMDs.LoadFileSys(this)
         if(Config.Verbose)console.log("--Init: FileSystem Initialized into Command Controller--")
         this.IOController.LoadFileSys(this)

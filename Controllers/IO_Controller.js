@@ -4,6 +4,7 @@ Programmer: Matt/AuthoredEntropy*/
   //Global imports
   const MSGs = require("../FileSys/Msg.json");
   const readline = require('readline');
+const { config } = require("process");
 module.exports.baseFileSys = class {
   TFQuestion;
   PROMPT;
@@ -15,8 +16,8 @@ module.exports.IO = class IO_Controller{
   //imports
   FileSys;
   CommandController = require("./CommandController");
-  TFCMDs = new this.CommandController.TF();
-  CMDs = new this.CommandController.CMD();
+  // TFCMDs = new this.CommandController.TF();
+  CMDs;
   PROMPT;
   util = require('util')
   colors = require('colors') // npm install colors
@@ -24,6 +25,7 @@ module.exports.IO = class IO_Controller{
   LoadFileSys(FileSystem){
     this.FileSys = FileSystem;
     this.PROMPT =  FileSystem.BaseFileSys.PROMPT;
+    this.CMDs = FileSystem.CMDs;
   }
   
 
@@ -42,7 +44,8 @@ constructor(){
   });
 }
   completer(line) {
-  var completions = '.help .error .exit .quit .q .map .tasks .CompTasks .NotCompTasks'.split(' ')
+    var Config = require("../FileSys/Config.json")
+  var completions = Config.Completions.split(' ')
   var hits = completions.filter(function(c) {
     if (c.indexOf(line) == 0) {
       return c;
@@ -68,12 +71,12 @@ async exec(command) {
 
     //we can write it eventually... :( ඞ 
     if (command == "y") {
-      await this.TFCMDs.YesNo(true);
+      await this.CMDs.YesNo(true);
     } else if (command == "n"){
-      await this.TFCMDs.YesNo(false);
+      await this.CMDs.YesNo(false);
     }
      else{
-    CMDs.BaseCommandProcessor(command)
+    await this.CMDs.BaseCommandProcessor(command)
     }
     this.prompt();
   }

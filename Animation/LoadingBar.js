@@ -2,7 +2,7 @@
 Programmer: Matt/AuthoredEntropy*/
 
 const readline = require("readline");
-const rl = readline.createInterface(process.stdin, process.stdout, this.completer)
+
 module.exports = class loadingBar {
     timer;
     size;
@@ -19,27 +19,27 @@ module.exports = class loadingBar {
     }
     Start(Message){
         return new Promise(resolve => {
-            rl.write("\x1b[?25l");
-            rl.write("[");
+            process.stdout.write("\x1b[?25l");
+            process.stdout.write("[");
             this.cursor = 1;
-            readline.cursorTo(rl, this.cursor)
+            readline.cursorTo(process.stdout, this.cursor)
             for (let i = 0; i < this.size; i++) {
-                rl.write("-")
+                process.stdout.write("-")
             }
-            rl.write("]");
+            process.stdout.write("]");
             this.cursor = 1;
-            readline.cursorTo(rl, this.cursor)
+            readline.cursorTo(process.stdout, this.cursor)
             let i = 0;
             this.timer = setInterval(() => {
                 i++
-                rl.write("=");
+                process.stdout.write("=");
                 this.cursor++;
-                readline.cursorTo(rl, this.size+2);
-                rl.write((100 * i) / this.size + "% " + Message)
-                readline.cursorTo(rl, this.cursor);
+                readline.cursorTo(process.stdout, this.size+2);
+                process.stdout.write((100 * i) / this.size + "% " + Message)
+                readline.cursorTo(process.stdout, this.cursor);
                 if (this.cursor > this.size) {
                     clearInterval(this.timer);
-                    rl.write("\x1B[?25h")
+                    process.stdout.write("\x1B[?25h")
                     resolve();
                 }
             }, this.Delay)

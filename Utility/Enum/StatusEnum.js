@@ -1,5 +1,5 @@
 module.exports = StatusTypes = {
     NORMAL: "Normal",
-    SABOTAGED: "Sabotaged",
+    EMERGENCY: "Sabotaged",
     TASKSAVAILABLE: "TasksHere"
 }
