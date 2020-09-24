@@ -27,24 +27,38 @@ module.exports.CMD = class {
     
     BaseCommandProcessor(command){
         if (command[0] == ".") {
-            switch (command.slice(1)) {
+            switch (command.split(" ")[0].slice(1)) {
                 case "help":
                     console.log(MSGs.AdvancedHelpMsg);
                         break;
                 case "map":
-                    console.log(this.FileSys.map.BaseMap);
+                        this.FileSys.map.UpdateMapStatuses();
                         break;
                 case "updateMap":
                         this.FileSys.map.UpdateMapStatuses();
-                        console.log(this.FileSys.map.currentMap)
                         break;
                 case "randMap":
                         this.FileSys.map.RandomizeMapStatuses();
                         this.FileSys.map.UpdateMapStatuses();
-                        console.log(this.FileSys.map.currentMap);
+                        break;
+                case "home":
+                        this.FileSys.map.PlayerHome();
+                        break;
+                case "clear":
+                    var clear = require('clear');
+                    clear();
+                        break;
+                case "move":
+                    var readline = require("readline");
+                    var rl = this.FileSys.IOController.rl;
+                    var arr = command.split(" ");
+                        readline.cursorTo(rl, parseInt(arr[1]), parseInt(arr[2]));
+                        rl.write(Config.PlayerIcon);
                         break;
                 default: console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
                         break;
+                
+                    
             }
             
         } else {

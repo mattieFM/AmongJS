@@ -1,6 +1,7 @@
 /**Amoung us costs  :( 
 Programmer: Matt/AuthoredEntropy*/
 const colors = require('colors/safe');
+const { read } = require('fs');
 const Config = require("../FileSys/Config.json");
 const utility = require("../Utility/util");
 const util = new utility();
@@ -65,7 +66,7 @@ module.exports.fs = class FsController{
     
 }
 module.exports.map = class {
-    
+    FileSys;
     constructor(){
         colors.setTheme({
             funny: 'rainbow',
@@ -74,6 +75,10 @@ module.exports.map = class {
             tasks: 'yellow',
             emergency: 'red'
         });
+        if(!this.currentMap){this.currentMap = this.BaseMap}
+    }
+    LoadFileSys(FileSystem){
+        this.FileSys = FileSystem;
     }
     currentMap;
     BaseMap = require("../FileSys/BaseMap");
@@ -111,6 +116,7 @@ module.exports.map = class {
         Navigation : "Navigation"
     }
     RandomizeMapStatuses(){
+        
         var StatusArr = Object.keys(this.Statuses);
         return new Promise(resolve => {
             
@@ -157,7 +163,29 @@ module.exports.map = class {
             }
             this.currentMap = this.currentMap.replace(name, coloredName);
         });
-        resolve(this.currentMap)
-        })
+        var readline = require("readline");
+        var rl = this.FileSys.IOController.rl;
+        readline.cursorTo(process.stdout, 1, 1)
+        process.stdout.write(this.currentMap);
+        resolve(this.currentMap);
+        }) 
+
 }
+        PlayerMove(){
+            const PlayerIcon = Config.PlayerIcon;
+            const WallIcon = Config.WallIcon;
+            
+        }
+        PlayerHome(){//72 x cafe y 10
+            String.prototype.replaceAt = function(index, replacement) {
+                return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+            }
+            //home 1781
+
+            this.currentMap = this.currentMap.replaceAt(3844, Config.PlayerIcon)
+            // var readline = require("readline");
+            // var rl = this.FileSys.IOController.rl;
+            // readline.cursorTo(rl, 0);
+        }
+        
 }

@@ -2,9 +2,10 @@
     "PATH": "H:\\Onedrive\\inportant_docs\\amoungUsJs",
     "BasePrompt": "> ",
     "Verbose":false,
-    "Completions": ".help .error .exit .quit .q .map .tasks .CompTasks .NotCompTasks .updateMap .randMap",
+    "Completions": ".help .error .exit .quit .q .map .tasks .CompTasks .NotCompTasks .updateMap .randMap .home",
     "PlayerIcon": "ඞ",
     "VentIcon": "▢",
+    "WallIcon": "█",
     "Commands": [
         "help",
         "map"

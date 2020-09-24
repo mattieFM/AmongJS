@@ -4,11 +4,11 @@
   "description": "bad code, terminal based graphics, welcome to hell",
   "main": "Init.js",
   "dependencies": {
+    "clear": "^0.1.0",
     "colors": "^1.4.0"
   },
   "devDependencies": {},
-  "scripts": {
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AuthoredEntropy/AmoungUS.git"
