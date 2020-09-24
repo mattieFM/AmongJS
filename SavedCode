@@ -1,0 +1,38 @@
+function DotAnimateProgress(message) {
+    const amountOfDots = 3;
+    let i = 0;
+    return setInterval(() => {
+     readline.cursorTo(process.stdout, 6);
+     i = (i + 1) % (amountOfDots + 1);
+     const dots = new Array(i + 1).join('.');
+     process.stdout.write(dots);
+    }, 500);
+   }
+  
+   var LoadBar = new loadingBar(20);
+   LoadBar.Update(20, 110);
+async function DotLoadBar() {
+	/* using 20 to make the progress bar length 20 charactes, multiplying by 5 below to arrive to 100  */
+
+	for (let i = 0; i <= 20; i++) {
+		const dots = ".".repeat(i);
+		const left = 20 - i;
+		const empty = " ".repeat(left);
+
+		/* need to use  `process.stdout.write` becuase console.log print a newline character */
+		/* \r clear the current line and then print the other characters making it looks like it refresh*/
+		process.stdout.write(`\r[${dots}${empty}] ${i * 5}% Loaded`);
+		await wait(80);
+	}
+}
+
+
+function flush(callback) {
+  if (process.stdout.write('')) {
+    callback();
+  } else {
+    process.stdout.once('drain', function() {
+      callback();
+    });
+  }
+};

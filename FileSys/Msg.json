@@ -1,0 +1,9 @@
+{
+    "WelcomeMsg": "Wow kid you've been out for a long time....\n Perhaps you need a little refresher... you've woken up in hell \n We're playing Among Us... wanna join? [Y/N]",
+    "WelcomeMsg1": "Sample question..... [Y/N]",
+    "BasicHelpMsg": "Cool man \n we'll give you a quick tutorial\n first:\n you cannot see any map\n god didn't code that in yet \n if you type part of a command then \"tab\" it will autofill the rest of the command\n to move use W,A,S,D (you must press enter after each key)\n to interact with any intractable use \"e\"\n to view your current positions type: \".map\"\n to view all your tasks type: \".tasks\"\n to view completed tasks type \".CompTasks\"\n to view only not completed tasks type \".NotCompTasks\"\n to call a emergency meeting press\"e\"next to the btn in the meeting room \n .help\" to receive all controls",
+    "AdvancedHelpMsg": "",
+    "CommandsList": "",
+    "QuitMSG": "Goodbye!"
+    
+}

@@ -1,0 +1,22 @@
+{
+  "name": "amoung_tb_sc_p",
+  "version": "1.0.1",
+  "description": "bad code, terminal based graphics, welcome to hell",
+  "main": "Init.js",
+  "dependencies": {
+    "colors": "^1.4.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AuthoredEntropy/AmoungUS.git"
+  },
+  "author": "Matt/AuthoredEntropy",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AuthoredEntropy/AmoungUS/issues"
+  },
+  "homepage": "https://github.com/AuthoredEntropy/AmoungUS#readme"
+}
