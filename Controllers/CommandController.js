@@ -49,11 +49,15 @@ module.exports.CMD = class {
                     clear();
                         break;
                 case "move":
-                    var readline = require("readline");
-                    var rl = this.FileSys.IOController.rl;
-                    var arr = command.split(" ");
-                        readline.cursorTo(rl, parseInt(arr[1]), parseInt(arr[2]));
-                        rl.write(Config.PlayerIcon);
+                    var args = command.split(" ");
+                    this.FileSys.map.PlayerMove(this.FileSys.player_1, parseInt(args[1]), parseInt(args[2]));
+                        break;
+                case "absoluteMove":
+                        var args = command.split(" ");
+                        this.FileSys.map.TruePlayerMove(parseInt(args[1]));
+                        break;
+                case "resetMap":
+                            this.FileSys.map.reset()
                         break;
                 default: console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
                         break;

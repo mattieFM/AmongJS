@@ -2,6 +2,8 @@
 Programmer: Matt/AuthoredEntropy*/
 const colors = require('colors/safe');
 const { read } = require('fs');
+const { resolve } = require('path');
+const { charAt } = require('../FileSys/BaseMap');
 const Config = require("../FileSys/Config.json");
 const utility = require("../Utility/util");
 const util = new utility();
@@ -75,10 +77,13 @@ module.exports.map = class {
             tasks: 'yellow',
             emergency: 'red'
         });
-        if(!this.currentMap){this.currentMap = this.BaseMap}
+        this.SetCurrentMap();
     }
     LoadFileSys(FileSystem){
         this.FileSys = FileSystem;
+    }
+    SetCurrentMap(){
+        if(!this.currentMap){this.currentMap = this.BaseMap.split("\n")}
     }
     currentMap;
     BaseMap = require("../FileSys/BaseMap");
@@ -140,12 +145,10 @@ module.exports.map = class {
         
     }
     UpdateMapStatuses(){
-        if(!this.currentMap){this.currentMap = this.BaseMap}
+        this.SetCurrentMap();
         return new Promise(resolve => {
             var NamesArr = Object.values(this.Names);
-            console.log(NamesArr);
             NamesArr.forEach(name => {
-                if(name == "Lower-Engine"){console.log(name)}
             var status = this.Statuses[name];
             var coloredName = name;
             switch (status) {
@@ -161,31 +164,197 @@ module.exports.map = class {
                 default:
                     break;
             }
-            this.currentMap = this.currentMap.replace(name, coloredName);
+            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+            var coloredMap = assembledMap.replace(name, coloredName);
+            this.currentMap = coloredMap.split(Config.ReplaceIcon);
         });
-        var readline = require("readline");
-        var rl = this.FileSys.IOController.rl;
-        readline.cursorTo(process.stdout, 1, 1)
-        process.stdout.write(this.currentMap);
+        this.writeAssembledMap();
         resolve(this.currentMap);
         }) 
-
 }
-        PlayerMove(){
+        writeAssembledMap(){
+            var readline = require("readline");
+            readline.cursorTo(process.stdout, 1, 1)
+            process.stdout.write(this.currentMap.join("\n"));
+        }
+        reset(){
+            this.currentMap = this.BaseMap.split("\n")
+        }
+        PlayerMove(player, x, y){
             const PlayerIcon = Config.PlayerIcon;
             const WallIcon = Config.WallIcon;
-            
-        }
-        PlayerHome(){//72 x cafe y 10
-            String.prototype.replaceAt = function(index, replacement) {
-                return this.substr(0, index) + replacement + this.substr(index + replacement.length);
+            var collision = this.Collision(x, y);
+            if(collision){
+                this.collisionHandler(collision, player, x, y);
+            }else{
+            this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
+            this.currentMap = this.Replace(this.currentMap, x, y, PlayerIcon);
+            player.setPos(x, y);
             }
-            //home 1781
-
-            this.currentMap = this.currentMap.replaceAt(3844, Config.PlayerIcon)
-            // var readline = require("readline");
-            // var rl = this.FileSys.IOController.rl;
-            // readline.cursorTo(rl, 0);
+            this.UpdateMapStatuses();
         }
         
+        Collision(x, y){
+            var collider = this.currentMap[y].charAt(x);
+            var CollisionEvent = null;
+            var CollisionEventBase = {
+                CollisionTypes: {letter: "letter", wall: "wall", player: "player"},
+                CollisionType: null
+
+            }
+            if(this.isLetter(collider)){
+                var CollisionEvent = CollisionEventBase;
+                CollisionEvent.CollisionType = CollisionEventBase.letter;
+                return CollisionEvent;
+            }
+            var CollisionEventWall = CollisionEventBase;
+            CollisionEventWall.CollisionType = CollisionEventBase.CollisionTypes.wall;
+            var CollisionEventPlayer = CollisionEventBase;
+            CollisionEventPlayer.CollisionType = CollisionEventBase.CollisionTypes.wall;
+            switch (collider) {
+                case Config.WallIcon:
+                    return CollisionEventWall;
+                    break;
+                case Config.PlayerIcon:
+                    return CollisionEventPlayer;
+                    break;
+                case " ":
+                     return null;
+                    break;
+                default:
+                    return CollisionEventWall;
+                    break;
+            }
+           
+        }
+        collisionHandler(collisionEvent, player, x, y){
+            return new Promise(async resolve => {
+                switch (collisionEvent.CollisionType) {
+                    case "letter":
+                        await this.LetterCollider(collisionEvent, player, x, y)
+                        break;
+                    case "wall":
+                        //if(Config.Verbose)console.log("collision")
+                        this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon + " ");
+                        break;
+                    case "player":
+                        //if(Config.Verbose)console.log("collision")
+                        this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
+                        break;
+                    default:
+                        break;
+                }
+                resolve();
+            })
+        }
+        /**
+         * @description: if a letter is collided with, due to its color code special things must happen
+         */
+        async LetterCollider(collisionEvent, player, x, y){
+            var line = this.currentMap[y];
+            var letter = line.charAt(x);
+            var shouldExit = false;
+            var word = [];
+            word[0] = letter;
+            i=0;
+            //if collision occurs in the middle of the word, subtract this from the initial x
+            var numToLeft = 0;
+                const getWord = new Promise(resolve => {
+                var left = true;
+                var right = true;
+                
+                /**@description Tolerance (how many spaces should be allowed before next letter) */
+                let t = 2
+                while(left){
+                    let LeftLetter = line.charAt(x-i);
+                    let localTolerance = t;
+                    if(this.isLetter(LeftLetter)){
+                    if(localTolerance != t){
+                        for (let index = 0; index < t-localTolerance; index++) {
+                            word.unshift(" ");
+                            numToLeft++;
+                        }
+                        localTolerance = t;
+                    }
+                    word.unshift(LeftLetter);
+                    numToLeft++;
+                    }else{
+                        localTolerance--
+                    }
+                    
+                    if(localTolerance=0){
+                    left = false
+                    i=0;
+                    }
+                    i++
+                }
+                while(right){
+                    let RightLetter = line.charAt(x+i);
+                    let localTolerance = t;
+                    if(this.isLetter(RightLetter)){
+                    if(localTolerance != t){
+                        for (let index = 0; index < t-localTolerance; index++) {
+                            word.push(" ");
+                        }
+                        localTolerance = t;
+                    }
+                    word.unshift(RightLetter);
+                    }else{
+                        localTolerance--
+                    }
+                    
+                    if(localTolerance=0){
+                        right = false
+                    i=0;
+                    }
+                    i++
+                }
+                if(!left && !right){
+                    resolve(word.join())
+                }
+                })
+            const AssembledWord = await getWord();
+            const X_ofWord = (x - numToLeft);
+            const xCordInsideWord = x - X_ofWord;
+
+            
+
+            
+                
+            
+        }
+        isLetter(str) {
+            return str.length === 1 && str.match(/[a-z]/i);
+          }
+        Replace(Arr, x, y, Char){
+            String.prototype.replaceAt = function(index, replacement) {
+                return this.substr(0, x) + replacement + this.substr(index + replacement.length);
+            }
+            Arr[y] = Arr[y].replaceAt(x, Char)
+            return Arr;
+        }
+        PlayerHome(){//72 x cafe y 10
+            this.PlayerMove(this.FileSys.player_1, Config.SaveMapCordPair.Home.x,Config.SaveMapCordPair.Home.y);
+        }
+        
+        /** @deprecated AbsoluteMove is not longer possible --map is stored in array, not string */
+        TruePlayerMove(index){
+            var indexOfMovement = index;
+            
+            const PlayerIcon = Config.PlayerIcon;
+            const WallIcon = Config.WallIcon;
+            if(this.Collision(indexOfMovement)){
+                this.collisionHandler();
+            }else{
+            this.currentMap = this.Replace(this.currentMap, indexOfMovement, PlayerIcon);
+            }
+            this.UpdateMapStatuses();
+        }
+        /** @deprecated map is stored in array, thus y does not need to equal length of a line thus this function is unused */
+        MapGetLengthOfLine(i){
+           var lines = this.BaseMap.split("\n")
+           if(Config.Verbose)console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒"))
+           if(Config.Verbose)console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length)
+           return lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length+1;
+        }
 }
