@@ -27,6 +27,7 @@ module.exports.CMD = class {
     
     BaseCommandProcessor(command){
         if (command[0] == ".") {
+            var args = command.split(" ");
             switch (command.split(" ")[0].slice(1)) {
                 case "help":
                     console.log(MSGs.AdvancedHelpMsg);
@@ -49,16 +50,49 @@ module.exports.CMD = class {
                     clear();
                         break;
                 case "move":
-                    var args = command.split(" ");
                     this.FileSys.map.PlayerMove(this.FileSys.player_1, parseInt(args[1]), parseInt(args[2]));
                         break;
                 case "absoluteMove":
-                        var args = command.split(" ");
+                        
                         this.FileSys.map.TruePlayerMove(parseInt(args[1]));
                         break;
                 case "resetMap":
                             this.FileSys.map.reset()
                         break;
+                case "deColorMap":
+                            this.FileSys.map.deColorMap();
+                        break;
+                case "deColorPlayer":
+                            this.FileSys.map.DeColorPlayer(this.FileSys.player_1);
+                        break;
+                case "w":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * Multiplier);
+                    break;
+                case "a":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * Multiplier, 0 );
+                    break;
+                case "d":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 1 * Multiplier, 0);
+                    break;
+                case "s":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * Multiplier);
+                    break;
                 default: console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
                         break;
                 

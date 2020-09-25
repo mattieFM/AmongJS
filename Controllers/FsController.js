@@ -168,10 +168,34 @@ module.exports.map = class {
             var coloredMap = assembledMap.replace(name, coloredName);
             this.currentMap = coloredMap.split(Config.ReplaceIcon);
         });
+        var maptest = this.currentMap;
         this.writeAssembledMap();
         resolve(this.currentMap);
         }) 
 }
+        deColorMap(){
+            var NamesArr = Object.values(this.Names);
+            NamesArr.forEach(name => {
+                var status = this.Statuses[name];
+                var coloredName = name;
+                switch (status) {
+                    case "Sabotaged":
+                        coloredName = colors.emergency(name);
+                        break;
+                    case "TasksHere":
+                        coloredName = colors.tasks(name);
+                        break;
+                    case "Normal":
+                        coloredName = colors.normal(name);
+                        break;
+                    default:
+                        break;
+                }
+                var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+                var coloredMap = assembledMap.replace(coloredName, name);
+                this.currentMap = coloredMap.split(Config.ReplaceIcon);
+            });
+        }
         writeAssembledMap(){
             var readline = require("readline");
             readline.cursorTo(process.stdout, 1, 1)
@@ -180,37 +204,69 @@ module.exports.map = class {
         reset(){
             this.currentMap = this.BaseMap.split("\n")
         }
-        PlayerMove(player, x, y){
+        RelativePlayerMove(player, x, y){
+            this.deColorMap();
+            x = player.x+x;
+            y = player.y+y;
             const PlayerIcon = Config.PlayerIcon;
             const WallIcon = Config.WallIcon;
             var collision = this.Collision(x, y);
             if(collision){
                 this.collisionHandler(collision, player, x, y);
             }else{
+            this.DeColorPlayer(player) 
             this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
-            this.currentMap = this.Replace(this.currentMap, x, y, PlayerIcon);
+            this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
             player.setPos(x, y);
+            this.ReColorPlayer(player);
+            }
+            this.UpdateMapStatuses(); 
+        }
+        PlayerMove(player, x, y){
+            this.deColorMap();
+            const PlayerIcon = Config.PlayerIcon;
+            const WallIcon = Config.WallIcon;
+            var collision = this.Collision(x, y);
+            if(collision){
+                this.collisionHandler(collision, player, x, y);
+            }else{
+            this.DeColorPlayer(player); 
+            this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
+            this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
+            player.setPos(x, y);
+            this.ReColorPlayer(player);
             }
             this.UpdateMapStatuses();
         }
-        
+        DeColorPlayer(player){
+            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+            var coloredMap = assembledMap.replace(player.PlayerColor, Config.PlayerIcon);
+            this.currentMap = coloredMap.split(Config.ReplaceIcon);
+        }
+        ReColorPlayer(player){
+            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+            var coloredMap = assembledMap.replace(Config.PlayerIcon, player.PlayerColor);
+            this.currentMap = coloredMap.split(Config.ReplaceIcon);
+            this.UpdateMapStatuses();
+        }
         Collision(x, y){
             var collider = this.currentMap[y].charAt(x);
             var CollisionEvent = null;
-            var CollisionEventBase = {
-                CollisionTypes: {letter: "letter", wall: "wall", player: "player"},
-                CollisionType: null
-
+            class CollisionEventBase  {
+                CollisionTypes = {letter: "letter", wall: "wall", player: "player", air: "airblock"}
+                CollisionType = null
             }
             if(this.isLetter(collider)){
                 var CollisionEvent = CollisionEventBase;
                 CollisionEvent.CollisionType = CollisionEventBase.letter;
                 return CollisionEvent;
             }
-            var CollisionEventWall = CollisionEventBase;
-            CollisionEventWall.CollisionType = CollisionEventBase.CollisionTypes.wall;
-            var CollisionEventPlayer = CollisionEventBase;
-            CollisionEventPlayer.CollisionType = CollisionEventBase.CollisionTypes.wall;
+            var CollisionEventWall = new CollisionEventBase();
+            CollisionEventWall.CollisionType = CollisionEventWall.CollisionTypes.wall;
+            var CollisionEventPlayer = new CollisionEventBase();
+            CollisionEventPlayer.CollisionType = CollisionEventPlayer.CollisionTypes.wall;
+            var CollisionEventAir = new CollisionEventBase();
+            CollisionEventAir.CollisionType = CollisionEventAir.CollisionTypes.air;
             switch (collider) {
                 case Config.WallIcon:
                     return CollisionEventWall;
@@ -218,6 +274,8 @@ module.exports.map = class {
                 case Config.PlayerIcon:
                     return CollisionEventPlayer;
                     break;
+                case Config.AirIcon:
+                    return CollisionEventAir
                 case " ":
                      return null;
                     break;
@@ -234,12 +292,15 @@ module.exports.map = class {
                         await this.LetterCollider(collisionEvent, player, x, y)
                         break;
                     case "wall":
-                        //if(Config.Verbose)console.log("collision")
-                        this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon + " ");
+                        if(Config.Verbose)console.log("WallCollision")
+                        break;
+                    case "airblock":
+                        if(Config.Verbose)console.log("AirBlockCollision")
                         break;
                     case "player":
-                        //if(Config.Verbose)console.log("collision")
-                        this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
+                        if(Config.Verbose)console.log("PlayerCollision")
+                        break;
+                    case " ":
                         break;
                     default:
                         break;

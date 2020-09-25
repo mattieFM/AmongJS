@@ -2,10 +2,11 @@
     "PATH": "H:\\Onedrive\\inportant_docs\\amoungUsJs",
     "BasePrompt": "> ",
     "Verbose":true,
-    "Completions": ".help .error .exit .quit .q .map .tasks .CompTasks .NotCompTasks .updateMap .randMap .home .absoluteMove .resetMap",
+    "Completions": ".help .error .exit .quit .q .map .tasks .CompTasks .NotCompTasks .updateMap .randMap .home .absoluteMove .resetMap .deColorMap .deColorPlayer",
     "PlayerIcon": "ඞ",
     "VentIcon": "▢",
     "WallIcon": "█",
+    "AirIcon": "░",
     "ReplaceIcon": "©",
     "Commands": [
         "help",
@@ -16,6 +17,6 @@
         "Home": 1781
     },
     "SaveMapCordPair": {
-        "Home": {"x":72,"y":10}
+        "Home": {"x":99,"y":10}
     }
 }

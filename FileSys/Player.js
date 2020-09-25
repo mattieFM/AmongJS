@@ -5,6 +5,8 @@
 "*/
 const Config = require("./Config.json")
 module.exports.player = class { 
+    Fill =" ";
+    PreviousColType = " ";
     FileSys;
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     CurrentPosIndex  = Config.SaveMapTruePos.Home
@@ -12,9 +14,9 @@ module.exports.player = class {
     CurrentFalseXPos = Config.SaveMapCordPair.Home.x
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     CurrentFalseyPos = Config.SaveMapCordPair.Home.y
-    
-    y = 9;
-    x =72;
+    PlayerColor = Config.PlayerIcon.red;
+    y = 10;
+    x = 99;
     IsTraitor = false
     
 
@@ -42,8 +44,7 @@ module.exports.player = class {
     }
     LoadFileSys(FileSystem){
     this.FileSys = FileSystem;
-    this.setPos(72, 9);
-
+    this.setPos(99,10);
     }
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     setTruePos(){
