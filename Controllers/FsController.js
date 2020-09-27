@@ -89,9 +89,9 @@ module.exports.map = class {
     BaseMap = require("../FileSys/BaseMap");
     StatusTypes = require("../Utility/Enum/StatusEnum")
     Statuses = {
-        "Upper Engine" : this.StatusTypes.NORMAL,
+        Upper_Engine : this.StatusTypes.NORMAL,
         "Reactors" : this.StatusTypes.NORMAL,
-        "Lower Engine" : this.StatusTypes.NORMAL,
+        Lower_Engine : this.StatusTypes.NORMAL,
         Security : this.StatusTypes.NORMAL,
         MedBay : this.StatusTypes.NORMAL,
         Electrical : this.StatusTypes.NORMAL,
@@ -105,13 +105,13 @@ module.exports.map = class {
         Navigation : this.StatusTypes.NORMAL
     }
     Names = {
-        UpperEngine : "Upper Engine",
-        Reactor : "Reactors",
-        LowerEngine : "Lower Engine",
+        Upper_Engine : "Upper_Engine",
+        Reactors : "Reactors",
+        Lower_Engine : "Lower_Engine",
         Security : "Security",
         MedBay : "MedBay",
         Electrical : "Electrical",
-        Storage_ : "Storage",
+        "Storage" : "Storage",
         Communications : "Communications",
         Shields : "Shields",
         Admin : "Admin",
@@ -144,7 +144,7 @@ module.exports.map = class {
         })
         
     }
-    UpdateMapStatuses(){
+    UpdateMapStatuses(player){
         this.SetCurrentMap();
         return new Promise(resolve => {
             var NamesArr = Object.values(this.Names);
@@ -168,7 +168,7 @@ module.exports.map = class {
             var coloredMap = assembledMap.replace(name, coloredName);
             this.currentMap = coloredMap.split(Config.ReplaceIcon);
         });
-        var maptest = this.currentMap;
+        this.ReColorPlayer(player);
         this.writeAssembledMap();
         resolve(this.currentMap);
         }) 
@@ -191,6 +191,7 @@ module.exports.map = class {
                     default:
                         break;
                 }
+                
                 var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
                 var coloredMap = assembledMap.replace(coloredName, name);
                 this.currentMap = coloredMap.split(Config.ReplaceIcon);
@@ -204,51 +205,46 @@ module.exports.map = class {
         reset(){
             this.currentMap = this.BaseMap.split("\n")
         }
+        StripAnsi(){
+            const stripAnsi = require('strip-ansi');
+            var lineNum = 0;
+            this.currentMap.forEach(line => {
+                this.currentMap[lineNum] = stripAnsi(line);
+                lineNum++;
+            });
+        }
         RelativePlayerMove(player, x, y){
-            this.deColorMap();
+            this.StripAnsi();
             x = player.x+x;
             y = player.y+y;
             const PlayerIcon = Config.PlayerIcon;
             const WallIcon = Config.WallIcon;
-            var collision = this.Collision(x, y);
-            if(collision){
-                this.collisionHandler(collision, player, x, y);
-            }else{
-            this.DeColorPlayer(player) 
+            // var collision = this.Collision(x, y);
+            // if(collision){
+            //     this.collisionHandler(collision, player, x, y);
+            // }else{
             this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
             this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
             player.setPos(x, y);
-            this.ReColorPlayer(player);
-            }
-            this.UpdateMapStatuses(); 
+            //}
+            this.UpdateMapStatuses(player); 
         }
         PlayerMove(player, x, y){
-            this.deColorMap();
+            this.StripAnsi();
             const PlayerIcon = Config.PlayerIcon;
             const WallIcon = Config.WallIcon;
             var collision = this.Collision(x, y);
-            if(collision){
-                this.collisionHandler(collision, player, x, y);
-            }else{
-            this.DeColorPlayer(player); 
+            // if(collision){
+            //     this.collisionHandler(collision, player, x, y);
+            // }else{
             this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
             this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
             player.setPos(x, y);
-            this.ReColorPlayer(player);
-            }
-            this.UpdateMapStatuses();
+            //}
+            this.UpdateMapStatuses(player);
         }
-        DeColorPlayer(player){
-            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
-            var coloredMap = assembledMap.replace(player.PlayerColor, Config.PlayerIcon);
-            this.currentMap = coloredMap.split(Config.ReplaceIcon);
-        }
-        ReColorPlayer(player){
-            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
-            var coloredMap = assembledMap.replace(Config.PlayerIcon, player.PlayerColor);
-            this.currentMap = coloredMap.split(Config.ReplaceIcon);
-            this.UpdateMapStatuses();
-        }
+        
+        
         Collision(x, y){
             var collider = this.currentMap[y].charAt(x);
             var CollisionEvent = null;
@@ -377,12 +373,6 @@ module.exports.map = class {
             const AssembledWord = await getWord();
             const X_ofWord = (x - numToLeft);
             const xCordInsideWord = x - X_ofWord;
-
-            
-
-            
-                
-            
         }
         isLetter(str) {
             return str.length === 1 && str.match(/[a-z]/i);
@@ -409,7 +399,171 @@ module.exports.map = class {
             }else{
             this.currentMap = this.Replace(this.currentMap, indexOfMovement, PlayerIcon);
             }
-            this.UpdateMapStatuses();
+            this.UpdateMapStatuses(player);
+        }
+/**@deprecated using StripAnsi(); instead --npm install strip-ansi */
+DeColorPlayer(player){
+    return new Promise(resolve => {
+// var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+    // var coloredMap = assembledMap.replace(player.PlayerColor, Config.PlayerIcon);
+    // this.currentMap = coloredMap.split(Config.ReplaceIcon);
+    let lineNum = 0;
+    this.currentMap.forEach(line => {
+        this.currentMap[lineNum] = line.replace(player.PlayerColor, Config.PlayerIcon);
+        lineNum++;
+    });
+    if(lineNum == this.currentMap.length){
+        this.writeAssembledMap();
+        resolve();
+    }
+    })
+}
+/**@deprecated using StripAnsi(); instead --npm install strip-ansi */
+ReColorPlayer(player){
+    var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+    var coloredMap = assembledMap.replace(Config.PlayerIcon, player.PlayerColor);
+    this.currentMap = coloredMap.split(Config.ReplaceIcon);
+}
+        DisplayMsg(msgArr, player){
+            var MaxMsgLength = "                  ".length //18
+            var lineNum = 0;
+            let i = 0;
+            var BoxEndPos;
+                var BoxStartPos;
+                var TextBoxStart;
+                var TextBoxEnd;
+                var TextAreaStart;
+                var TextAreaEnd;
+                var lineNum = 0;
+                var CurrentMsgs = [];
+                this.currentMap.forEach(line => {
+                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
+                        if(BoxStartPos){
+                            BoxEndPos = lineNum;
+                        } else {
+                            BoxStartPos = lineNum;
+                        }
+                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
+                        if(TextBoxStart){
+                            TextBoxEnd = lineNum;
+                        } else {
+                            TextBoxStart = lineNum;
+                        }
+                    } else if(line.includes("║")){
+                        if(TextAreaStart){
+                            if(this.currentMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
+                        } else {
+                            TextAreaStart = lineNum;
+                        }
+                    }
+                    if(line.includes("║")){
+                        CurrentMsgs.push(this.currentMap[lineNum].split("║")[1]);
+                        }
+                    lineNum++
+                });
+                var msgPos = TextAreaStart;
+            msgArr.forEach(msg => {
+                var AddedWhiteSpace = MaxMsgLength - msg.length 
+                if(AddedWhiteSpace < 0){
+                    msg = msg.slice(0, MaxMsgLength);
+                }else{
+                    for (let index = 0; index < AddedWhiteSpace; index++) {
+                        msg = msg + " ";
+                    }
+                };
+                
+                
+                if(this.currentMap[msgPos].includes("║")){
+                this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
+                }else{
+                    this.ExtendMsgBox(1);
+                    this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
+                }
+                msgPos++;
+            });
+            var numLinesToDel = CurrentMsgs.length - msgArr.length;
+            if(numLinesToDel < 0){
+                numLinesToDel = 0;
+            }
+            var m = 0;
+            this.ReduceMsgBox(numLinesToDel);
+            this.UpdateMapStatuses(player);
+        }
+        ReduceMsgBox(num){
+            for (let index = 0; index < num; index++) {
+                var BoxEndPos;
+                var BoxStartPos;
+                var TextBoxStart;
+                var TextBoxEnd;
+                var TextAreaStart;
+                var TextAreaEnd;
+                var lineNum = 0;
+                this.currentMap.forEach(line => {
+                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
+                        if(BoxStartPos){
+                            BoxEndPos = lineNum;
+                        } else {
+                            BoxStartPos = lineNum;
+                        }
+                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
+                        if(TextBoxStart){
+                            TextBoxEnd = lineNum;
+                        } else {
+                            TextBoxStart = lineNum;
+                        }
+                    } else if(line.includes("║")){
+                        if(TextAreaStart){
+                            if(this.currentMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
+                        } else {
+                            TextAreaStart = lineNum;
+                        }
+                    }
+                    lineNum++
+                });
+                
+                
+                this.currentMap = this.Replace(this.currentMap, 3, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+                this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos, "░░░░░░░░░░░░░░░░░░░░░░");
+                this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd-1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓");
+                }
+        }
+        ExtendMsgBox(num){
+            for (let index = 0; index < num; index++) {
+            var BoxEndPos;
+            var BoxStartPos;
+            var TextBoxStart;
+            var TextBoxEnd;
+            var TextAreaStart;
+            var TextAreaEnd;
+            var lineNum = 0;
+            this.currentMap.forEach(line => {
+                if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
+                    if(BoxStartPos){
+                        BoxEndPos = lineNum;
+                    } else {
+                        BoxStartPos = lineNum;
+                    }
+                } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
+                    if(TextBoxStart){
+                        TextBoxEnd = lineNum;
+                    } else {
+                        TextBoxStart = lineNum;
+                    }
+                } else if(line.includes("║                  ║")){
+                    if(TextAreaStart){
+                        TextAreaEnd = lineNum;
+                    } else {
+                        TextAreaStart = lineNum;
+                    }
+                }
+                lineNum++
+            });
+            
+            
+            this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd, "║                  ║▓");
+            this.currentMap = this.Replace(this.currentMap, 4, BoxEndPos, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒");
+            this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos+1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+            }
         }
         /** @deprecated map is stored in array, thus y does not need to equal length of a line thus this function is unused */
         MapGetLengthOfLine(i){

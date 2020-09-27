@@ -5,7 +5,8 @@
   "main": "Init.js",
   "dependencies": {
     "clear": "^0.1.0",
-    "colors": "^1.4.0"
+    "colors": "^1.4.0",
+    "strip-ansi": "^6.0.0"
   },
   "devDependencies": {},
   "scripts": {},

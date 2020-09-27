@@ -33,14 +33,14 @@ module.exports.CMD = class {
                     console.log(MSGs.AdvancedHelpMsg);
                         break;
                 case "map":
-                        this.FileSys.map.UpdateMapStatuses();
+                        this.FileSys.map.UpdateMapStatuses(this.FileSys.player_1);
                         break;
                 case "updateMap":
-                        this.FileSys.map.UpdateMapStatuses();
+                        this.FileSys.map.UpdateMapStatuses(this.FileSys.player_1);
                         break;
                 case "randMap":
                         this.FileSys.map.RandomizeMapStatuses();
-                        this.FileSys.map.UpdateMapStatuses();
+                        this.FileSys.map.UpdateMapStatuses(this.FileSys.player_1);
                         break;
                 case "home":
                         this.FileSys.map.PlayerHome();
@@ -52,18 +52,11 @@ module.exports.CMD = class {
                 case "move":
                     this.FileSys.map.PlayerMove(this.FileSys.player_1, parseInt(args[1]), parseInt(args[2]));
                         break;
-                case "absoluteMove":
-                        
-                        this.FileSys.map.TruePlayerMove(parseInt(args[1]));
-                        break;
                 case "resetMap":
                             this.FileSys.map.reset()
                         break;
                 case "deColorMap":
-                            this.FileSys.map.deColorMap();
-                        break;
-                case "deColorPlayer":
-                            this.FileSys.map.DeColorPlayer(this.FileSys.player_1);
+                            this.FileSys.map.StripAnsi();
                         break;
                 case "w":
                     var Multiplier = 1;
@@ -92,6 +85,11 @@ module.exports.CMD = class {
                         Multiplier = parseInt(args[1])
                     }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * Multiplier);
+                    break;
+                case "msg":
+                    args = command.split(",");
+                    var msgArr2 = args.slice(1);
+                    this.FileSys.map.DisplayMsg(msgArr2, this.FileSys.player_1);
                     break;
                 default: console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
                         break;
