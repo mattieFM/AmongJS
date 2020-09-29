@@ -293,6 +293,7 @@ module.exports.map = class {
                         
                     }else if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == Config.WallIcon){
 
+                    }else if (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos+1 +index))){
                     }else{
                     this.currentMap = this.Replace(this.currentMap, StartXPos+1 + index, StartYPos, " ");
                     }

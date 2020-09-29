@@ -24,9 +24,10 @@ module.exports.CMD = class {
     this.IOController = this.FileSys.IOController;
     }
     /**@description The basic command processor, processing all commands sent to it, then sending them to more advanced handlers/emitting events */
-    
+     ArrowMoveMult =1;
     BaseCommandProcessor(command){
         if (command[0] == ".") {
+            
             var args = command.split(" ");
             switch (command.split(" ")[0].slice(1)) {
                 case "help":
@@ -58,6 +59,9 @@ module.exports.CMD = class {
                 case "deColorMap":
                             this.FileSys.map.StripAnsi();
                         break;
+                case "changeArrowMoveAmount":
+                        this.ArrowMoveMult = parseInt(args[1]);
+                    break;
                 case "w":
                     var Multiplier = 1;
                     if(parseInt(args[1])){
@@ -85,6 +89,34 @@ module.exports.CMD = class {
                         Multiplier = parseInt(args[1])
                     }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * Multiplier);
+                    break;
+                    case "up":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMult);
+                    break;
+                case "left":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMult, 0 );
+                    break;
+                case "right":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 1 * this.ArrowMoveMult, 0);
+                    break;
+                case "down":
+                    var Multiplier = 1;
+                    if(parseInt(args[1])){
+                        Multiplier = parseInt(args[1])
+                    }
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * this.ArrowMoveMult);
                     break;
                 case "msg":
                     args = command.split(",");
