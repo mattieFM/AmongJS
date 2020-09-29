@@ -18,6 +18,9 @@ module.exports.player = class {
     y = 10;
     x = 99;
     IsTraitor = false
+    currentGameTick = 0;
+    MovesPerTurn = Config.MovesPerTurn;
+    MovesThisTurn = 0;
     
 
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
@@ -45,6 +48,26 @@ module.exports.player = class {
     LoadFileSys(FileSystem){
     this.FileSys = FileSystem;
     this.setPos(99,10);
+    }
+    
+    CanMove(tickCount, NumOfSpaces){
+        var canMove = true;
+        if(tickCount == this.currentGameTick){
+            if(this.MovesThisTurn >= this.MovesPerTurn){
+                canMove = false;
+            } else {
+                if(Math.abs(this.MovesThisTurn + NumOfSpaces) <= this.MovesPerTurn){
+                this.MovesThisTurn += NumOfSpaces;
+                }else{
+                    canMove = false;
+                }
+            }
+        } else {
+            this.currentGameTick = tickCount;
+            this.MovesThisTurn = 0;
+            return this.CanMove(tickCount, NumOfSpaces);
+        }
+        return canMove
     }
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     setTruePos(){

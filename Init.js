@@ -20,13 +20,23 @@ BaseFileSys  = new this._FileSystem.baseFileSys(Config.BasePrompt);
 util = new util();
 playerClass = require("./FileSys/Player").player
 player_1;
+timer;
+TickCount = 0;
     BasicGameInit(){
         this.CMDs.BasicGameStart();
+        this.StartGame();
     }
-    BaseInit(){
 
-        //initalizing controllers into filesystem
+    StartGame(){
+        this.timer = setInterval(() => {
+            this.TickCount++;
+            //this.map.DisplayMsg(["TickNum: " +this.TickCount], this.player_1)
+        }, Config.delay)
+    }
+
+    BaseInit(){
         
+        //initalizing controllers into filesystem
         this.FsController = new this._FileSystem.fs();
         if(Config.Verbose)console.log("--Init: Fs Controller Initialized into Filesystem--")
         this.map = new this._FileSystem.map();
@@ -38,7 +48,6 @@ player_1;
         if(Config.Verbose)console.log("--Init: Command Controller Initialized into Filesystem--")
         this.IOController = new this.IO_Controller.IO();
         if(Config.Verbose)console.log("--Init: IO Controller Initialized into Filesystem--")
-
         
         this.player_1.LoadFileSys(this);
         if(Config.Verbose)console.log("--Init: FileSystem Initialized into player_1--")

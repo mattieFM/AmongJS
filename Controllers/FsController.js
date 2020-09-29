@@ -147,6 +147,8 @@ module.exports.map = class {
     UpdateMapStatuses(player){
         this.SetCurrentMap();
         return new Promise(resolve => {
+            this.StripAnsi();
+            this.UpdatePlayerVision(player)
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
             var status = this.Statuses[name];
@@ -168,6 +170,7 @@ module.exports.map = class {
             var coloredMap = assembledMap.replace(name, coloredName);
             this.currentMap = coloredMap.split(Config.ReplaceIcon);
         });
+        
         this.ReColorPlayer(player);
         this.writeAssembledMap();
         resolve(this.currentMap);
@@ -198,9 +201,11 @@ module.exports.map = class {
             });
         }
         writeAssembledMap(){
+            process.stdout.write("\x1b[?25l");
             var readline = require("readline");
             readline.cursorTo(process.stdout, 1, 1)
             process.stdout.write(this.currentMap.join("\n"));
+            process.stdout.write("\x1b[?25h");
         }
         reset(){
             this.currentMap = this.BaseMap.split("\n")
@@ -213,37 +218,94 @@ module.exports.map = class {
                 lineNum++;
             });
         }
+        /**
+         * @description will allow the player to move to a new location relative to their current pos 
+         * NOTE: does not ignore turns or collisions
+         * @param {*} player the player to move
+         * @param {*} x x cord of position to move to
+         * @param {*} y y cord of position to move to
+         */
         RelativePlayerMove(player, x, y){
             this.StripAnsi();
-            x = player.x+x;
-            y = player.y+y;
-            const PlayerIcon = Config.PlayerIcon;
-            const WallIcon = Config.WallIcon;
-            // var collision = this.Collision(x, y);
-            // if(collision){
-            //     this.collisionHandler(collision, player, x, y);
-            // }else{
-            this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
-            this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
-            player.setPos(x, y);
-            //}
-            this.UpdateMapStatuses(player); 
+            this.removePlayerVision();
+            var totalMove = x+y
+            // if(totalMove > Config.MovesPerTurn || totalMove < -Config.MovesPerTurn){
+            //     this.DisplayMsg(["YOU CANNOT MOVE"," MORE THAN" + Config.MovesPerTurn,"SPACES PER SECOND"])
+            //     return;
+            // }
+            var CanMove = player.CanMove(this.FileSys.TickCount, totalMove);
+            if(CanMove){
+                let LocalX = x;
+                let LocalY = x;
+                x = player.x+x;
+                y = player.y+y;
+                const PlayerIcon = Config.PlayerIcon;
+                const WallIcon = Config.WallIcon;
+                var collision = this.Collision(x, y);
+                if(collision){
+                    this.collisionHandler(collision, player, x, y);
+                }else{
+                this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
+                this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
+                player.setPos(x, y);
+                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, " ", " ", " "], player);
+                }
+                this.StripAnsi();
+                this.UpdateMapStatuses(player); 
+                
+                return;
+            }else{
+                this.DisplayMsg(["Dummy Dummy Dumb", "you can't move", "more than", Config.MovesPerTurn+ " spaces per turn"], player);
+                return;
+            }
         }
+        /**
+         * @description will allow the player to move to a specified x y position on the map ignoring turns, but not ignoring collisions
+         * @param {*} player the player to move
+         * @param {*} x x cord of position to move to
+         * @param {*} y y cord of position to move to
+         */
         PlayerMove(player, x, y){
+            this.removePlayerVision();
             this.StripAnsi();
             const PlayerIcon = Config.PlayerIcon;
             const WallIcon = Config.WallIcon;
             var collision = this.Collision(x, y);
-            // if(collision){
-            //     this.collisionHandler(collision, player, x, y);
-            // }else{
-            this.currentMap = this.Replace(this.currentMap, player.x, player.y, " ");
+            if(collision){
+                this.collisionHandler(collision, player, x, y);
+            }else{
+            this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
             this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
             player.setPos(x, y);
-            //}
+            }
             this.UpdateMapStatuses(player);
         }
+        UpdatePlayerVision(player){
+            this.deColorMap()
+            let x = player.x
+            let y = player.y
+            let visionRadius = Config.VisionTiles;
+            let StartXPos = x - (visionRadius*3)
+            let StartYPos = y - visionRadius
+            for (let index2 = 0; index2 < visionRadius*2+1; index2++) {
+                for (let index = 0; index < visionRadius*6; index++) {
+                    if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == Config.PlayerIcon){
+                        
+                    }else if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == Config.WallIcon){
+
+                    }else{
+                    this.currentMap = this.Replace(this.currentMap, StartXPos+1 + index, StartYPos, " ");
+                    }
+                }
+                StartYPos++
+        }
         
+        }
+        removePlayerVision(){
+            var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
+            var NoVison = assembledMap.replace(/ /g, "░");
+            this.currentMap = NoVison.split(Config.ReplaceIcon);
+        }
         
         Collision(x, y){
             var collider = this.currentMap[y].charAt(x);
@@ -254,7 +316,7 @@ module.exports.map = class {
             }
             if(this.isLetter(collider)){
                 var CollisionEvent = CollisionEventBase;
-                CollisionEvent.CollisionType = CollisionEventBase.letter;
+                CollisionEvent.CollisionType = CollisionEventBase.wall;
                 return CollisionEvent;
             }
             var CollisionEventWall = new CollisionEventBase();
@@ -271,12 +333,12 @@ module.exports.map = class {
                     return CollisionEventPlayer;
                     break;
                 case Config.AirIcon:
-                    return CollisionEventAir
+                    return null
                 case " ":
                      return null;
                     break;
                 default:
-                    return CollisionEventWall;
+                    return null;
                     break;
             }
            
@@ -289,12 +351,15 @@ module.exports.map = class {
                         break;
                     case "wall":
                         if(Config.Verbose)console.log("WallCollision")
+                        this.DisplayMsg(Config.WallCollisionMsgArr, player);
                         break;
                     case "airblock":
                         if(Config.Verbose)console.log("AirBlockCollision")
+                        this.DisplayMsg(Config.WallCollisionMsgArr, player);
                         break;
                     case "player":
                         if(Config.Verbose)console.log("PlayerCollision")
+                        this.DisplayMsg(Config.WallCollisionMsgArr, player);
                         break;
                     case " ":
                         break;
@@ -418,7 +483,6 @@ DeColorPlayer(player){
     }
     })
 }
-/**@deprecated using StripAnsi(); instead --npm install strip-ansi */
 ReColorPlayer(player){
     var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
     var coloredMap = assembledMap.replace(Config.PlayerIcon, player.PlayerColor);
@@ -489,6 +553,7 @@ ReColorPlayer(player){
             this.ReduceMsgBox(numLinesToDel);
             this.UpdateMapStatuses(player);
         }
+       
         ReduceMsgBox(num){
             for (let index = 0; index < num; index++) {
                 var BoxEndPos;
