@@ -42,6 +42,7 @@ constructor(){
     console.log(MSGs.QuitMSG.green);
     process.exit(0);
   });
+
   process.stdin.on('keypress', (str, key) => {
     if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down")
     this.exec("."+key.name);
@@ -49,7 +50,7 @@ constructor(){
 }
 
   completer(line) {
-    var Config = require("../FileSys/Config.json")
+  var Config = require("../FileSys/Config.json")
   var completions = Config.Completions.split(' ')
   var hits = completions.filter(function(c) {
     if (c.indexOf(line) == 0) {

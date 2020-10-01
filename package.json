@@ -6,6 +6,8 @@
   "dependencies": {
     "clear": "^0.1.0",
     "colors": "^1.4.0",
+    "prompt-sync": "^4.2.0",
+    "public-ip": "^4.0.2",
     "strip-ansi": "^6.0.0"
   },
   "devDependencies": {},

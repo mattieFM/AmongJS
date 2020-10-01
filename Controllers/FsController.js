@@ -144,11 +144,16 @@ module.exports.map = class {
         })
         
     }
-    UpdateMapStatuses(player){
+    async UpdateMapStatuses(player){
+        const obj = await this.FileSys.Client2(player);
         this.SetCurrentMap();
-        return new Promise(resolve => {
+        return new Promise(async resolve => {
+            this.UnRenderPlayers();
             this.StripAnsi();
             this.UpdatePlayerVision(player)
+            
+            await this.RenderPlayers(obj.players);
+            
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
             var status = this.Statuses[name];
@@ -171,7 +176,7 @@ module.exports.map = class {
             this.currentMap = coloredMap.split(Config.ReplaceIcon);
         });
         
-        this.ReColorPlayer(player);
+        
         this.writeAssembledMap();
         resolve(this.currentMap);
         }) 
@@ -225,6 +230,25 @@ module.exports.map = class {
          * @param {*} x x cord of position to move to
          * @param {*} y y cord of position to move to
          */
+        PlayerCanMove(player, tickCount, NumOfSpaces){
+            var canMove = true;
+            if(tickCount == player.currentGameTick){
+                if(player.MovesThisTurn >= player.MovesPerTurn){
+                    canMove = false;
+                } else {
+                    if(Math.abs(player.MovesThisTurn + NumOfSpaces) <= player.MovesPerTurn){
+                        player.MovesThisTurn += NumOfSpaces;
+                    }else{
+                        canMove = false;
+                    }
+                }
+            } else {
+                player.currentGameTick = tickCount;
+                player.MovesThisTurn = 0;
+                return this.PlayerCanMove(player, tickCount, NumOfSpaces);
+            }
+            return canMove
+        }
         RelativePlayerMove(player, x, y){
             this.StripAnsi();
             this.removePlayerVision();
@@ -233,7 +257,7 @@ module.exports.map = class {
             //     this.DisplayMsg(["YOU CANNOT MOVE"," MORE THAN" + Config.MovesPerTurn,"SPACES PER SECOND"])
             //     return;
             // }
-            var CanMove = player.CanMove(this.FileSys.TickCount, totalMove);
+            var CanMove = this.PlayerCanMove(player, this.FileSys.TickCount, totalMove);
             if(CanMove){
                 let LocalX = x;
                 let LocalY = x;
@@ -245,9 +269,12 @@ module.exports.map = class {
                 if(collision){
                     this.collisionHandler(collision, player, x, y);
                 }else{
-                this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
-                this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
-                player.setPos(x, y);
+                //this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
+                // this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
+                player.x = x;
+                player.y = y;
+                this.FileSys.player_1 = player;
+                
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, " ", " ", " "], player);
                 }
                 this.StripAnsi();
@@ -276,7 +303,8 @@ module.exports.map = class {
             }else{
             this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
             this.currentMap = this.Replace(this.currentMap, x, y, Config.PlayerIcon);
-            player.setPos(x, y);
+            player.x = x;
+            player.y = y;
             }
             this.UpdateMapStatuses(player);
         }
@@ -290,7 +318,10 @@ module.exports.map = class {
             for (let index2 = 0; index2 < visionRadius*2+1; index2++) {
                 for (let index = 0; index < visionRadius*6; index++) {
                     if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == Config.PlayerIcon){
-                        
+                        this.FileSys.allPlayers.forEach(player => {
+                            if(player.x == StartXPos+1+index){
+                                this.currentMap = this.Replace(this.currentMap, StartXPos+1 + index, StartYPos, Config.PlayerIcon);}
+                        });
                     }else if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == Config.WallIcon){
 
                     }else if (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos+1 +index))){
@@ -441,7 +472,7 @@ module.exports.map = class {
             const xCordInsideWord = x - X_ofWord;
         }
         isLetter(str) {
-            return str.length === 1 && str.match(/[a-z]/i);
+            return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i);
           }
         Replace(Arr, x, y, Char){
             String.prototype.replaceAt = function(index, replacement) {
@@ -484,11 +515,86 @@ DeColorPlayer(player){
     }
     })
 }
-ReColorPlayer(player){
+UnRenderPlayers(){
+    this.StripAnsi();
     var assembledMap = this.currentMap.join(Config.ReplaceIcon); 
-    var coloredMap = assembledMap.replace(Config.PlayerIcon, player.PlayerColor);
+    var coloredMap = assembledMap.replace(/ඞ/g, Config.AirIcon);
     this.currentMap = coloredMap.split(Config.ReplaceIcon);
 }
+async RenderPlayers(players){
+    let numOfPlays =0;
+    var multi = 0;
+    let FalseMap = await this.currentMap.toString().split(",");
+    
+    let playerPromise1 = new Promise(resolve => {
+        this.StripAnsi();
+        let index = 1;
+        players.forEach(player => {
+            var charAtPlayerX = this.currentMap[player.y].charAt(player.x)
+            if(charAtPlayerX == " "){
+            let firstPart = this.currentMap[player.y].substr(0, player.x);
+            let lastPart = this.currentMap[player.y].substr(player.x+1);
+            this.currentMap[player.y] = firstPart + Config.PlayerIcon + lastPart;  
+            FalseMap[player.y] = firstPart + Config.PlayerIcon + lastPart;  
+        }
+            if(index == players.length){
+                resolve();
+            }
+            index++;
+        });
+       
+    })
+    let playerPromise2 = new Promise(resolve => {
+        let index = 1;
+        var replaceNum = 0;
+         players.forEach(player => {
+            if((this.currentMap[player.y].includes(Config.PlayerIcon))){
+                const stripAnsi = require('strip-ansi');
+                this.currentMap[player.y] = stripAnsi(this.currentMap[player.y]);
+                let firstPart = this.currentMap[player.y].substr(0, player.x);
+                let lastPart = this.currentMap[player.y].substr(player.x+1);
+                this.currentMap[player.y] = firstPart + Config.replaceArr[replaceNum] + lastPart; 
+                player.ReplacedChar = Config.replaceArr[replaceNum];
+                index++;
+                replaceNum++;
+            }});
+            resolve();
+    });
+        let playerPromise3 = new Promise(resolve => {
+            for (let indexhrsh = 0; indexhrsh < players.length; indexhrsh++) {
+                    const player = players[indexhrsh];
+                    for (let index2 = 0; index2 < Config.replaceArr.length; index2++) {
+                        const char = Config.replaceArr[index2];
+                        if(player.ReplacedChar == char){
+                        this.currentMap[player.y] = this.currentMap[player.y].replace(char, player.PlayerColor);
+                        }
+                    }
+                    if(indexhrsh == players.length-1){
+                    resolve();
+                    }
+            }
+                
+            
+            
+            
+        });
+        await playerPromise1.then(await playerPromise2.then(await playerPromise3));
+        
+        
+    
+    
+}
+        getPlayerByX(players, x){
+            return new Promise(resolve => {
+                players.forEach(player => {
+                    if(player.x = x){
+                        resolve(player);
+                    }
+                })
+            })
+            
+            
+        }
         DisplayMsg(msgArr, player){
             var MaxMsgLength = "                  ".length //18
             var lineNum = 0;
@@ -543,7 +649,7 @@ ReColorPlayer(player){
                 }else{
                     this.ExtendMsgBox(1);
                     this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
-                }
+                }   
                 msgPos++;
             });
             var numLinesToDel = CurrentMsgs.length - msgArr.length;
