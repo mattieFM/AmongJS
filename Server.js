@@ -37,8 +37,8 @@ if(data1.startsWith("newPlayer: ")){
   var NewPlayer = JSON.parse(data1.slice(11));
   var randNum = Math.floor(Math.random() * 100000);
   const Config = require("./FileSys/Config.json");
-  const colors = require("colors");
-  var RandIcon = Config.PlayerIcon.random;
+  const chalk = require("chalk");
+  var RandIcon = chalk.hex("#"+Math.floor(Math.random()*16777215).toString(16))(Config.PlayerIcon)
   var ShouldExit = false; 
   while (ShouldExit == false) {
     if(players.length > 0){
@@ -46,9 +46,8 @@ if(data1.startsWith("newPlayer: ")){
     if(randNum == player.PlayerID){
     randNum = Math.floor(Math.random() * 100000); 
     }else if(RandIcon == player.PlayerColor){
-      RandIcon = Config.PlayerIcon.random;
+      RandIcon = chalk.hex("#"+Math.floor(Math.random()*16777215).toString(16))(Config.PlayerIcon)
     }else{
-    console.log("Here");
     ShouldExit = true;
     }
   });

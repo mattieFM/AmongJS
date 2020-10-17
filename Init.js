@@ -126,11 +126,10 @@ Client2(player) {
         
     }
     async StartGame(){
-        // await this.util.wait(1000);
-        // this.timer = setInterval(async () => {
-        //     this.Client2(this.player_1);
-        //     //this.map.DisplayMsg(["TickNum: " +this.TickCount], this.player_1)
-        // }, Config.delay)
+        await this.util.wait(1000);
+        this.timer = setInterval(async () => {
+            this.map.UpdateMapStatuses(this.player_1);
+        }, Config.delay)
     }
 
     BaseInit(){

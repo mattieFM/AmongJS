@@ -550,11 +550,14 @@ async RenderPlayers(players){
          players.forEach(player => {
             if((this.currentMap[player.y].includes(Config.PlayerIcon))){
                 const stripAnsi = require('strip-ansi');
+                var charAtPlayerX = this.currentMap[player.y].charAt(player.x)
+                if(charAtPlayerX != Config.AirIcon){
                 this.currentMap[player.y] = stripAnsi(this.currentMap[player.y]);
                 let firstPart = this.currentMap[player.y].substr(0, player.x);
                 let lastPart = this.currentMap[player.y].substr(player.x+1);
                 this.currentMap[player.y] = firstPart + Config.replaceArr[replaceNum] + lastPart; 
                 player.ReplacedChar = Config.replaceArr[replaceNum];
+            }
                 index++;
                 replaceNum++;
             }});
