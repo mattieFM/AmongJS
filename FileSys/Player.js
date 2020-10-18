@@ -22,6 +22,7 @@ module.exports.player = class {
     MovesPerTurn = Config.MovesPerTurn;
     MovesThisTurn = 0;
     ReplacedChar;
+    IsDead = false;
     
 
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */

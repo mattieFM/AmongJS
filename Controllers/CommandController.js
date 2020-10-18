@@ -46,6 +46,9 @@ module.exports.CMD = class {
                 case "home":
                         this.FileSys.map.PlayerHome();
                         break;
+                case "death":
+                        this.FileSys.map.death(this.FileSys.player_1);
+                        break;
                 case "clear":
                     var clear = require('clear');
                     clear();

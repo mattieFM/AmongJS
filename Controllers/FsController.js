@@ -1,5 +1,6 @@
 /**Amoung us costs  :( 
 Programmer: Matt/AuthoredEntropy*/
+const chalk = require('chalk');
 const colors = require('colors/safe');
 const { read } = require('fs');
 const { resolve } = require('path');
@@ -144,6 +145,37 @@ module.exports.map = class {
         })
         
     }
+    async death(player){
+        
+            return new Promise(resolve => {
+                var fs = require("fs");
+            this.FileSys.KillPlayer(player.PlayerID);
+            fs.readFile("./AmoungUs1.txt", (err, data) => {
+            if (err) throw err;
+            var FrameArr = JSON.parse(data);
+            let index = 0;
+            let length = FrameArr.length;
+            let timer = setInterval(() => {
+                const frame = FrameArr[index];
+                process.stdout.write("\x1b[?25l");
+                var readline = require("readline");
+                readline.cursorTo(process.stdout, 1, 1)
+                process.stdout.write(frame);
+                process.stdout.write("\x1b[?25h");
+                if(index == length-1){
+                    clearInterval(timer);
+                    resolve();
+                    player.IsDead = true;
+                }else{
+                    index++
+                }
+            }, 50);
+            
+            });
+            })
+            
+        
+    }
     async UpdateMapStatuses(player){
         const obj = await this.FileSys.Client2(player);
         this.SetCurrentMap();
@@ -151,7 +183,11 @@ module.exports.map = class {
             this.UnRenderPlayers();
             this.StripAnsi();
             this.UpdatePlayerVision(player)
-            
+            if(player.IsDead == true){
+                player.PlayerColor = chalk.hex("#DBE7E7")(Config.PlayerIcon);
+                obj.players.push(player);
+                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player);
+            }
             await this.RenderPlayers(obj.players);
             
             var NamesArr = Object.values(this.Names);

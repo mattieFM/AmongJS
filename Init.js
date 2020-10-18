@@ -56,6 +56,9 @@ client2.connect({
     that.FileSystem.TickCount= parseInt(obj.turnCount);
     
 }
+client2.on('error',(error) =>{
+    console.log('ConnectPlayerError : ' + error);
+  });
 // if(data2.startsWith("hereAreYourTicks: ")){
 //     var turncount = data2.slice(18,data2.length-2);
 //     this.TickCount = parseInt(turncount)
@@ -73,7 +76,7 @@ Client2(player) {
         });
         
         client.on('error',(error) =>{
-            console.log('Error : ' + error);
+            console.log('Client2Error : ' + error);
           });
           
         client.on('connect', () => {
@@ -101,6 +104,27 @@ Client2(player) {
             resolve(obj);
             client.end();
         }
+        });
+    });
+}
+KillPlayer(id) {
+    return new Promise(resolve =>{
+        var net = require('net');
+        const client3  = new net.Socket();
+        client3.connect({
+          port:this.port,
+          host:this.IpAdress
+        });
+        
+        client3.on('error',(error) =>{
+            console.log('KillPlayerError : ' + error);
+          });
+          
+        client3.on('connect', () => {
+        client3.write("playerDeath: "+ JSON.stringify(id)+"\n");
+        client3.end();
+        resolve();
+        
         });
     });
 }

@@ -22,6 +22,7 @@ server.on('close',function(){
 // emitted when new client connects
 const publicIp = require('public-ip');
 const { player } = require('./FileSys/Player');
+const { indexOf } = require('./FileSys/BaseMap');
 server.on('connection',function(socket){
   if(!GameHasStarted) StartGame();
 server.getConnections(function(error,count){
@@ -38,7 +39,8 @@ if(data1.startsWith("newPlayer: ")){
   var randNum = Math.floor(Math.random() * 100000);
   const Config = require("./FileSys/Config.json");
   const chalk = require("chalk");
-  var RandIcon = chalk.hex("#"+Math.floor(Math.random()*16777215).toString(16))(Config.PlayerIcon)
+  let rabdbnumtest = Math.floor(Math.random()*16777215).toString(16)
+  var RandIcon = chalk.hex("#"+rabdbnumtest)(Config.PlayerIcon)
   var ShouldExit = false; 
   while (ShouldExit == false) {
     if(players.length > 0){
@@ -46,7 +48,11 @@ if(data1.startsWith("newPlayer: ")){
     if(randNum == player.PlayerID){
     randNum = Math.floor(Math.random() * 100000); 
     }else if(RandIcon == player.PlayerColor){
-      RandIcon = chalk.hex("#"+Math.floor(Math.random()*16777215).toString(16))(Config.PlayerIcon)
+      let newcolor = Math.floor(Math.random()*16777215)
+      while (Math.abs(rabdbnumtest - newcolor) > 10000) {
+        newcolor = Math.floor(Math.random()*16777215).toString(16)
+      }
+      RandIcon = chalk.hex("#"+rabdbnumtest)(Config.PlayerIcon)
     }else{
     ShouldExit = true;
     }
@@ -72,9 +78,11 @@ if(data1.startsWith("newPlayer: ")){
   var data5 = data1.slice(20)
   var UpdatedPlayer = JSON.parse(data5);
   let i = 0;
+  let exists = false;
   players.forEach(player => {
       if(UpdatedPlayer.PlayerID == player.PlayerID){
         players[i] = UpdatedPlayer;
+        exists = true;
       }
       i++;
   });
@@ -82,9 +90,21 @@ if(data1.startsWith("newPlayer: ")){
     players,
     turnCount
   }
+  if(exists == false) 
 socket.write("hereAreYourPlayers: " + JSON.stringify(infoObj) + "\n");
 // } else if(data1.startsWith("sendTick: ")){
 //   socket.write("hereAreYourTicks: " + turnCount + "\n");
+  }else if(data1.startsWith("playerDeath: ")){
+    const Player = require("./FileSys/Player").player;
+    const player2 = new Player()
+    player.PlayerColor = Config.DeadIcon;
+    var playerToKillId = data1.slice(13)
+    players.forEach(player => {
+      if(playerToKillId == player.PlayerID){
+        players.splice(players.indexOf(playerToKillId),1, player2);
+        socket.end();
+      }
+  });
   }
 
 });
