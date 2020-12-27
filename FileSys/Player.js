@@ -13,8 +13,29 @@ module.exports.player = class {
     CurrentFalseXPos = Config.SaveMapCordPair.Home.x
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     CurrentFalseyPos = Config.SaveMapCordPair.Home.y
+    PreviousColor;
+    displayMsg;
     PlayerColor = Config.PlayerIcon.red;
     PlayerID;
+    HasVoted = false;
+    isRendered = true;
+    isGhost = false;
+    hasGas = false;
+    fueledUpper = false;
+    fixElecQuestActive = false
+    startEngineQuestActive = false;
+    fueledLower = false;
+    gasQuestActive = false;
+    hasData = false;
+    uploadTaskActive = false;
+    compTasks = [];
+    snake = false;
+    lastTask = null;
+    tasksCompleted = false;
+    nextKillTurn = 0;
+    emergencyMeetingsCalled = 0;
+    //the turn that the next can be called
+    emergencyCoolDown =0;
     y = Config.SaveMapCordPair.Home.y;
     x = Config.SaveMapCordPair.Home.x;
     IsTraitor = false
@@ -22,7 +43,9 @@ module.exports.player = class {
     MovesPerTurn = Config.MovesPerTurn;
     MovesThisTurn = 0;
     ReplacedChar;
+    moveOverride;
     IsDead = false;
+  
     
 
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */

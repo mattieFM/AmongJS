@@ -4,7 +4,6 @@ Programmer: Matt/AuthoredEntropy*/
   //Global imports
   const MSGs = require("../FileSys/Msg.json");
   const readline = require('readline');
-const { config } = require("process");
 module.exports.baseFileSys = class {
   TFQuestion;
   PROMPT;
@@ -44,13 +43,37 @@ constructor(){
   });
 
   process.stdin.on('keypress', (str, key) => {
-    if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down")
-    this.exec("."+key.name);
+    if(this.FileSys.emergency){
+      this.FileSys.map.type(key.name);
+      return;
+    }
+    if(this.FileSys.fuelTaskActive){
+      if(key.name == "f"){
+        this.FileSys.fuelFrame++;
+      }
+      return
+    }
+    if(this.FileSys.swipeCardActive){
+      if(key.name == "left"){
+        if(this.FileSys.cardFrame > 0)
+        this.FileSys.cardFrame--;
+      }else if(key.name == "right"){
+        if(this.FileSys.cardFrame < 5)
+        this.FileSys.cardFrame++;
+      }
+      return
+    }
+    if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "ctrl"|| key.name == "k" || key.name == "r" || key.name =="e"|| key.name =="q")
+      if(!this.FileSys.emergency){
+        this.exec("."+key.name);
+    }
+    
+    
 })
 }
 
   completer(line) {
-  var Config = require("../FileSys/Config.json")
+    let Config = require("../FileSys/Config.json")
   var completions = Config.Completions.split(' ')
   var hits = completions.filter(function(c) {
     if (c.indexOf(line) == 0) {

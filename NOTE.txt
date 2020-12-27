@@ -1,0 +1,2 @@
+you must install git bash, otherwise the charector used for the crewmate
+will not be displayed properly 

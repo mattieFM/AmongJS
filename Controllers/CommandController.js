@@ -2,7 +2,7 @@
 /*Amoung us costs $5 :( 
 Programmer: Matt/AuthoredEntropy*/
 const MSGs = require("../FileSys/Msg.json");
-const Config = require("../FileSys/Config.json");
+const Config = require("../FileSys/Config.json")
 /**
  * @description The class containing all commands
  */
@@ -24,8 +24,9 @@ module.exports.CMD = class {
     this.IOController = this.FileSys.IOController;
     }
     /**@description The basic command processor, processing all commands sent to it, then sending them to more advanced handlers/emitting events */
-     ArrowMoveMult =1;
+     ArrowMoveMultiplier =1;
     BaseCommandProcessor(command){
+        if(this.FileSys.pause) return;
         if (command[0] == ".") {
             
             var args = command.split(" ");
@@ -63,78 +64,106 @@ module.exports.CMD = class {
                             this.FileSys.map.StripAnsi();
                         break;
                 case "changeArrowMoveAmount":
-                        this.ArrowMoveMult = parseInt(args[1]);
+                        this.ArrowMoveMultiplier = parseInt(args[1]);
                     break;
                 case "w":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * Multiplier);
                     break;
                 case "a":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * Multiplier, 0 );
                     break;
                 case "d":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 1 * Multiplier, 0);
                     break;
                 case "s":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * Multiplier);
                     break;
+                case "q":
+                    this.FileSys.map.miniGame();
+                    break;
                     case "up":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
-                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMult);
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMultiplier);
+                    break;
+                case "e":
+                   // if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown){
+                    this.FileSys.SendReportToServer(this.FileSys.player_1, null);
+                    this.FileSys.player_1.emergencyMeetingsCalled++;
+                    this.FileSys.player_1.emergencyCoolDown + this.FileSys.Config.emergencyCoolDown;
+                    //}
                     break;
                 case "left":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
-                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMult, 0 );
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMultiplier, 0 );
                     break;
                 case "right":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
-                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 1 * this.ArrowMoveMult, 0);
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 1 * this.ArrowMoveMultiplier, 0);
                     break;
                 case "down":
-                    var Multiplier = 1;
-                    if(parseInt(args[1])){
-                        Multiplier = parseInt(args[1])
-                    }
-                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * this.ArrowMoveMult);
+                    this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * this.ArrowMoveMultiplier);
                     break;
                 case "msg":
                     args = command.split(",");
                     var msgArr2 = args.slice(1);
                     this.FileSys.map.DisplayMsg(msgArr2, this.FileSys.player_1);
                     break;
-                default: console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
-                        break;
+                case "shift":
+                    //sabatoge
+                    break;
+                case "k":
+                    this.FileSys.map.KillPlayerWithinRange(this.FileSys.player_1);
+                    break;
+                case "r":
+                    this.FileSys.map.ReportBodyWithinRange(this.FileSys.player_1);
+                    break;
+                case "stopEme":
+                    this.FileSys.map.stopEmergency();
+                    break;
+                case "pause":
+                    if(this.FileSys.pause == true){
+                        this.FileSys.pause = false 
+                    } else{
+                        this.FileSys.pause = true
+                    }
+                    break;
+                case "longMsg":
+                    let msgArr =[]
+                    args.forEach(arg => {
+                        if(arg != args[0]){
+                            msgArr.push(arg)
+                        }
+                    });
+                    this.FileSys.map.updateEmergencyMap(msgArr, msgArr)
+                    break;
+                case "shortMsg":
+                    let msgArr12 =[]
+                    args.forEach(arg => {
+                        if(arg != args[0]){
+                            msgArr12.push(arg)
+                        }
+                    });
+                    this.FileSys.map.EmergencySmallDisplay(msgArr12);
+                    break;
                 
+                case "sendMsg":
+                    let msgArr13 =[]
+                    args.forEach(arg => {
+                        if(arg != args[0]){
+                            msgArr13.push(arg)
+                        }
+                    });
+                    this.FileSys.sendMsg(msgArr13.join(" "))
+                    break;
+                    
+                    default: 
+                if(!this.FileSys.emergency){
+                console.log(('\'' + command  + '\' is not a command dude, sorryz').yellow);
+                }
+                        break;
                     
             }
             
         } else {
             // only print if they typed something
-            if (command !== '') {
+            if (command !== '' && !this.FileSys.emergency) {
             console.log(('\'' + command  + '\' is not a command dude, sorryz (type \".help\" for all commands)').yellow);
             }
         }
@@ -195,7 +224,7 @@ async YesNo(bool) {
             } else {
                 console.log("M8, I didn't ask a question".toLocaleLowerCase().yellow);
             }
-    
+            break;
         default:
             break;
     }

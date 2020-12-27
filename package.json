@@ -3,16 +3,20 @@
   "version": "1.0.1",
   "description": "bad code, terminal based graphics, welcome to hell",
   "main": "Init.js",
+  "bin": "bin.js",
   "dependencies": {
     "2048.node": "^1.1.1",
     "chalk": "^4.1.0",
     "clear": "^0.1.0",
     "colors": "^1.4.0",
+    "electron-quick-start": "^1.0.0",
     "prompt-sync": "^4.2.0",
     "public-ip": "^4.0.2",
     "strip-ansi": "^6.0.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "electron": "^11.0.3"
+  },
   "scripts": {},
   "repository": {
     "type": "git",

@@ -1,0 +1,4 @@
+@echo off
+pause
+CALL %0\..\amoung_tb_sc_p-win.exe
+puase
