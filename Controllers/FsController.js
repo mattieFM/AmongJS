@@ -1,16 +1,23 @@
-/**Amoung us costs  :( 
-Programmer: Matt/AuthoredEntropy*/
+/**
+ * Among us costs $5 guess I should make it myself :( 
+ * ...and thus among JS was born
+ * ...if atleast 10 people donate $1 I will make 10cents an hour (on the high end) for coding this....
+ * ... do I regret my decisions?...
+ * only slightly.....
+Programmer: Matt/AuthoredEntropy
+*/
+
 const chalk = require('chalk');
 const colors = require('colors/safe');
-const { read } = require('fs');
-const { resolve } = require('path');
-const { kill } = require('process');
 const stripAnsi = require('strip-ansi');
-const { charAt } = require('../FileSys/BaseMap');
 const utility = require("../Utility/util");
-let players;
+/** @description the current message that is actively being displayed to the user on the main map screen 
+ *   this has not been implemented yet and is only used in updateCurrentMsg a function that is not used
+*/
 let currentMsg;
+/**@description the utility class that shares useful functions between all other classes */
 const util = new utility();
+/**@deprecated This was added in very early development, and should not be used */
 module.exports.baseFileSys = class {
     TFQuestionNum = 0;
     PROMPT;
@@ -18,19 +25,32 @@ module.exports.baseFileSys = class {
         this.PROMPT = ">"
     }
 }
+/**
+ * @description The main class of the game handling most client side interactions
+ */
 module.exports.fs = class FsController{
+    /**
+     * @description this variable refers to the init class, where all runtime variables that need to be 
+     * accessible from all files are stored.
+     * */
     FileSys;
+    /**
+     * @description assigns the filesystem to a variable after everything is properly initialized as to avoid errors.
+     * @param {*} FileSystem the filesystem to load (the init class)
+     */
     LoadFileSys(FileSystem){
         this.FileSys = FileSystem;
     }
     
-    /**@description Current Jank solution to solve question logic */
-    
+    /**
+     * @description get the BaseMap object
+     * @returns a new BaseMap object */
     getMap() {
         return new map().BaseMap;
     }
 /**
- * 
+ * @deprecated added very early in development, and could be used to save data, although 
+ * it was never used as data does not need to be saved in this game other than in memory
  * @param {*} args the arguments that modify the result of the command as listed below
  * >> @description By default the command will just save basic info (info contained in the class "baseFileSys")
  * >> "-a" saves all data to a file
@@ -71,8 +91,15 @@ module.exports.fs = class FsController{
     }
     
 }
+/**
+ * @description the class that represents the map: the board that players move on.
+ */
 module.exports.map = class {
+    /**@description the variable representing the init class, where all global runtime variables are stored*/
     FileSys;
+    /**
+     * @description this will define a color theme, that is used for status coloring and load the current map
+     */
     constructor(){
         colors.setTheme({
             funny: 'rainbow',
@@ -82,8 +109,16 @@ module.exports.map = class {
             emergency: 'red'
         });
         this.SetCurrentMap();
-        
     }
+    /**
+     * @description 
+     * this will load the specified filesystem into the proper variable
+     * additionally this is where any tasks/quests are activated.
+     * although they can be changed later
+     * 
+     * ONLY USE AFTER ALL RELEVANT VARIABLES ARE DEFINED.
+     * @param {*} FileSystem the filesystem to load 
+     */
     LoadFileSys(FileSystem){
         this.FileSys = FileSystem;
         this.FileSys.player_1.gasQuestActive= true
@@ -92,6 +127,9 @@ module.exports.map = class {
         this.FileSys.player_1.startEngineQuestActive = true
         this.setupTasks();
     }
+    /**
+     * @description this will set the current map variable to the proper starting value: an array containing the BaseMap
+     */
     SetCurrentMap(){
         if(!this.currentMap){
             this.currentMap = this.BaseMap.split("\n")
@@ -99,10 +137,15 @@ module.exports.map = class {
         }
         
     }
+    /**@description this represents the main playable map */
     currentMap;
+    /**@description this represents the emergency meeting map: the voting and discussion area */
     currentEmergencyMap = require("../FileSys/EmergencyMeetingMap");
+    /**@description the base value of the main map */
     BaseMap = require("../FileSys/BaseMap");
+    /**@enum StatusTypes represents all possible statuses that a area can have */
     StatusTypes = require("../Utility/Enum/StatusEnum")
+    /**@description the statuses of every area on the map AS RENDERED to the player */
     Statuses = {
         Upper_Engine : this.StatusTypes.NORMAL,
         "Reactors" : this.StatusTypes.NORMAL,
@@ -119,6 +162,7 @@ module.exports.map = class {
         Weapons : this.StatusTypes.NORMAL,
         Navigation : this.StatusTypes.NORMAL
     }
+    /**@description the statuses of every area as it relates to back end task management */
     TaskStatuses = {
         Upper_Engine : this.StatusTypes.NORMAL,
         "Reactors" : this.StatusTypes.NORMAL,
@@ -135,6 +179,7 @@ module.exports.map = class {
         Weapons : this.StatusTypes.NORMAL,
         Navigation : this.StatusTypes.NORMAL
     }
+    /**@description the names of every area as they are displayed on the map */
     Names = {
         Upper_Engine : "Upper_Engine",
         Reactors : "Reactors",
@@ -151,6 +196,7 @@ module.exports.map = class {
         Weapons : "Weapons",
         Navigation : "Navigation"
     }
+    /**@deprecated this will randomize all map statuses as tasks now exist it should not be used unless testing*/
     RandomizeMapStatuses(){
         
         var StatusArr = Object.keys(this.Statuses);
@@ -176,6 +222,10 @@ module.exports.map = class {
         })
         
     }
+    /**
+     * @description kill the player controlled by this client and display the death animation (then unpause)
+     * @param {Object} player the player controlled by this client
+     */
     async death(player){
         
             return new Promise(resolve => {
@@ -209,10 +259,18 @@ module.exports.map = class {
             
         
     }
+    /**
+     * @description currently not used but will be implemented soon
+     * update the current displayed message, the message will stay this way until this function is fired again
+     */
     updateCurrentMsg(msg){
         currentMsg = msg
         return;
     }
+    /**
+     * @description this is the main function that renders the game, it should be called in the main game loop
+     * @param {Object} player the player controlled by this client
+     */
     async UpdateMapStatuses(player){
         if(this.FileSys.pause | this.FileSys.emergency){if(util.Verbose)console.log("PAUSED");return }
         const obj = await this.FileSys.Client2(player);
@@ -269,7 +327,9 @@ module.exports.map = class {
                 default:
                     break;
             }
+            /**@description the current map assembled into one string */
             var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
+            /**@description the current map assembled into one string with one name replaced with its proper color */
             var coloredMap = assembledMap.replace(name, coloredName);
             this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
         });
@@ -278,7 +338,11 @@ module.exports.map = class {
         resolve(this.currentMap);
         }) 
 }
-
+        /**
+         * @description render the end game display screen
+         * @param {*} msg the message to display at the end of the game (who wins)
+         * @param {*} player the player controlled by this client
+         */
         endGameDisplay(msg, player){
             this.UnRenderPlayers();
             this.StripAnsi();
@@ -302,7 +366,9 @@ module.exports.map = class {
                 default:
                     break;
             }
+            /**@description the current map assembled into one string */
             var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
+            /**@description the current map assembled into one string with one name replaced with its proper color */
             var coloredMap = assembledMap.replace(name, coloredName);
             this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
             });
@@ -310,10 +376,13 @@ module.exports.map = class {
         this.writeAssembledMap();
         return
         }
+        /**@description this will strip any ansi color from all names on the map*/
         deColorMap(){
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
+                /**@description the status of the current name */
                 var status = this.Statuses[name];
+                /**@description current name */
                 var coloredName = name;
                 switch (status) {
                     case "Sabotaged":
@@ -334,12 +403,14 @@ module.exports.map = class {
                     default:
                         break;
                 }
-                
+                /**@description the current map assembled into one string */
                 var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
+                /**@description the current map assembled into one string with one name replaced with its proper color */
                 var coloredMap = assembledMap.replace(coloredName, name);
                 this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
             });
         }
+        /**@description a function that will render the currentMap variable to console */
         writeAssembledMap(){
             process.stdout.write("\x1b[?25l");
             var readline = require("readline");
@@ -347,9 +418,13 @@ module.exports.map = class {
             process.stdout.write(this.currentMap.join("\n"));
             process.stdout.write("\x1b[?25h");
         }
+        /**
+         * @description this will reset the map to its original state, this will not change statuses or player locations 
+         * @deprecated don't use this, This function should be changed to actualy reset the statuses player locations and map*/
         reset(){
             this.currentMap = this.BaseMap.split("\n")
         }
+        /**@description remove all asni characters from the currentMap variable */
         StripAnsi(){
             const stripAnsi = require('strip-ansi');
             var lineNum = 0;
@@ -386,7 +461,14 @@ module.exports.map = class {
             }
             return canMove
         }
-        RelativePlayerMove(player, x, y){
+        /**
+         * @deprecated added in early development use PlayerMove() instead
+         * @param {*} player the player controlled by this client
+         * @param {*} x the x cord pos to move
+         * @param {*} y the y cord pos to move
+         */
+        RelativePlayerMove(player, x, y, playerMove = true){
+            if(playerMove){this.PlayerMove(player, x, y); return;}
             x = x *2
             this.StripAnsi();
             this.removePlayerVision();
@@ -444,6 +526,10 @@ module.exports.map = class {
             }
             this.UpdateMapStatuses(player);
         }
+        /**
+         * @description kill the first player found when probing the kill range, if player is traitor
+         * @param {*} player The current player controlled by this client
+         */
         KillPlayerWithinRange(player){
             if(player.IsTraitor == false) return;
             if(!(this.FileSys.TickCount >= player.nextKillTurn)) return;
@@ -465,6 +551,10 @@ module.exports.map = class {
                 killer.nextKillTurn = this.FileSys.TickCount + this.FileSys.Config.killCooldown;
             }
         }
+        /**
+         * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
+         * @param {*} letter the key typed
+         */
         async type(letter){
             if(!letter) return;
             if(letter == "backspace" | letter == "delete"){
@@ -487,10 +577,18 @@ module.exports.map = class {
             }
             
         }
+        /**
+         * @deprecated used for testing, clears and stops ememergecies
+         */
         async stopEmergency(){
             clearInterval(this.FileSys.emergencyInterval);
             this.FileSys.emergency = false
         }
+        /**
+         * @description start an emergency meeting from a report of a dead body, this is triggered when a report is send from the server, should not be used client side unless triggered by server
+         * @param {*} player the player being controlled by this client
+         * @param {*} reporter the player that reported this emergency
+         */
         async Report(player, reporter){
             this.FileSys.Voted = false;
             this.FileSys.player_1.HasVoted = false;
@@ -571,6 +669,10 @@ module.exports.map = class {
 
 
         }
+        /**
+         * @description report a body within the report distance then set the body in question to invisible
+         * @param {*} player the player controlled by this client
+         */
         ReportBodyWithinRange(player){
             let reporter = player;
             let ReportRange = this.FileSys.Config.VisionTiles;
@@ -580,7 +682,7 @@ module.exports.map = class {
                 let xDistance = (Math.abs(reporter.x - play.x)/2)
                 let yDistance = Math.abs(reporter.y - play.y) 
                 if(xDistance + yDistance <= ReportRange){
-                    if(play.PlayerColor == this.FileSys.Config.PlayerIcon.red){
+                    if(play.PlayerColor == this.FileSys.Config.PlayerIcon.red && play.isRendered){
                         this.FileSys.SendReportToServer(reporter, play);
                     }
                 }
@@ -588,6 +690,10 @@ module.exports.map = class {
             });
             
         }
+        /**
+         * @description render all entities within the player's vision
+         * @param {*} player the player controlled by this client
+         */
         UpdatePlayerVision(player){
             this.deColorMap()
             let x = player.x
@@ -625,6 +731,9 @@ module.exports.map = class {
         }
         
         }
+        /**
+         * @description change statuses on map based on what task quests are active
+         */
         async setupTasks(){
             if(this.FileSys.player_1.gasQuestActive){
                 this.TaskStatuses.Upper_Engine =this.StatusTypes.TASKSAVAILABLE
@@ -649,6 +758,9 @@ module.exports.map = class {
                 this.Statuses.Electrical = this.StatusTypes.TASKSAVAILABLE
             }
         }
+        /**
+         * @description the function triggered whenever a task is attempted
+         */
         async miniGame(){
             let tasks = 0;
             var StatusArr = Object.keys(this.TaskStatuses);
@@ -771,6 +883,11 @@ module.exports.map = class {
             }
 
         }
+        /**
+         * @location admin
+         * @description the swipe card task
+         * @param {*} that this
+         */
         swipeCard(that){
             return new Promise((resolve)=> {
                 that.FileSys.swipeCardActive = true;
@@ -821,6 +938,11 @@ module.exports.map = class {
                 
             })
         }
+        /**
+         * @location reactors (upper or lower)
+         * @description the fill reactors with gass task
+         * @param {*} that this
+         */
         async fillReactorsWithGas(that){
             return new Promise((resolve) => {
                 that.FileSys.fuelFrame = 0;
@@ -839,7 +961,11 @@ module.exports.map = class {
                 },500)
             })
         }
-        
+        /**
+         * @location storage
+         * @description the task to get fuel 
+         * @param {*} that this
+         */
         async getFuelTask(that){
             that.FileSys.fuelTaskActive = true;
             let value = "partial"
@@ -866,6 +992,11 @@ module.exports.map = class {
             
             
         }
+        /**
+         * @description render a specific frame from a file
+         * @param {*} i the index of the frame to render
+         * @param {*} file the file to read
+         */
         async renderFileFrame(i, file){
             const fs = require("fs")
             let data = fs.readFileSync(file)
@@ -880,6 +1011,11 @@ module.exports.map = class {
           
             
         }
+        /**
+         * @description render the task completed animation
+         * @param {*} delay the delay between frames
+         * @param {*} file the file to use
+         */
         renderTaskComp(delay, file){
             return new Promise((resolve) => {
                
@@ -910,16 +1046,26 @@ module.exports.map = class {
           
             
         }
-        async waitThenLog(word){
+        /**
+         * @description waits 1000ms (base) then logs a string
+         * @param {*} word the string to log
+         * @param {*} delay the optional delay before logging default 1000ms
+         */
+        async waitThenLog(word, delay = 1000){
             console.log(word);
-            await this.FileSys.util.wait(1000);
+            await this.FileSys.util.wait(delay);
         }
+        /**@description remove all vision from the player, replacing " "  "░" with */
         removePlayerVision(){
             var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
             var NoVison = assembledMap.replace(/ /g, "░");
             this.currentMap = NoVison.split(this.FileSys.Config.ReplaceIcon);
         }
-        
+        /**
+         * @description check if there is a collision where the player is moving
+         * @param {*} x the x cord
+         * @param {*} y the y cord
+         */
         Collision(x, y){
             var collider = this.currentMap[y].charAt(x);
             var CollisionEvent = null;
@@ -956,6 +1102,13 @@ module.exports.map = class {
             }
            
         }
+        /**
+         * @description a switch statement that handles all types of collisions
+         * @param {*} collisionEvent  the type of collision
+         * @param {*} player the player controlled by this client
+         * @param {*} x the x cord
+         * @param {*} y the y cord
+         */
         collisionHandler(collisionEvent, player, x, y){
             return new Promise(async resolve => {
                 switch (collisionEvent.CollisionType) {
@@ -983,7 +1136,11 @@ module.exports.map = class {
             })
         }
         /**
-         * @description: if a letter is collided with, due to its color code special things must happen
+         * @description if a letter is collided with, due to its color code special things must happen
+         * @param {*} collisionEvent the collision event
+         * @param {*} player the player controlled by this client
+         * @param {*} x the x cord
+         * @param {*} y the y cord
          */
         async LetterCollider(collisionEvent, player, x, y){
             var line = this.currentMap[y];
@@ -1052,9 +1209,22 @@ module.exports.map = class {
             const X_ofWord = (x - numToLeft);
             const xCordInsideWord = x - X_ofWord;
         }
+        /**
+         * @description check if string is composted of letters or underscores
+         * @param {*} str the string to check
+         * @returns boolean 
+         */
         isLetter(str) {
             return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i);
           }
+        /**
+         * @description replace a char in an array with an x y cord system
+         * NOTE: allows more than one char
+         * @param {*} Arr the array to use
+         * @param {*} x the index of a string to replace
+         * @param {*} y the index of the array to use
+         * @param {*} Char the charector to replace specified indexies with
+         */
         Replace(Arr, x, y, Char){
             String.prototype.replaceAt = function(index, replacement) {
                 return this.substr(0, x) + replacement + this.substr(index + replacement.length);
@@ -1062,12 +1232,16 @@ module.exports.map = class {
             Arr[y] = Arr[y].replaceAt(x, Char)
             return Arr;
         }
+        /**
+         * @deprecated moves the player to an old spawn location, mostly handled server side now
+         */
         PlayerHome(){//72 x cafe y 10
             this.PlayerMove(this.FileSys.player_1, this.FileSys.Config.SaveMapCordPair.Home.x,this.FileSys.Config.SaveMapCordPair.Home.y);
         }
         
         /** @deprecated AbsoluteMove is not longer possible --map is stored in array, not string */
         TruePlayerMove(index){
+            return console.error("TruePlayerMove CANNOT be used, the map is not stored in a string thus this will not work")
             var indexOfMovement = index;
             
             const PlayerIcon = this.FileSys.Config.PlayerIcon;
@@ -1096,12 +1270,21 @@ DeColorPlayer(player){
     }
     })
 }
+/**
+ * @description replace all rendered players with air
+ */
 UnRenderPlayers(){
     this.StripAnsi();
     var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
     var coloredMap = assembledMap.replace(/ඞ/g, this.FileSys.Config.AirIcon);
     this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
 }
+/**
+ * @description render players onto a specified map
+ * @param {*} players all players 
+ * @param {*} map the map to replace
+ * @param {*} renderAll weathor to render invisable players
+ */
 async RenderPlayers(players, map =this.currentMap, renderAll = false){
     let numOfPlays =0;
     var multi = 0;
@@ -1168,6 +1351,11 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
     
     
 }
+        /**
+         * @deprecated im not sure why this exists it seems like it might have a use possibly, but for the most part is useless
+         * @param {*} players all players
+         * @param {*} x probably the x cord
+         */       
         getPlayerByX(players, x){
             return new Promise(resolve => {
                 players.forEach(player => {
@@ -1179,6 +1367,10 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
             
             
         }
+        /**
+         * @description the message feild on the left of the normal map, but for emergencies
+         * @param {*} msgArr the array of messages to display
+         */
         EmergencySmallDisplay(msgArr){
             let that = this
             function ReduceMsgBox(num){
@@ -1322,6 +1514,12 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
             var m = 0;
             ReduceMsgBox(numLinesToDel);
         }
+        /**
+         * 
+         * @param {*} msgArr the array of messages to display
+         * @param {*} player the player controlled by this client
+         * @param {*} yn weathor or not to immediately updateMapStatuses() after the function completes
+         */
         DisplayMsg(msgArr, player, yn = false){
             
             var MaxMsgLength = "                  ".length //18
@@ -1388,7 +1586,14 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
             this.ReduceMsgBox(numLinesToDel);
             if(yn == false)this.UpdateMapStatuses(player);
         }
-
+        /**
+         * 
+         * @description update the emergency meeting map
+         * @param {*} msgArr the main message array rendered in the chat box
+         * @param {*} msgArrSmall the small msg array used to display players
+         * @param {*} Gimme if true do not print the map immidietly and instead return it
+         * 
+         */
         updateEmergencyMap(msgArr, msgArrSmall =false, Gimme = false){
             var that = this
             function ReduceMsgBoxEM(num){
@@ -1538,9 +1743,14 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
             readline.cursorTo(process.stdout, 1, 1)
             process.stdout.write(that.currentEmergencyMap.join("\n"));
             process.stdout.write("\x1b[?25h");
+        }else{
+            return that.currentEmergencyMap;
         }
         }
-       
+        /**
+         * @description reduce the message box by x number of lines (on main map)
+         * @param {*} num the number of lines to reduce the box by
+         */
         ReduceMsgBox(num){
             for (let index = 0; index < num; index++) {
                 var BoxEndPos;
@@ -1579,6 +1789,10 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                 this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd-1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓");
                 }
         }
+        /**
+         * @description extend the msg box by x line (on main map)
+         * @param {*} num the number of lines to extend the msg box by
+         */
         ExtendMsgBox(num){
             for (let index = 0; index < num; index++) {
             var BoxEndPos;
