@@ -1,3 +1,8 @@
+/*
+ #Programmer: Matt /AuthoredEntropy
+ im pretty sure this isnt used anywhere, but just incase it is I will leave this file here
+*/
+
 // creating a custom socket client and connecting it....
 /**@deprecated this was added in early development, i don't think it is used */
 module.exports = function ClientConnect(player) {

@@ -1,6 +1,6 @@
 
 
-/*#Program "Heck" 
+/*#Program "Hecking heck V2" 
  #Programmer: Matt /AuthoredEntropy
 */
 
@@ -81,7 +81,6 @@ const init = class {
     this.port = prompt('What port do you want to connect to? ');
 
     this.WaitForImposter(player);
-    const client = new net.Socket();
     client.connect({
       port: this.port,
       host: this.IpAdress

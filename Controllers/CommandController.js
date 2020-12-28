@@ -1,6 +1,20 @@
-
-/*Amoung us costs $5 :( 
-Programmer: Matt/AuthoredEntropy*/
+/**
+ * Among us costs $5 guess I should make it myself :( 
+ * ...and thus AmongJS was born
+ * yes.. this is coded in javascript...
+ * a browser based language
+ * could I of used python.... yes....
+ * did i? no
+ * ...
+ * instead i used node.js...
+ * did i even use typescript...
+ * nope
+ * ....
+ * ....
+ * ... do I regret my decisions?...
+ * only slightly.....
+Programmer: Matt/AuthoredEntropy
+*/
 const MSGs = require("../FileSys/Msg.json");
 const Config = require("../FileSys/Config.json")
 /**
@@ -170,7 +184,9 @@ module.exports.CMD = class {
     }
     
 
-    /**@description Simple Welcome Message (starts the game) */
+    /**
+     * @deprecated added in early deveolopment, probably shouldn't be used
+     * @description Simple Welcome Message (starts the game) */
     async BasicGameStart() {
     var msgArr = MSGs.WelcomeMsg.split("\n")
     for (let i = 0; i < msgArr.length; i++) {
@@ -188,7 +204,7 @@ module.exports.CMD = class {
     UpdatePrompt(newPrompt) {
     this.FileSys.BaseFileSys.PROMPT = newPrompt;
 }
-
+/**@deprecated added in early development don't use this */
 async YesNo(bool) {
     const dots = require("../Animation/Dots").dots;
     const readline = require("readline");

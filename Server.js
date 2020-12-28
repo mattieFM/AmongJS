@@ -1,3 +1,7 @@
+/*
+ #Programmer: Matt /AuthoredEntropy
+ ahhhheeee, its the server file....
+*/
 const { random } = require('colors/safe');
 let msgs = [" "];
 let gameStarted = false;
@@ -178,18 +182,18 @@ socket.on('data',(data)=>{
         }
       });
       let Voted = false;
-     
+      
       if(saveMsg.includes("No Vote For U")){
-        Voted = true;
+        Voted = true; //voting
       }
       if(!Voted){
-     
+      if(player.IsDead) validVote = false; //dead men tell not tales..... so i geuss they can't vote either... probably?
       
       if(num > players.length){
         msg = `SERVER: ${currentPlayer.PlayerColor}  voted to skip`
       }else if(players[parseInt(num)-1].IsDead){
         msg = `SERVER: ${currentPlayer.PlayerColor}  tried to vote for a dead man, this is not anime, hes not coming back bruv :(`
-        validVote = false; //voter fraud TRUMP2020!!!!!!! w/e do what you do man idc
+        validVote = false; //voter fraud TRUMP2020!!!!!!! w/e do what you do man idc "now is the time for the proletariate to rise" -- technoblade also techno blade "welp, the buswasie do lots of damage so i geuss its not the time for comunismm"
       }
       else{
         try {
@@ -201,6 +205,7 @@ socket.on('data',(data)=>{
       
       }
       }else{
+        validVote = false;
         msg = `SERVER: ${currentPlayer.PlayerColor} , you have already voted, you cannot vote again`
       }
     }
@@ -217,7 +222,7 @@ socket.on('data',(data)=>{
     waiters.push(socket);
     return
   }
-  if(data1.startsWith("DeathWaiting")){
+  if(data1.startsWith("DeathWaiting")){//awaiting your death
     var playerId = JSON.parse(data1.slice(12));
     let dataObj = {
       socket,
@@ -226,7 +231,7 @@ socket.on('data',(data)=>{
     deathWaiters.push(dataObj)
     return
   }
-    if(data1.startsWith("ReportWaiting")){
+    if(data1.startsWith("ReportWaiting")){//reported to PETA
       var playerId = JSON.parse(data1.slice(13));
     reportWaiters.push(socket)
     return

@@ -462,13 +462,12 @@ module.exports.map = class {
         return canMove
     }
     /**
-     * @deprecated added in early development use PlayerMove() instead
+     * @notdeprecated dumbass
      * @param {*} player the player controlled by this client
      * @param {*} x the x cord pos to move
      * @param {*} y the y cord pos to move
      */
-    RelativePlayerMove(player, x, y, playerMove = true) {
-        if (playerMove) { this.PlayerMove(player, x, y); return; }
+    RelativePlayerMove(player, x, y) {
         x = x * 2
         this.StripAnsi();
         this.removePlayerVision();

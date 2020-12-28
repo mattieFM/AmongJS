@@ -1,3 +1,6 @@
+/*
+ #Programmer: Matt /AuthoredEntropy
+*/
 /**
  * the config file
  */
