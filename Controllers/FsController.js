@@ -21,14 +21,14 @@ const util = new utility();
 module.exports.baseFileSys = class {
     TFQuestionNum = 0;
     PROMPT;
-    constructor(){
+    constructor() {
         this.PROMPT = ">"
     }
 }
 /**
  * @description The main class of the game handling most client side interactions
  */
-module.exports.fs = class FsController{
+module.exports.fs = class FsController {
     /**
      * @description this variable refers to the init class, where all runtime variables that need to be 
      * accessible from all files are stored.
@@ -38,26 +38,26 @@ module.exports.fs = class FsController{
      * @description assigns the filesystem to a variable after everything is properly initialized as to avoid errors.
      * @param {*} FileSystem the filesystem to load (the init class)
      */
-    LoadFileSys(FileSystem){
+    LoadFileSys(FileSystem) {
         this.FileSys = FileSystem;
     }
-    
+
     /**
      * @description get the BaseMap object
      * @returns a new BaseMap object */
     getMap() {
         return new map().BaseMap;
     }
-/**
- * @deprecated added very early in development, and could be used to save data, although 
- * it was never used as data does not need to be saved in this game other than in memory
- * @param {*} args the arguments that modify the result of the command as listed below
- * >> @description By default the command will just save basic info (info contained in the class "baseFileSys")
- * >> "-a" saves all data to a file
- * >> "-p" saves ONLY playerData to a file
- * >> "-add more later"
- */
-    async WriteFileSys(args){
+    /**
+     * @deprecated added very early in development, and could be used to save data, although 
+     * it was never used as data does not need to be saved in this game other than in memory
+     * @param {*} args the arguments that modify the result of the command as listed below
+     * >> @description By default the command will just save basic info (info contained in the class "baseFileSys")
+     * >> "-a" saves all data to a file
+     * >> "-p" saves ONLY playerData to a file
+     * >> "-add more later"
+     */
+    async WriteFileSys(args) {
         var allData = false;
         var PlayerDataOnly = false;
         args = args.split("-");
@@ -74,22 +74,22 @@ module.exports.fs = class FsController{
                     break;
             }
         });
-        
+
         let WriteBaseFileSysPromise = new Promise(resolve => {
-            this.fs.writeFile(this.FileSys.Config.PATH + "\\FileSys\\BaseFileSystem.json", JSON.stringify(require("../Init").BaseFileSys), (err)=>{
-              if(this.FileSys.Config.Verbose)console.log("--FsController: baseFileSys has been written to a file")
-              resolve(true);
+            this.fs.writeFile(this.FileSys.Config.PATH + "\\FileSys\\BaseFileSystem.json", JSON.stringify(require("../Init").BaseFileSys), (err) => {
+                if (this.FileSys.Config.Verbose) console.log("--FsController: baseFileSys has been written to a file")
+                resolve(true);
             })
-          })
-        if(a){
+        })
+        if (a) {
             //write all file systems to file
-        } else if(p){
+        } else if (p) {
             //write only playerData to file
         } else {
             await WriteBaseFileSysPromise;
         }
     }
-    
+
 }
 /**
  * @description the class that represents the map: the board that players move on.
@@ -100,7 +100,7 @@ module.exports.map = class {
     /**
      * @description this will define a color theme, that is used for status coloring and load the current map
      */
-    constructor(){
+    constructor() {
         colors.setTheme({
             funny: 'rainbow',
             merica: "america",
@@ -119,9 +119,9 @@ module.exports.map = class {
      * ONLY USE AFTER ALL RELEVANT VARIABLES ARE DEFINED.
      * @param {*} FileSystem the filesystem to load 
      */
-    LoadFileSys(FileSystem){
+    LoadFileSys(FileSystem) {
         this.FileSys = FileSystem;
-        this.FileSys.player_1.gasQuestActive= true
+        this.FileSys.player_1.gasQuestActive = true
         this.FileSys.player_1.uploadTaskActive = true
         this.FileSys.player_1.fixElecQuestActive = true
         this.FileSys.player_1.startEngineQuestActive = true
@@ -130,12 +130,12 @@ module.exports.map = class {
     /**
      * @description this will set the current map variable to the proper starting value: an array containing the BaseMap
      */
-    SetCurrentMap(){
-        if(!this.currentMap){
+    SetCurrentMap() {
+        if (!this.currentMap) {
             this.currentMap = this.BaseMap.split("\n")
             this.currentEmergencyMap = this.currentEmergencyMap.split("\n")
         }
-        
+
     }
     /**@description this represents the main playable map */
     currentMap;
@@ -147,64 +147,64 @@ module.exports.map = class {
     StatusTypes = require("../Utility/Enum/StatusEnum")
     /**@description the statuses of every area on the map AS RENDERED to the player */
     Statuses = {
-        Upper_Engine : this.StatusTypes.NORMAL,
-        "Reactors" : this.StatusTypes.NORMAL,
-        Lower_Engine : this.StatusTypes.NORMAL,
-        Security : this.StatusTypes.NORMAL,
-        MedBay : this.StatusTypes.NORMAL,
-        Electrical : this.StatusTypes.TASKSAVAILABLE,
-        "Storage" : this.StatusTypes.NORMAL,
-        Communications : this.StatusTypes.NORMAL,
-        Shields : this.StatusTypes.NORMAL,
-        Admin : this.StatusTypes.NORMAL,
-        Cafeteria : this.StatusTypes.NORMAL,
-        O2 : this.StatusTypes.NORMAL,
-        Weapons : this.StatusTypes.NORMAL,
-        Navigation : this.StatusTypes.NORMAL
+        Upper_Engine: this.StatusTypes.NORMAL,
+        "Reactors": this.StatusTypes.NORMAL,
+        Lower_Engine: this.StatusTypes.NORMAL,
+        Security: this.StatusTypes.NORMAL,
+        MedBay: this.StatusTypes.NORMAL,
+        Electrical: this.StatusTypes.TASKSAVAILABLE,
+        "Storage": this.StatusTypes.NORMAL,
+        Communications: this.StatusTypes.NORMAL,
+        Shields: this.StatusTypes.NORMAL,
+        Admin: this.StatusTypes.NORMAL,
+        Cafeteria: this.StatusTypes.NORMAL,
+        O2: this.StatusTypes.NORMAL,
+        Weapons: this.StatusTypes.NORMAL,
+        Navigation: this.StatusTypes.NORMAL
     }
     /**@description the statuses of every area as it relates to back end task management */
     TaskStatuses = {
-        Upper_Engine : this.StatusTypes.NORMAL,
-        "Reactors" : this.StatusTypes.NORMAL,
-        Lower_Engine : this.StatusTypes.NORMAL,
-        Security : this.StatusTypes.NORMAL,
-        MedBay : this.StatusTypes.NORMAL,
-        Electrical : this.StatusTypes.TASKSAVAILABLE,
-        "Storage" : this.StatusTypes.NORMAL,
-        Communications : this.StatusTypes.NORMAL,
-        Shields : this.StatusTypes.NORMAL,
-        Admin : this.StatusTypes.NORMAL,
-        Cafeteria : this.StatusTypes.NORMAL,
-        O2 : this.StatusTypes.NORMAL,
-        Weapons : this.StatusTypes.NORMAL,
-        Navigation : this.StatusTypes.NORMAL
+        Upper_Engine: this.StatusTypes.NORMAL,
+        "Reactors": this.StatusTypes.NORMAL,
+        Lower_Engine: this.StatusTypes.NORMAL,
+        Security: this.StatusTypes.NORMAL,
+        MedBay: this.StatusTypes.NORMAL,
+        Electrical: this.StatusTypes.TASKSAVAILABLE,
+        "Storage": this.StatusTypes.NORMAL,
+        Communications: this.StatusTypes.NORMAL,
+        Shields: this.StatusTypes.NORMAL,
+        Admin: this.StatusTypes.NORMAL,
+        Cafeteria: this.StatusTypes.NORMAL,
+        O2: this.StatusTypes.NORMAL,
+        Weapons: this.StatusTypes.NORMAL,
+        Navigation: this.StatusTypes.NORMAL
     }
     /**@description the names of every area as they are displayed on the map */
     Names = {
-        Upper_Engine : "Upper_Engine",
-        Reactors : "Reactors",
-        Lower_Engine : "Lower_Engine",
-        Security : "Security",
-        MedBay : "MedBay",
-        Electrical : "Electrical",
-        "Storage" : "Storage",
-        Communications : "Communications",
-        Shields : "Shields",
-        Admin : "Admin",
-        Cafe : "Cafeteria",
-        O2 : "O2",
-        Weapons : "Weapons",
-        Navigation : "Navigation"
+        Upper_Engine: "Upper_Engine",
+        Reactors: "Reactors",
+        Lower_Engine: "Lower_Engine",
+        Security: "Security",
+        MedBay: "MedBay",
+        Electrical: "Electrical",
+        "Storage": "Storage",
+        Communications: "Communications",
+        Shields: "Shields",
+        Admin: "Admin",
+        Cafe: "Cafeteria",
+        O2: "O2",
+        Weapons: "Weapons",
+        Navigation: "Navigation"
     }
     /**@deprecated this will randomize all map statuses as tasks now exist it should not be used unless testing*/
-    RandomizeMapStatuses(){
-        
+    RandomizeMapStatuses() {
+
         var StatusArr = Object.keys(this.Statuses);
-        
+
         return new Promise(resolve => {
-            
+
             StatusArr.forEach(name => {
-                switch (Math.floor((Math.random() * 3) +1)) {
+                switch (Math.floor((Math.random() * 3) + 1)) {
                     case 1:
                         this.Statuses[name] = this.StatusTypes.NORMAL;
                         break;
@@ -216,54 +216,54 @@ module.exports.map = class {
                         break;
                     default:
                         break;
-                } 
+                }
             });
             resolve();
         })
-        
+
     }
     /**
      * @description kill the player controlled by this client and display the death animation (then unpause)
      * @param {Object} player the player controlled by this client
      */
-    async death(player){
-        
-            return new Promise(resolve => {
-                this.FileSys.pause = true;
-                var fs = require("fs");
-            
+    async death(player) {
+
+        return new Promise(resolve => {
+            this.FileSys.pause = true;
+            var fs = require("fs");
+
             fs.readFile("./AmoungUs1.txt", (err, data) => {
-            if (err) throw err;
-            var FrameArr = JSON.parse(data);
-            let index = 0;
-            let length = FrameArr.length;
-            let timer = setInterval(() => {
-                const frame = FrameArr[index];
-                process.stdout.write("\x1b[?25l");
-                var readline = require("readline");
-                readline.cursorTo(process.stdout, 1, 1)
-                process.stdout.write(frame);
-                process.stdout.write("\x1b[?25h");
-                if(index == length-1){
-                    clearInterval(timer);
-                    this.FileSys.pause = false;
-                    resolve();
-                    player.IsDead = true;
-                }else{
-                    index++
-                }
-            }, 50);
-            
+                if (err) throw err;
+                var FrameArr = JSON.parse(data);
+                let index = 0;
+                let length = FrameArr.length;
+                let timer = setInterval(() => {
+                    const frame = FrameArr[index];
+                    process.stdout.write("\x1b[?25l");
+                    var readline = require("readline");
+                    readline.cursorTo(process.stdout, 1, 1)
+                    process.stdout.write(frame);
+                    process.stdout.write("\x1b[?25h");
+                    if (index == length - 1) {
+                        clearInterval(timer);
+                        this.FileSys.pause = false;
+                        resolve();
+                        player.IsDead = true;
+                    } else {
+                        index++
+                    }
+                }, 50);
+
             });
-            })
-            
-        
+        })
+
+
     }
     /**
      * @description currently not used but will be implemented soon
      * update the current displayed message, the message will stay this way until this function is fired again
      */
-    updateCurrentMsg(msg){
+    updateCurrentMsg(msg) {
         currentMsg = msg
         return;
     }
@@ -271,118 +271,42 @@ module.exports.map = class {
      * @description this is the main function that renders the game, it should be called in the main game loop
      * @param {Object} player the player controlled by this client
      */
-    async UpdateMapStatuses(player){
-        if(this.FileSys.pause | this.FileSys.emergency){if(util.Verbose)console.log("PAUSED");return }
-        const obj = await this.FileSys.Client2(player);
-        if(obj["gameStarted?"] == false){
+    async UpdateMapStatuses(player) {
+        if (this.FileSys.pause | this.FileSys.emergency) { if (util.Verbose) console.log("PAUSED"); return }
+        const obj = await this.FileSys.getPlayersAndTick(player);
+        if (obj["gameStarted?"] == false) {
             console.log(chalk.blue("You are in the lobby, please wait for the host to start the game"))
             player.moveOverride = true;
             return
-        } else{
+        } else {
             player.moveOverride = false;
         }
-        
+
         this.SetCurrentMap();
         return new Promise(async resolve => {
             this.UnRenderPlayers();
             this.StripAnsi();
             this.UpdatePlayerVision(player)
-            if(player.IsTraitor == true){
+            if (player.IsTraitor == true) {
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
-            }else{
+            } else {
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "], player, true);
             }
-       
-            if(player.IsDead == true){
+
+            if (player.IsDead == true) {
                 player.PlayerColor = chalk.hex("#DBE7E7")(this.FileSys.Config.PlayerIcon);
                 obj.players.push(player);
-                if(player.IsTraitor == true){
+                if (player.IsTraitor == true) {
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "hey shitass...", "wanna see me lose", "among us?"], player, true);
-                }else{
-                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
+                } else {
+                    this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
                 }
             }
             await this.RenderPlayers(obj.players);
-            
+
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
-            var status = this.Statuses[name];
-            var coloredName = name;
-            switch (status) {
-                case "Sabotaged":
-                    coloredName = colors.emergency(name);
-                    break;
-                case "TasksHere":
-                    coloredName = colors.tasks(name);
-                    break;
-                case "Normal":
-                    coloredName = colors.normal(name);
-                    break;
-                case "Highlight":
-                    coloredName = chalk.cyan(name);
-                    break;
-                case "Unavial":
-                    coloredName = chalk.hex("#705454").strikethrough(name);
-                    break;
-                default:
-                    break;
-            }
-            /**@description the current map assembled into one string */
-            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
-            /**@description the current map assembled into one string with one name replaced with its proper color */
-            var coloredMap = assembledMap.replace(name, coloredName);
-            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
-        });
-        
-        this.writeAssembledMap();
-        resolve(this.currentMap);
-        }) 
-}
-        /**
-         * @description render the end game display screen
-         * @param {*} msg the message to display at the end of the game (who wins)
-         * @param {*} player the player controlled by this client
-         */
-        endGameDisplay(msg, player){
-            this.UnRenderPlayers();
-            this.StripAnsi();
-            this.DisplayMsg(msg, player, true)
-            var NamesArr = Object.values(this.Names);
-            const obj = this.FileSys.Client2(player);
-            this.RenderPlayers(obj.players, this.currentMap, true);
-            NamesArr.forEach(name => {
-            var status = this.Statuses[name];
-            var coloredName = name;
-            switch (status) {
-                case "Sabotaged":
-                    coloredName = colors.emergency(name);
-                    break;
-                case "TasksHere":
-                    coloredName = colors.tasks(name);
-                    break;
-                case "Normal":
-                    coloredName = colors.normal(name);
-                    break;
-                default:
-                    break;
-            }
-            /**@description the current map assembled into one string */
-            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
-            /**@description the current map assembled into one string with one name replaced with its proper color */
-            var coloredMap = assembledMap.replace(name, coloredName);
-            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
-            });
-            
-        this.writeAssembledMap();
-        return
-        }
-        /**@description this will strip any ansi color from all names on the map*/
-        deColorMap(){
-            var NamesArr = Object.values(this.Names);
-            NamesArr.forEach(name => {
-                /**@description the status of the current name */
                 var status = this.Statuses[name];
-                /**@description current name */
                 var coloredName = name;
                 switch (status) {
                     case "Sabotaged":
@@ -404,250 +328,326 @@ module.exports.map = class {
                         break;
                 }
                 /**@description the current map assembled into one string */
-                var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
+                var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
                 /**@description the current map assembled into one string with one name replaced with its proper color */
-                var coloredMap = assembledMap.replace(coloredName, name);
+                var coloredMap = assembledMap.replace(name, coloredName);
                 this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
             });
-        }
-        /**@description a function that will render the currentMap variable to console */
-        writeAssembledMap(){
-            process.stdout.write("\x1b[?25l");
-            var readline = require("readline");
-            readline.cursorTo(process.stdout, 1, 1)
-            process.stdout.write(this.currentMap.join("\n"));
-            process.stdout.write("\x1b[?25h");
-        }
-        /**
-         * @description this will reset the map to its original state, this will not change statuses or player locations 
-         * @deprecated don't use this, This function should be changed to actualy reset the statuses player locations and map*/
-        reset(){
-            this.currentMap = this.BaseMap.split("\n")
-        }
-        /**@description remove all asni characters from the currentMap variable */
-        StripAnsi(){
-            const stripAnsi = require('strip-ansi');
-            var lineNum = 0;
-            this.currentMap.forEach(line => {
-                this.currentMap[lineNum] = stripAnsi(line);
-                lineNum++;
-            });
-        }
-        /**
-         * @description will allow the player to move to a new location relative to their current pos 
-         * NOTE: does not ignore turns or collisions
-         * @param {*} player the player to move
-         * @param {*} x x cord of position to move to
-         * @param {*} y y cord of position to move to
-         */
-        PlayerCanMove(player, tickCount, x,y){
-            if(player.moveOverride == true) return(false);
-            let NumOfSpaces = x*.5 +y
-            var canMove = true;
-            if(tickCount == player.currentGameTick){
-                if(player.MovesThisTurn >= player.MovesPerTurn){
-                    canMove = false;
-                } else {
-                    if(Math.abs(player.MovesThisTurn + NumOfSpaces) <= player.MovesPerTurn){
-                        player.MovesThisTurn += NumOfSpaces;
-                    }else{
-                        canMove = false;
-                    }
-                }
-            } else {
-                player.currentGameTick = tickCount;
-                player.MovesThisTurn = 0;
-                return this.PlayerCanMove(player, tickCount, x,y);
+
+            this.writeAssembledMap();
+            resolve(this.currentMap);
+        })
+    }
+    /**
+     * @description render the end game display screen
+     * @param {*} msg the message to display at the end of the game (who wins)
+     * @param {*} player the player controlled by this client
+     */
+    endGameDisplay(msg, player) {
+        this.UnRenderPlayers();
+        this.StripAnsi();
+        this.DisplayMsg(msg, player, true)
+        var NamesArr = Object.values(this.Names);
+        const obj = this.FileSys.getPlayersAndTick(player);
+        this.RenderPlayers(obj.players, this.currentMap, true);
+        NamesArr.forEach(name => {
+            var status = this.Statuses[name];
+            var coloredName = name;
+            switch (status) {
+                case "Sabotaged":
+                    coloredName = colors.emergency(name);
+                    break;
+                case "TasksHere":
+                    coloredName = colors.tasks(name);
+                    break;
+                case "Normal":
+                    coloredName = colors.normal(name);
+                    break;
+                default:
+                    break;
             }
-            return canMove
+            /**@description the current map assembled into one string */
+            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+            /**@description the current map assembled into one string with one name replaced with its proper color */
+            var coloredMap = assembledMap.replace(name, coloredName);
+            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+        });
+
+        this.writeAssembledMap();
+        return
+    }
+    /**@description this will strip any ansi color from all names on the map*/
+    deColorMap() {
+        var NamesArr = Object.values(this.Names);
+        NamesArr.forEach(name => {
+            /**@description the status of the current name */
+            var status = this.Statuses[name];
+            /**@description current name */
+            var coloredName = name;
+            switch (status) {
+                case "Sabotaged":
+                    coloredName = colors.emergency(name);
+                    break;
+                case "TasksHere":
+                    coloredName = colors.tasks(name);
+                    break;
+                case "Normal":
+                    coloredName = colors.normal(name);
+                    break;
+                case "Highlight":
+                    coloredName = chalk.cyan(name);
+                    break;
+                case "Unavial":
+                    coloredName = chalk.hex("#705454").strikethrough(name);
+                    break;
+                default:
+                    break;
+            }
+            /**@description the current map assembled into one string */
+            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+            /**@description the current map assembled into one string with one name replaced with its proper color */
+            var coloredMap = assembledMap.replace(coloredName, name);
+            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+        });
+    }
+    /**@description a function that will render the currentMap variable to console */
+    writeAssembledMap() {
+        process.stdout.write("\x1b[?25l");
+        var readline = require("readline");
+        readline.cursorTo(process.stdout, 1, 1)
+        process.stdout.write(this.currentMap.join("\n"));
+        process.stdout.write("\x1b[?25h");
+    }
+    /**
+     * @description this will reset the map to its original state, this will not change statuses or player locations 
+     * @deprecated don't use this, This function should be changed to actualy reset the statuses player locations and map*/
+    reset() {
+        this.currentMap = this.BaseMap.split("\n")
+    }
+    /**@description remove all asni characters from the currentMap variable */
+    StripAnsi() {
+        const stripAnsi = require('strip-ansi');
+        var lineNum = 0;
+        this.currentMap.forEach(line => {
+            this.currentMap[lineNum] = stripAnsi(line);
+            lineNum++;
+        });
+    }
+    /**
+     * @description will allow the player to move to a new location relative to their current pos 
+     * NOTE: does not ignore turns or collisions
+     * @param {*} player the player to move
+     * @param {*} x x cord of position to move to
+     * @param {*} y y cord of position to move to
+     */
+    PlayerCanMove(player, tickCount, x, y) {
+        if (player.moveOverride == true) return (false);
+        let NumOfSpaces = x * .5 + y
+        var canMove = true;
+        if (tickCount == player.currentGameTick) {
+            if (player.MovesThisTurn >= player.MovesPerTurn) {
+                canMove = false;
+            } else {
+                if (Math.abs(player.MovesThisTurn + NumOfSpaces) <= player.MovesPerTurn) {
+                    player.MovesThisTurn += NumOfSpaces;
+                } else {
+                    canMove = false;
+                }
+            }
+        } else {
+            player.currentGameTick = tickCount;
+            player.MovesThisTurn = 0;
+            return this.PlayerCanMove(player, tickCount, x, y);
         }
-        /**
-         * @deprecated added in early development use PlayerMove() instead
-         * @param {*} player the player controlled by this client
-         * @param {*} x the x cord pos to move
-         * @param {*} y the y cord pos to move
-         */
-        RelativePlayerMove(player, x, y, playerMove = true){
-            if(playerMove){this.PlayerMove(player, x, y); return;}
-            x = x *2
-            this.StripAnsi();
-            this.removePlayerVision();
-            // if(totalMove > this.FileSys.Config.MovesPerTurn || totalMove < -this.FileSys.Config.MovesPerTurn){
-            //     this.DisplayMsg(["YOU CANNOT MOVE"," MORE THAN" + this.FileSys.Config.MovesPerTurn,"SPACES PER SECOND"])
-            //     return;
-            // }
-            var CanMove = this.PlayerCanMove(player, this.FileSys.TickCount, x,y);
-            if(CanMove){
-                let LocalX = x;
-                let LocalY = x;
-                x = player.x+x;
-                y = player.y+y;
-                const PlayerIcon = this.FileSys.Config.PlayerIcon;
-                const WallIcon = this.FileSys.Config.WallIcon;
-                var collision = this.Collision(x, y);
-                if(collision){
-                    this.collisionHandler(collision, player, x, y);
-                }else{
+        return canMove
+    }
+    /**
+     * @deprecated added in early development use PlayerMove() instead
+     * @param {*} player the player controlled by this client
+     * @param {*} x the x cord pos to move
+     * @param {*} y the y cord pos to move
+     */
+    RelativePlayerMove(player, x, y, playerMove = true) {
+        if (playerMove) { this.PlayerMove(player, x, y); return; }
+        x = x * 2
+        this.StripAnsi();
+        this.removePlayerVision();
+        // if(totalMove > this.FileSys.Config.MovesPerTurn || totalMove < -this.FileSys.Config.MovesPerTurn){
+        //     this.DisplayMsg(["YOU CANNOT MOVE"," MORE THAN" + this.FileSys.Config.MovesPerTurn,"SPACES PER SECOND"])
+        //     return;
+        // }
+        var CanMove = this.PlayerCanMove(player, this.FileSys.TickCount, x, y);
+        if (CanMove) {
+            let LocalX = x;
+            let LocalY = x;
+            x = player.x + x;
+            y = player.y + y;
+            const PlayerIcon = this.FileSys.Config.PlayerIcon;
+            const WallIcon = this.FileSys.Config.WallIcon;
+            var collision = this.Collision(x, y);
+            if (collision) {
+                this.collisionHandler(collision, player, x, y);
+            } else {
                 //this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
                 // this.currentMap = this.Replace(this.currentMap, x, y, this.FileSys.Config.PlayerIcon);
                 player.x = x;
                 player.y = y;
                 this.FileSys.player_1 = player;
-                
-                
-                }
-                this.StripAnsi();
-                this.UpdateMapStatuses(player); 
-                
-                return;
-            }else{
-                return;
+
+
             }
-        }
-        /**
-         * @description will allow the player to move to a specified x y position on the map ignoring turns, but not ignoring collisions
-         * @param {*} player the player to move
-         * @param {*} x x cord of position to move to
-         * @param {*} y y cord of position to move to
-         */
-        PlayerMove(player, x, y){
-            this.removePlayerVision();
             this.StripAnsi();
-            const PlayerIcon = this.FileSys.Config.PlayerIcon;
-            const WallIcon = this.FileSys.Config.WallIcon;
-            var collision = this.Collision(x, y);
-            if(collision){
-                this.collisionHandler(collision, player, x, y);
-            }else{
+            this.UpdateMapStatuses(player);
+
+            return;
+        } else {
+            return;
+        }
+    }
+    /**
+     * @description will allow the player to move to a specified x y position on the map ignoring turns, but not ignoring collisions
+     * @param {*} player the player to move
+     * @param {*} x x cord of position to move to
+     * @param {*} y y cord of position to move to
+     */
+    PlayerMove(player, x, y) {
+        this.removePlayerVision();
+        this.StripAnsi();
+        const PlayerIcon = this.FileSys.Config.PlayerIcon;
+        const WallIcon = this.FileSys.Config.WallIcon;
+        var collision = this.Collision(x, y);
+        if (collision) {
+            this.collisionHandler(collision, player, x, y);
+        } else {
             this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
             this.currentMap = this.Replace(this.currentMap, x, y, this.FileSys.Config.PlayerIcon);
             player.x = x;
             player.y = y;
-            }
-            this.UpdateMapStatuses(player);
         }
-        /**
-         * @description kill the first player found when probing the kill range, if player is traitor
-         * @param {*} player The current player controlled by this client
-         */
-        KillPlayerWithinRange(player){
-            if(player.IsTraitor == false) return;
-            if(!(this.FileSys.TickCount >= player.nextKillTurn)) return;
-            let killer = player;
-            let killRange = this.FileSys.Config.KillRange;
-            let hasKilled = false
-            this.FileSys.allPlayers.forEach(play => {
-                if(play.IsTraitor == false){
-                if(hasKilled) return;
-                let xDistance = (Math.abs(killer.x - play.x)/2)
-                let yDistance = Math.abs(killer.y - play.y) 
-                if(xDistance + yDistance <= killRange){
+        this.UpdateMapStatuses(player);
+    }
+    /**
+     * @description kill the first player found when probing the kill range, if player is traitor
+     * @param {*} player The current player controlled by this client
+     */
+    KillPlayerWithinRange(player) {
+        if (player.IsTraitor == false) return;
+        if (!(this.FileSys.TickCount >= player.nextKillTurn)) return;
+        let killer = player;
+        let killRange = this.FileSys.Config.KillRange;
+        let hasKilled = false
+        this.FileSys.allPlayers.forEach(play => {
+            if (play.IsTraitor == false) {
+                if (hasKilled) return;
+                let xDistance = (Math.abs(killer.x - play.x) / 2)
+                let yDistance = Math.abs(killer.y - play.y)
+                if (xDistance + yDistance <= killRange) {
                     this.FileSys.KillPlayer(play.PlayerID);
                     hasKilled = true
                 }
             }
-            });
-            if(hasKilled == true){
-                killer.nextKillTurn = this.FileSys.TickCount + this.FileSys.Config.killCooldown;
-            }
+        });
+        if (hasKilled == true) {
+            killer.nextKillTurn = this.FileSys.TickCount + this.FileSys.Config.killCooldown;
         }
-        /**
-         * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
-         * @param {*} letter the key typed
-         */
-        async type(letter){
-            if(!letter) return;
-            if(letter == "backspace" | letter == "delete"){
-                this.currentEmergencyMap[this.currentEmergencyMap.length-1] = this.currentEmergencyMap[this.currentEmergencyMap.length-1].slice(0, -1);
-            }else if(letter == "clear"){
-                this.currentEmergencyMap[this.currentEmergencyMap.length-1] = " "
-            }else if(letter == "space"){
-                this.currentEmergencyMap[this.currentEmergencyMap.length-1] = this.currentEmergencyMap[this.currentEmergencyMap.length-1] + " "
-            }
-            else if(letter == "return"){
-                if(this.currentEmergencyMap[this.currentEmergencyMap.length-1].startsWith(" ")){
-                    this.currentEmergencyMap[this.currentEmergencyMap.length-1] = this.currentEmergencyMap[this.currentEmergencyMap.length-1].substring(1);
-                }
-                this.FileSys.sendMsg(this.currentEmergencyMap[this.currentEmergencyMap.length-1]);
-                this.currentEmergencyMap[this.currentEmergencyMap.length-1] = " ";
-            }else if(letter.length == 1){
-                this.currentEmergencyMap[this.currentEmergencyMap.length-1] = this.currentEmergencyMap[this.currentEmergencyMap.length-1] + letter
-            }else{
-                return;
-            }
-            
+    }
+    /**
+     * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
+     * @param {*} letter the key typed
+     */
+    async type(letter) {
+        if (!letter) return;
+        if (letter == "backspace" | letter == "delete") {
+            this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = this.currentEmergencyMap[this.currentEmergencyMap.length - 1].slice(0, -1);
+        } else if (letter == "clear") {
+            this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = " "
+        } else if (letter == "space") {
+            this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = this.currentEmergencyMap[this.currentEmergencyMap.length - 1] + " "
         }
-        /**
-         * @deprecated used for testing, clears and stops ememergecies
-         */
-        async stopEmergency(){
-            clearInterval(this.FileSys.emergencyInterval);
-            this.FileSys.emergency = false
+        else if (letter == "return") {
+            if (this.currentEmergencyMap[this.currentEmergencyMap.length - 1].startsWith(" ")) {
+                this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = this.currentEmergencyMap[this.currentEmergencyMap.length - 1].substring(1);
+            }
+            this.FileSys.sendMsg(this.currentEmergencyMap[this.currentEmergencyMap.length - 1]);
+            this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = " ";
+        } else if (letter.length == 1) {
+            this.currentEmergencyMap[this.currentEmergencyMap.length - 1] = this.currentEmergencyMap[this.currentEmergencyMap.length - 1] + letter
+        } else {
+            return;
         }
-        /**
-         * @description start an emergency meeting from a report of a dead body, this is triggered when a report is send from the server, should not be used client side unless triggered by server
-         * @param {*} player the player being controlled by this client
-         * @param {*} reporter the player that reported this emergency
-         */
-        async Report(player, reporter){
-            this.FileSys.Voted = false;
-            this.FileSys.player_1.HasVoted = false;
-            let msgs = []
-            this.FileSys.pause = true
-            this.FileSys.emergency = true
-            await this.FileSys.util.wait(33);
-            if(this.FileSys.Config.Verbose)console.log("here")
-            this.FileSys.emergencyInterval = setInterval(async () => {
+
+    }
+    /**
+     * @deprecated used for testing, clears and stops ememergecies
+     */
+    async stopEmergency() {
+        clearInterval(this.FileSys.emergencyInterval);
+        this.FileSys.emergency = false
+    }
+    /**
+     * @description start an emergency meeting from a report of a dead body, this is triggered when a report is send from the server, should not be used client side unless triggered by server
+     * @param {*} player the player being controlled by this client
+     * @param {*} reporter the player that reported this emergency
+     */
+    async Report(player, reporter) {
+        this.FileSys.Voted = false;
+        this.FileSys.player_1.HasVoted = false;
+        let msgs = []
+        this.FileSys.pause = true
+        this.FileSys.emergency = true
+        await this.FileSys.util.wait(33);
+        if (this.FileSys.Config.Verbose) console.log("here")
+        this.FileSys.emergencyInterval = setInterval(async () => {
             msgs = await this.FileSys.getMsgs();
             let parsed = await JSON.parse(msgs);
             msgs = parsed[0];
             let remainingTime = parsed[1];
-            
-            let obj = await this.FileSys.Client2(player);
+
+            let obj = await this.FileSys.getPlayersAndTick(player);
             let falsePlayers = await obj.players
             let x = 1;
-            let i =5;
+            let i = 5;
             let Msgarr = []
             await falsePlayers.forEach(player => {
-                if(player.isRendered || player.isGhost)Msgarr.push(x.toString() +": "+ this.FileSys.Config.replaceArr[0])
+                if (player.isRendered || player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
                 x++
             });
-            Msgarr.push(x.toString() +": skip vote")
+            Msgarr.push(x.toString() + ": skip vote")
             Msgarr.push("time left: " + remainingTime)
 
-            if(msgs.length > 44){
+            if (msgs.length > 44) {
                 for (let index = 0; index < msgs.length - 44; index++) {
                     const element = array[index];
                     msgs.shift();
                 }
             }
-            if(remainingTime < 1){
+            if (remainingTime < 1) {
                 clearInterval(this.FileSys.emergencyInterval);
                 let result = await this.FileSys.getResult();
                 result = await JSON.parse(result)
-                if(isNaN(result)){
+                if (isNaN(result)) {
                     this.updateEmergencyMap(["no one was ejected"], Msgarr, true);
-                }else{
-                this.updateEmergencyMap([await obj.players[result-1].PlayerColor +" has been ejected"], Msgarr, true);
+                } else {
+                    this.updateEmergencyMap([await obj.players[result - 1].PlayerColor + " has been ejected"], Msgarr, true);
                 }
                 this.FileSys.pause = false
                 this.FileSys.emergency = false
-            }else{
-            this.updateEmergencyMap(msgs, Msgarr, true);
+            } else {
+                this.updateEmergencyMap(msgs, Msgarr, true);
             }
-            
+
             falsePlayers.forEach(player => {
-                if(!player.isRendered && !player.isGhost) return;
-                if(player.PlayerID == reporter){
-                    this.currentEmergencyMap[i]=this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] +"           ", player.PlayerColor+ " : alive <-");
+                if (!player.isRendered && !player.isGhost) return;
+                if (player.PlayerID == reporter) {
+                    this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "           ", player.PlayerColor + " : alive <-");
                 }
-                else if(player.IsDead){
-                    this.currentEmergencyMap[i]=this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] +"        ", player.PreviousColor+ " : dead ");
-                }else {
-                    this.currentEmergencyMap[i]=this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] +"        ", player.PlayerColor+" : alive")
+                else if (player.IsDead) {
+                    this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PreviousColor + " : dead ");
+                } else {
+                    this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PlayerColor + " : alive")
                 }
                 i++
-                
+
             });
 
             process.stdout.write("\x1b[?25l");
@@ -655,257 +655,258 @@ module.exports.map = class {
             readline.cursorTo(process.stdout, 1, 1)
             process.stdout.write(this.currentEmergencyMap.join("\n"));
             process.stdout.write("\x1b[?25h");
-            
+
             const stripAnsi = require('strip-ansi');
             var lineNum = 0;
             this.currentEmergencyMap.forEach(line => {
                 this.currentEmergencyMap[lineNum] = stripAnsi(line);
                 lineNum++;
             });
-            if(remainingTime < 1)await this.FileSys.util.wait(6000);
+            if (remainingTime < 1) await this.FileSys.util.wait(6000);
 
         }, this.FileSys.Config.delay)
-            
 
 
-        }
-        /**
-         * @description report a body within the report distance then set the body in question to invisible
-         * @param {*} player the player controlled by this client
-         */
-        ReportBodyWithinRange(player){
-            let reporter = player;
-            let ReportRange = this.FileSys.Config.VisionTiles;
-            if(reporter.IsDead == true) return;
-            this.FileSys.allPlayers.forEach(play => {
-                if(play.IsDead == true){
-                let xDistance = (Math.abs(reporter.x - play.x)/2)
-                let yDistance = Math.abs(reporter.y - play.y) 
-                if(xDistance + yDistance <= ReportRange){
-                    if(play.PlayerColor == this.FileSys.Config.PlayerIcon.red && play.isRendered){
+
+    }
+    /**
+     * @description report a body within the report distance then set the body in question to invisible
+     * @param {*} player the player controlled by this client
+     */
+    ReportBodyWithinRange(player) {
+        let reporter = player;
+        let ReportRange = this.FileSys.Config.VisionTiles;
+        if (reporter.IsDead == true) return;
+        this.FileSys.allPlayers.forEach(play => {
+            if (play.IsDead == true) {
+                let xDistance = (Math.abs(reporter.x - play.x) / 2)
+                let yDistance = Math.abs(reporter.y - play.y)
+                if (xDistance + yDistance <= ReportRange) {
+                    if (play.PlayerColor == this.FileSys.Config.PlayerIcon.red && play.isRendered) {
                         this.FileSys.SendReportToServer(reporter, play);
                     }
                 }
             }
-            });
-            
-        }
-        /**
-         * @description render all entities within the player's vision
-         * @param {*} player the player controlled by this client
-         */
-        UpdatePlayerVision(player){
-            this.deColorMap()
-            let x = player.x
-            let y = player.y
-            let visionRadius = this.FileSys.Config.VisionTiles;
-            let StartXPos = x - (visionRadius*3)
-            let StartYPos = y - visionRadius
-            for (let index2 = 0; index2 < visionRadius*2+1; index2++) {
-                for (let index = 0; index < visionRadius*6; index++) {
-                    if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == this.FileSys.Config.PlayerIcon){
-                        this.FileSys.allPlayers.forEach(player => {
-                            if(player.x == StartXPos+1+index){
-                                this.currentMap = this.Replace(this.currentMap, StartXPos+1 + index, StartYPos, this.FileSys.Config.PlayerIcon);}
-                        });
-                    }else if(this.currentMap[StartYPos].charAt(StartXPos+1 +index) == this.FileSys.Config.WallIcon){
+        });
 
-                    }else if (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos+1 +index))){
-                        let word = "";
-                        let x =-1;
-                        while (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos-x +index)|| this.currentMap[StartYPos].charAt(StartXPos-x +index) == "_")) {
-                            x++;
+    }
+    /**
+     * @description render all entities within the player's vision
+     * @param {*} player the player controlled by this client
+     */
+    UpdatePlayerVision(player) {
+        this.deColorMap()
+        let x = player.x
+        let y = player.y
+        let visionRadius = this.FileSys.Config.VisionTiles;
+        let StartXPos = x - (visionRadius * 3)
+        let StartYPos = y - visionRadius
+        for (let index2 = 0; index2 < visionRadius * 2 + 1; index2++) {
+            for (let index = 0; index < visionRadius * 6; index++) {
+                if (this.currentMap[StartYPos].charAt(StartXPos + 1 + index) == this.FileSys.Config.PlayerIcon) {
+                    this.FileSys.allPlayers.forEach(player => {
+                        if (player.x == StartXPos + 1 + index) {
+                            this.currentMap = this.Replace(this.currentMap, StartXPos + 1 + index, StartYPos, this.FileSys.Config.PlayerIcon);
                         }
-                        x--
-                        while (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos-x +index)|| this.currentMap[StartYPos].charAt(StartXPos+x +index) == "_")) {
-                            word = word + this.currentMap[StartYPos].charAt(StartXPos-x +index);
-                            x--;
-                        }
-                        this.FileSys.word = word;
-                        
-                    }else{
-                    this.currentMap = this.Replace(this.currentMap, StartXPos+1 + index, StartYPos, " ");
+                    });
+                } else if (this.currentMap[StartYPos].charAt(StartXPos + 1 + index) == this.FileSys.Config.WallIcon) {
+
+                } else if (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos + 1 + index))) {
+                    let word = "";
+                    let x = -1;
+                    while (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos - x + index) || this.currentMap[StartYPos].charAt(StartXPos - x + index) == "_")) {
+                        x++;
                     }
+                    x--
+                    while (this.isLetter(this.currentMap[StartYPos].charAt(StartXPos - x + index) || this.currentMap[StartYPos].charAt(StartXPos + x + index) == "_")) {
+                        word = word + this.currentMap[StartYPos].charAt(StartXPos - x + index);
+                        x--;
+                    }
+                    this.FileSys.word = word;
+
+                } else {
+                    this.currentMap = this.Replace(this.currentMap, StartXPos + 1 + index, StartYPos, " ");
                 }
-                StartYPos++
+            }
+            StartYPos++
         }
-        
+
+    }
+    /**
+     * @description change statuses on map based on what task quests are active
+     */
+    async setupTasks() {
+        if (this.FileSys.player_1.gasQuestActive) {
+            this.TaskStatuses.Upper_Engine = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Lower_Engine = this.StatusTypes.UNAVALIBLE
+            this.TaskStatuses.Lower_Engine = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Upper_Engine = this.StatusTypes.UNAVALIBLE
+            this.Statuses.Storage = this.StatusTypes.TASKSAVAILABLE
+            this.TaskStatuses.Storage = this.StatusTypes.TASKSAVAILABLE
         }
-        /**
-         * @description change statuses on map based on what task quests are active
-         */
-        async setupTasks(){
-            if(this.FileSys.player_1.gasQuestActive){
-                this.TaskStatuses.Upper_Engine =this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Lower_Engine = this.StatusTypes.UNAVALIBLE
-                this.TaskStatuses.Lower_Engine =this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Upper_Engine = this.StatusTypes.UNAVALIBLE
-                this.Statuses.Storage = this.StatusTypes.TASKSAVAILABLE
-                this.TaskStatuses.Storage = this.StatusTypes.TASKSAVAILABLE
-            }
-            if(this.FileSys.player_1.uploadTaskActive){
-                this.TaskStatuses.Admin = this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Admin = this.StatusTypes.TASKSAVAILABLE
-                this.TaskStatuses.Security = this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Security = this.StatusTypes.UNAVALIBLE;
-            }
-            if(this.FileSys.player_1.startEngineQuestActive){
-                this.TaskStatuses.Reactors = this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Reactors = this.StatusTypes.TASKSAVAILABLE
-            }
-            if(this.FileSys.player_1.fixElecQuestActive){
-                this.TaskStatuses.Electrical = this.StatusTypes.TASKSAVAILABLE
-                this.Statuses.Electrical = this.StatusTypes.TASKSAVAILABLE
-            }
+        if (this.FileSys.player_1.uploadTaskActive) {
+            this.TaskStatuses.Admin = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Admin = this.StatusTypes.TASKSAVAILABLE
+            this.TaskStatuses.Security = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Security = this.StatusTypes.UNAVALIBLE;
         }
-        /**
-         * @description the function triggered whenever a task is attempted
-         */
-        async miniGame(){
-            let tasks = 0;
-            var StatusArr = Object.keys(this.TaskStatuses);
-            
-            
-            let currentArea = this.FileSys.word;
-            let currentAreaStatus = this.TaskStatuses[currentArea];
-            if(currentAreaStatus == this.StatusTypes.EMERGENCY){
-                //emergency task
-            }else
-            if(currentAreaStatus == this.StatusTypes.TASKSAVAILABLE){
+        if (this.FileSys.player_1.startEngineQuestActive) {
+            this.TaskStatuses.Reactors = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Reactors = this.StatusTypes.TASKSAVAILABLE
+        }
+        if (this.FileSys.player_1.fixElecQuestActive) {
+            this.TaskStatuses.Electrical = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Electrical = this.StatusTypes.TASKSAVAILABLE
+        }
+    }
+    /**
+     * @description the function triggered whenever a task is attempted
+     */
+    async miniGame() {
+        let tasks = 0;
+        var StatusArr = Object.keys(this.TaskStatuses);
+
+
+        let currentArea = this.FileSys.word;
+        let currentAreaStatus = this.TaskStatuses[currentArea];
+        if (currentAreaStatus == this.StatusTypes.EMERGENCY) {
+            //emergency task
+        } else
+            if (currentAreaStatus == this.StatusTypes.TASKSAVAILABLE) {
                 let repeat = require("../minigames/repeteAfterMe")
                 let snake = require("../minigames/snake").main;
                 let download = require("../minigames/download");
                 let upload = require("../minigames/upload");
                 let randNum = Math.floor(Math.random() * 3);
                 let playerLast = this.FileSys.player_1.lastTask
-                
+
                 this.FileSys.pause = true;
                 let result;
                 switch (currentArea) {
                     case "Storage":
-                        if(!this.FileSys.player_1.hasGas &&this.FileSys.player_1.gasQuestActive == true)
-                        this.FileSys.cardFrame = 0;
-                        result= await this.getFuelTask(this)
+                        if (!this.FileSys.player_1.hasGas && this.FileSys.player_1.gasQuestActive == true)
+                            this.FileSys.cardFrame = 0;
+                        result = await this.getFuelTask(this)
                         this.Statuses.Storage = this.StatusTypes.UNAVALIBLE
-                        if(this.TaskStatuses.Lower_Engine == this.StatusTypes.TASKSAVAILABLE)
-                        this.Statuses.Lower_Engine = this.StatusTypes.HIGHLIGHT
-                        if(this.TaskStatuses.Upper_Engine == this.StatusTypes.TASKSAVAILABLE)
-                        this.Statuses.Upper_Engine = this.StatusTypes.HIGHLIGHT
+                        if (this.TaskStatuses.Lower_Engine == this.StatusTypes.TASKSAVAILABLE)
+                            this.Statuses.Lower_Engine = this.StatusTypes.HIGHLIGHT
+                        if (this.TaskStatuses.Upper_Engine == this.StatusTypes.TASKSAVAILABLE)
+                            this.Statuses.Upper_Engine = this.StatusTypes.HIGHLIGHT
                         break;
                     case "Lower_Engine":
-                        if(this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledLower && this.FileSys.player_1.gasQuestActive == true){
-                            result= await this.fillReactorsWithGas(this);
+                        if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledLower && this.FileSys.player_1.gasQuestActive == true) {
+                            result = await this.fillReactorsWithGas(this);
                             this.FileSys.player_1.fueledLower = true;
                             this.FileSys.player_1.hasGas = false;
                             this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
                             this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
                             this.Statuses.Storage = this.TaskStatuses.Storage
-                            if(this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
-                        }else{
-                            
+                            if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
+                        } else {
+
                         }
                         break;
                     case "Upper_Engine":
-                        if(this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledUpper && this.FileSys.player_1.gasQuestActive == true){
-                            result= await this.fillReactorsWithGas(this);
+                        if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledUpper && this.FileSys.player_1.gasQuestActive == true) {
+                            result = await this.fillReactorsWithGas(this);
                             this.FileSys.player_1.fueledUpper = true;
                             this.FileSys.player_1.hasGas = false;
                             this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
                             this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
                             this.Statuses.Storage = this.TaskStatuses.Storage
-                            if(this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
-                        }else{
+                            if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
+                        } else {
                             //fix engines
                         }
                         break
                     case "Admin":
-                        if(this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData){
-                            result =await download();
+                        if (this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData) {
+                            result = await download();
                             this.FileSys.player_1.hasData = true;
                             this.Statuses.Security = this.StatusTypes.HIGHLIGHT;
-                    }else{
-                        result = await this.swipeCard(this);
-                    }
+                        } else {
+                            result = await this.swipeCard(this);
+                        }
                         break;
                     case "Security":
-                        if(this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData){
-                            result= await upload();
+                        if (this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData) {
+                            result = await upload();
                             this.FileSys.player_1.hasData = false;
                             this.Statuses.Security = this.TaskStatuses.Security;
-                    }else if(this.FileSys.player_1.snake){
-                        result= await snake(this.FileSys.Config.snakeGameGoal)
-                    }else{  
-                        //add game
-                    }   
+                        } else if (this.FileSys.player_1.snake) {
+                            result = await snake(this.FileSys.Config.snakeGameGoal)
+                        } else {
+                            //add game
+                        }
                         break;
                     case "Electrical":
-                        if(this.FileSys.player_1.fixElecQuestActive == true){
+                        if (this.FileSys.player_1.fixElecQuestActive == true) {
                             let wiring = require("../minigames/wiring")
                             this.FileSys.pause = true;
-                            result =await wiring();
-                        
-                    }
-                    break;
+                            result = await wiring();
+
+                        }
+                        break;
                     case "Reactors":
-                        if(this.FileSys.player_1.startEngineQuestActive)
-                        result = await repeat();
-                    break;
+                        if (this.FileSys.player_1.startEngineQuestActive)
+                            result = await repeat();
+                        break;
                     default:
                         break;
                 }
 
-                
 
-                if(result == "win"){
-                    
+
+                if (result == "win") {
+
                     await this.renderTaskComp(20, "./taskCompeted.txt")
-                    
+
                     this.FileSys.pause = false;
                     this.TaskStatuses[currentArea] = this.StatusTypes.NORMAL;
                     this.Statuses[currentArea] = this.StatusTypes.NORMAL;
-                }else if(result = "partial"){
-                    
+                } else if (result = "partial") {
+
                     await this.renderTaskComp(20, "./taskCompeted.txt")
-                    
+
                     this.FileSys.pause = false;
-                }else {
-                    
+                } else {
+
                     this.FileSys.pause = false;
                 }
                 StatusArr.forEach(name => {
-                    if(this.TaskStatuses[name] == this.StatusTypes.TASKSAVAILABLE){
+                    if (this.TaskStatuses[name] == this.StatusTypes.TASKSAVAILABLE) {
                         tasks++
                     }
-                }); 
-                if(tasks == 0){
+                });
+                if (tasks == 0) {
                     this.FileSys.player_1.tasksCompleted = true;
                 }
             }
 
-        }
-        /**
-         * @location admin
-         * @description the swipe card task
-         * @param {*} that this
-         */
-        swipeCard(that){
-            return new Promise((resolve)=> {
-                that.FileSys.swipeCardActive = true;
-                let timer = setInterval(async ()=> {
-                    let frame = that.FileSys.cardFrame;
-                    await this.renderFileFrame(frame, "./card.txt")
-                    if(frame == 5){
-                        let rand = Math.floor(Math.random() * 10)
-                        if(rand > 5){
-                            that.FileSys.cardFrame = 0;
-                            that.FileSys.swipeCardActive = false;
-                            clearInterval(timer)
-                            
-                            resolve("win")
-                        }else{
+    }
+    /**
+     * @location admin
+     * @description the swipe card task
+     * @param {*} that this
+     */
+    swipeCard(that) {
+        return new Promise((resolve) => {
+            that.FileSys.swipeCardActive = true;
+            let timer = setInterval(async () => {
+                let frame = that.FileSys.cardFrame;
+                await this.renderFileFrame(frame, "./card.txt")
+                if (frame == 5) {
+                    let rand = Math.floor(Math.random() * 10)
+                    if (rand > 5) {
+                        that.FileSys.cardFrame = 0;
+                        that.FileSys.swipeCardActive = false;
+                        clearInterval(timer)
+
+                        resolve("win")
+                    } else {
                         process.stdout.write("\x1b[?25l");
                         var readline = require("readline");
-                        
+
                         readline.cursorTo(process.stdout, 1, 1)
                         process.stdout.write(`//  
                         //                                                                                                                                                
@@ -930,239 +931,239 @@ module.exports.map = class {
                         clearInterval(timer)
                         await util.wait(1000);
                         resolve(that.swipeCard(that));
-                        }
-                        
-                        that.FileSys.cardFrame =0
                     }
-                }, 100)
-                
-            })
+
+                    that.FileSys.cardFrame = 0
+                }
+            }, 100)
+
+        })
+    }
+    /**
+     * @location reactors (upper or lower)
+     * @description the fill reactors with gass task
+     * @param {*} that this
+     */
+    async fillReactorsWithGas(that) {
+        return new Promise((resolve) => {
+            that.FileSys.fuelFrame = 0;
+            that.FileSys.pause = true;
+            let i = 7;
+            let timer = setInterval(() => {
+                that.renderFileFrame(i, "./fuelFrames.txt")
+                i--;
+                if (i == -1) {
+                    clearInterval(timer);
+                    that.FileSys.fuelTaskActive = false;
+                    that.FileSys.player_1.hasGas = false;
+                    that.FileSys.player_1.gasQuestActive = false
+                    resolve("win");
+                }
+            }, 500)
+        })
+    }
+    /**
+     * @location storage
+     * @description the task to get fuel 
+     * @param {*} that this
+     */
+    async getFuelTask(that) {
+        that.FileSys.fuelTaskActive = true;
+        let value = "partial"
+        if (that.FileSys.player_1.fueledUpper || that.FileSys.player_1.fueledLower) {
+            value = "win"
         }
-        /**
-         * @location reactors (upper or lower)
-         * @description the fill reactors with gass task
-         * @param {*} that this
-         */
-        async fillReactorsWithGas(that){
-            return new Promise((resolve) => {
-                that.FileSys.fuelFrame = 0;
-                that.FileSys.pause = true;
-                let i= 7;
-                let timer = setInterval(()=> {
-                    that.renderFileFrame(i,"./fuelFrames.txt")
-                    i--;
-                    if(i == -1){
-                        clearInterval(timer);
-                        that.FileSys.fuelTaskActive = false;
-                        that.FileSys.player_1.hasGas = false;
-                        that.FileSys.player_1.gasQuestActive = false
-                        resolve("win");
-                    }
-                },500)
-            })
-        }
-        /**
-         * @location storage
-         * @description the task to get fuel 
-         * @param {*} that this
-         */
-        async getFuelTask(that){
-            that.FileSys.fuelTaskActive = true;
-            let value = "partial"
-            if(that.FileSys.player_1.fueledUpper || that.FileSys.player_1.fueledLower){
-                value = "win"
-            }
-            return new Promise((resolve) => {
-                
-                that.FileSys.fuelFrame = 0;
-                that.FileSys.pause = true;
-                let timer = setInterval(async ()=> {
-                    await that.renderFileFrame(that.FileSys.fuelFrame,"./fuelFrames.txt")
-                    if(that.FileSys.fuelFrame == 7){
-                        clearInterval(timer);
-                        that.FileSys.fuelTaskActive = false;
-                        that.FileSys.player_1.hasGas = true;
-                        that.FileSys.player_1.gasQuestActive = true
-                        that.FileSys.fuelFrame = 0;
-                        await util.wait(1000);
-                        resolve(value);
-                    }
-                },100)
-            }).catch();
-            
-            
-        }
-        /**
-         * @description render a specific frame from a file
-         * @param {*} i the index of the frame to render
-         * @param {*} file the file to read
-         */
-        async renderFileFrame(i, file){
+        return new Promise((resolve) => {
+
+            that.FileSys.fuelFrame = 0;
+            that.FileSys.pause = true;
+            let timer = setInterval(async () => {
+                await that.renderFileFrame(that.FileSys.fuelFrame, "./fuelFrames.txt")
+                if (that.FileSys.fuelFrame == 7) {
+                    clearInterval(timer);
+                    that.FileSys.fuelTaskActive = false;
+                    that.FileSys.player_1.hasGas = true;
+                    that.FileSys.player_1.gasQuestActive = true
+                    that.FileSys.fuelFrame = 0;
+                    await util.wait(1000);
+                    resolve(value);
+                }
+            }, 100)
+        }).catch();
+
+
+    }
+    /**
+     * @description render a specific frame from a file
+     * @param {*} i the index of the frame to render
+     * @param {*} file the file to read
+     */
+    async renderFileFrame(i, file) {
+        const fs = require("fs")
+        let data = fs.readFileSync(file)
+        var FrameArr = JSON.parse(data);
+        process.stdout.write("\x1b[?25l");
+        var readline = require("readline");
+        readline.cursorTo(process.stdout, 1, 1)
+        process.stdout.write(FrameArr[i]);
+        process.stdout.write("\x1b[?25h");
+        return data;
+
+
+
+    }
+    /**
+     * @description render the task completed animation
+     * @param {*} delay the delay between frames
+     * @param {*} file the file to use
+     */
+    renderTaskComp(delay, file) {
+        return new Promise((resolve) => {
+
             const fs = require("fs")
             let data = fs.readFileSync(file)
-                var FrameArr = JSON.parse(data);
+            var FrameArr = JSON.parse(data);
+            let i = 0;
+            let timer = setInterval(() => {
                 process.stdout.write("\x1b[?25l");
                 var readline = require("readline");
                 readline.cursorTo(process.stdout, 1, 1)
                 process.stdout.write(FrameArr[i]);
                 process.stdout.write("\x1b[?25h");
-                return data;
-                
-          
-            
+                if (i + 1 >= FrameArr.length) {
+                    clearInterval(timer)
+                    resolve();
+                }
+                i++
+
+
+            }, delay);
+        })
+
+
+
+
+
+
+
+    }
+    /**
+     * @description waits 1000ms (base) then logs a string
+     * @param {*} word the string to log
+     * @param {*} delay the optional delay before logging default 1000ms
+     */
+    async waitThenLog(word, delay = 1000) {
+        console.log(word);
+        await this.FileSys.util.wait(delay);
+    }
+    /**@description remove all vision from the player, replacing " "  "░" with */
+    removePlayerVision() {
+        var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+        var NoVison = assembledMap.replace(/ /g, "░");
+        this.currentMap = NoVison.split(this.FileSys.Config.ReplaceIcon);
+    }
+    /**
+     * @description check if there is a collision where the player is moving
+     * @param {*} x the x cord
+     * @param {*} y the y cord
+     */
+    Collision(x, y) {
+        var collider = this.currentMap[y].charAt(x);
+        var CollisionEvent = null;
+        class CollisionEventBase {
+            CollisionTypes = { letter: "letter", wall: "wall", player: "player", air: "airblock" }
+            CollisionType = null
         }
-        /**
-         * @description render the task completed animation
-         * @param {*} delay the delay between frames
-         * @param {*} file the file to use
-         */
-        renderTaskComp(delay, file){
-            return new Promise((resolve) => {
-               
-                const fs = require("fs")
-                let data = fs.readFileSync(file)
-                    var FrameArr = JSON.parse(data);
-                    let i =0;
-                    let timer = setInterval(() => {
-                        process.stdout.write("\x1b[?25l");
-                        var readline = require("readline");
-                        readline.cursorTo(process.stdout, 1, 1)
-                        process.stdout.write(FrameArr[i]);
-                        process.stdout.write("\x1b[?25h");
-                        if(i+1 >= FrameArr.length){
-                            clearInterval(timer)
-                            resolve();
-                        }
-                        i++
-    
-    
-                    }, delay);
-            })
-            
-                
-              
-                
-                
-          
-            
+        if (this.isLetter(collider)) {
+            var CollisionEvent = CollisionEventBase;
+            CollisionEvent.CollisionType = CollisionEventBase.wall;
+            return CollisionEvent;
         }
-        /**
-         * @description waits 1000ms (base) then logs a string
-         * @param {*} word the string to log
-         * @param {*} delay the optional delay before logging default 1000ms
-         */
-        async waitThenLog(word, delay = 1000){
-            console.log(word);
-            await this.FileSys.util.wait(delay);
+        var CollisionEventWall = new CollisionEventBase();
+        CollisionEventWall.CollisionType = CollisionEventWall.CollisionTypes.wall;
+        var CollisionEventPlayer = new CollisionEventBase();
+        CollisionEventPlayer.CollisionType = CollisionEventPlayer.CollisionTypes.wall;
+        var CollisionEventAir = new CollisionEventBase();
+        CollisionEventAir.CollisionType = CollisionEventAir.CollisionTypes.air;
+        switch (collider) {
+            case this.FileSys.Config.WallIcon:
+                return CollisionEventWall;
+                break;
+            case this.FileSys.Config.PlayerIcon:
+                return CollisionEventPlayer;
+                break;
+            case this.FileSys.Config.AirIcon:
+                return null
+            case " ":
+                return null;
+                break;
+            default:
+                return null;
+                break;
         }
-        /**@description remove all vision from the player, replacing " "  "░" with */
-        removePlayerVision(){
-            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
-            var NoVison = assembledMap.replace(/ /g, "░");
-            this.currentMap = NoVison.split(this.FileSys.Config.ReplaceIcon);
-        }
-        /**
-         * @description check if there is a collision where the player is moving
-         * @param {*} x the x cord
-         * @param {*} y the y cord
-         */
-        Collision(x, y){
-            var collider = this.currentMap[y].charAt(x);
-            var CollisionEvent = null;
-            class CollisionEventBase  {
-                CollisionTypes = {letter: "letter", wall: "wall", player: "player", air: "airblock"}
-                CollisionType = null
-            }
-            if(this.isLetter(collider)){
-                var CollisionEvent = CollisionEventBase;
-                CollisionEvent.CollisionType = CollisionEventBase.wall;
-                return CollisionEvent;
-            }
-            var CollisionEventWall = new CollisionEventBase();
-            CollisionEventWall.CollisionType = CollisionEventWall.CollisionTypes.wall;
-            var CollisionEventPlayer = new CollisionEventBase();
-            CollisionEventPlayer.CollisionType = CollisionEventPlayer.CollisionTypes.wall;
-            var CollisionEventAir = new CollisionEventBase();
-            CollisionEventAir.CollisionType = CollisionEventAir.CollisionTypes.air;
-            switch (collider) {
-                case this.FileSys.Config.WallIcon:
-                    return CollisionEventWall;
+
+    }
+    /**
+     * @description a switch statement that handles all types of collisions
+     * @param {*} collisionEvent  the type of collision
+     * @param {*} player the player controlled by this client
+     * @param {*} x the x cord
+     * @param {*} y the y cord
+     */
+    collisionHandler(collisionEvent, player, x, y) {
+        return new Promise(async resolve => {
+            switch (collisionEvent.CollisionType) {
+                case "letter":
+                    await this.LetterCollider(collisionEvent, player, x, y)
                     break;
-                case this.FileSys.Config.PlayerIcon:
-                    return CollisionEventPlayer;
+                case "wall":
+                    if (this.FileSys.Config.Verbose) console.log("WallCollision")
+                    this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
                     break;
-                case this.FileSys.Config.AirIcon:
-                    return null
+                case "airblock":
+                    if (this.FileSys.Config.Verbose) console.log("AirBlockCollision")
+                    this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
+                    break;
+                case "player":
+                    if (this.FileSys.Config.Verbose) console.log("PlayerCollision")
+                    this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
+                    break;
                 case " ":
-                     return null;
                     break;
                 default:
-                    return null;
                     break;
             }
-           
-        }
-        /**
-         * @description a switch statement that handles all types of collisions
-         * @param {*} collisionEvent  the type of collision
-         * @param {*} player the player controlled by this client
-         * @param {*} x the x cord
-         * @param {*} y the y cord
-         */
-        collisionHandler(collisionEvent, player, x, y){
-            return new Promise(async resolve => {
-                switch (collisionEvent.CollisionType) {
-                    case "letter":
-                        await this.LetterCollider(collisionEvent, player, x, y)
-                        break;
-                    case "wall":
-                        if(this.FileSys.Config.Verbose)console.log("WallCollision")
-                        this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
-                        break;
-                    case "airblock":
-                        if(this.FileSys.Config.Verbose)console.log("AirBlockCollision")
-                        this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
-                        break;
-                    case "player":
-                        if(this.FileSys.Config.Verbose)console.log("PlayerCollision")
-                        this.DisplayMsg(this.FileSys.Config.WallCollisionMsgArr, player);
-                        break;
-                    case " ":
-                        break;
-                    default:
-                        break;
-                }
-                resolve();
-            })
-        }
-        /**
-         * @description if a letter is collided with, due to its color code special things must happen
-         * @param {*} collisionEvent the collision event
-         * @param {*} player the player controlled by this client
-         * @param {*} x the x cord
-         * @param {*} y the y cord
-         */
-        async LetterCollider(collisionEvent, player, x, y){
-            var line = this.currentMap[y];
-            var letter = line.charAt(x);
-            var shouldExit = false;
-            var word = [];
-            word[0] = letter;
-            i=0;
-            //if collision occurs in the middle of the word, subtract this from the initial x
-            var numToLeft = 0;
-                const getWord = new Promise(resolve => {
-                var left = true;
-                var right = true;
-                
-                /**@description Tolerance (how many spaces should be allowed before next letter) */
-                let t = 2
-                while(left){
-                    let LeftLetter = line.charAt(x-i);
-                    let localTolerance = t;
-                    if(this.isLetter(LeftLetter)){
-                    if(localTolerance != t){
-                        for (let index = 0; index < t-localTolerance; index++) {
+            resolve();
+        })
+    }
+    /**
+     * @description if a letter is collided with, due to its color code special things must happen
+     * @param {*} collisionEvent the collision event
+     * @param {*} player the player controlled by this client
+     * @param {*} x the x cord
+     * @param {*} y the y cord
+     */
+    async LetterCollider(collisionEvent, player, x, y) {
+        var line = this.currentMap[y];
+        var letter = line.charAt(x);
+        var shouldExit = false;
+        var word = [];
+        word[0] = letter;
+        i = 0;
+        //if collision occurs in the middle of the word, subtract this from the initial x
+        var numToLeft = 0;
+        const getWord = new Promise(resolve => {
+            var left = true;
+            var right = true;
+
+            /**@description Tolerance (how many spaces should be allowed before next letter) */
+            let t = 2
+            while (left) {
+                let LeftLetter = line.charAt(x - i);
+                let localTolerance = t;
+                if (this.isLetter(LeftLetter)) {
+                    if (localTolerance != t) {
+                        for (let index = 0; index < t - localTolerance; index++) {
                             word.unshift(" ");
                             numToLeft++;
                         }
@@ -1170,250 +1171,213 @@ module.exports.map = class {
                     }
                     word.unshift(LeftLetter);
                     numToLeft++;
-                    }else{
-                        localTolerance--
-                    }
-                    
-                    if(localTolerance=0){
-                    left = false
-                    i=0;
-                    }
-                    i++
+                } else {
+                    localTolerance--
                 }
-                while(right){
-                    let RightLetter = line.charAt(x+i);
-                    let localTolerance = t;
-                    if(this.isLetter(RightLetter)){
-                    if(localTolerance != t){
-                        for (let index = 0; index < t-localTolerance; index++) {
+
+                if (localTolerance = 0) {
+                    left = false
+                    i = 0;
+                }
+                i++
+            }
+            while (right) {
+                let RightLetter = line.charAt(x + i);
+                let localTolerance = t;
+                if (this.isLetter(RightLetter)) {
+                    if (localTolerance != t) {
+                        for (let index = 0; index < t - localTolerance; index++) {
                             word.push(" ");
                         }
                         localTolerance = t;
                     }
                     word.unshift(RightLetter);
-                    }else{
-                        localTolerance--
-                    }
-                    
-                    if(localTolerance=0){
-                        right = false
-                    i=0;
-                    }
-                    i++
+                } else {
+                    localTolerance--
                 }
-                if(!left && !right){
-                    resolve(word.join())
+
+                if (localTolerance = 0) {
+                    right = false
+                    i = 0;
                 }
-                })
-            const AssembledWord = await getWord();
-            const X_ofWord = (x - numToLeft);
-            const xCordInsideWord = x - X_ofWord;
-        }
-        /**
-         * @description check if string is composted of letters or underscores
-         * @param {*} str the string to check
-         * @returns boolean 
-         */
-        isLetter(str) {
-            return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i);
-          }
-        /**
-         * @description replace a char in an array with an x y cord system
-         * NOTE: allows more than one char
-         * @param {*} Arr the array to use
-         * @param {*} x the index of a string to replace
-         * @param {*} y the index of the array to use
-         * @param {*} Char the charector to replace specified indexies with
-         */
-        Replace(Arr, x, y, Char){
-            String.prototype.replaceAt = function(index, replacement) {
-                return this.substr(0, x) + replacement + this.substr(index + replacement.length);
+                i++
             }
-            Arr[y] = Arr[y].replaceAt(x, Char)
-            return Arr;
-        }
-        /**
-         * @deprecated moves the player to an old spawn location, mostly handled server side now
-         */
-        PlayerHome(){//72 x cafe y 10
-            this.PlayerMove(this.FileSys.player_1, this.FileSys.Config.SaveMapCordPair.Home.x,this.FileSys.Config.SaveMapCordPair.Home.y);
-        }
-        
-        /** @deprecated AbsoluteMove is not longer possible --map is stored in array, not string */
-        TruePlayerMove(index){
-            return console.error("TruePlayerMove CANNOT be used, the map is not stored in a string thus this will not work")
-            var indexOfMovement = index;
-            
-            const PlayerIcon = this.FileSys.Config.PlayerIcon;
-            const WallIcon = this.FileSys.Config.WallIcon;
-            if(this.Collision(indexOfMovement)){
-                this.collisionHandler();
-            }else{
-            this.currentMap = this.Replace(this.currentMap, indexOfMovement, PlayerIcon);
+            if (!left && !right) {
+                resolve(word.join())
             }
-            this.UpdateMapStatuses(player);
-        }
-/**@deprecated using StripAnsi(); instead --npm install strip-ansi */
-DeColorPlayer(player){
-    return new Promise(resolve => {
-// var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
-    // var coloredMap = assembledMap.replace(player.PlayerColor, this.FileSys.Config.PlayerIcon);
-    // this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
-    let lineNum = 0;
-    this.currentMap.forEach(line => {
-        this.currentMap[lineNum] = line.replace(player.PlayerColor, this.FileSys.Config.PlayerIcon);
-        lineNum++;
-    });
-    if(lineNum == this.currentMap.length){
-        this.writeAssembledMap();
-        resolve();
+        })
+        const AssembledWord = await getWord();
+        const X_ofWord = (x - numToLeft);
+        const xCordInsideWord = x - X_ofWord;
     }
-    })
-}
-/**
- * @description replace all rendered players with air
- */
-UnRenderPlayers(){
-    this.StripAnsi();
-    var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
-    var coloredMap = assembledMap.replace(/ඞ/g, this.FileSys.Config.AirIcon);
-    this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
-}
-/**
- * @description render players onto a specified map
- * @param {*} players all players 
- * @param {*} map the map to replace
- * @param {*} renderAll weathor to render invisable players
- */
-async RenderPlayers(players, map =this.currentMap, renderAll = false){
-    let numOfPlays =0;
-    var multi = 0;
-    let FalseMap = await map.toString().split(",");
-    let playerPromise1 = new Promise(resolve => {
-        this.StripAnsi(map);
-        let index = 1;
-        players.forEach(player => {
-            var charAtPlayerX = map[player.y].charAt(player.x)
-            if(charAtPlayerX == " " && player.isRendered|| renderAll == true){
-            let firstPart = map[player.y].substr(0, player.x);
-            let lastPart = map[player.y].substr(player.x+1);
-            map[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;  
-            FalseMap[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;  
+    /**
+     * @description check if string is composted of letters or underscores
+     * @param {*} str the string to check
+     * @returns boolean 
+     */
+    isLetter(str) {
+        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i);
+    }
+    /**
+     * @description replace a char in an array with an x y cord system
+     * NOTE: allows more than one char
+     * @param {*} Arr the array to use
+     * @param {*} x the index of a string to replace
+     * @param {*} y the index of the array to use
+     * @param {*} Char the charector to replace specified indexies with
+     */
+    Replace(Arr, x, y, Char) {
+        String.prototype.replaceAt = function (index, replacement) {
+            return this.substr(0, x) + replacement + this.substr(index + replacement.length);
         }
-            if(index == players.length){
+        Arr[y] = Arr[y].replaceAt(x, Char)
+        return Arr;
+    }
+    /**
+     * @deprecated moves the player to an old spawn location, mostly handled server side now
+     */
+    PlayerHome() {//72 x cafe y 10
+        this.PlayerMove(this.FileSys.player_1, this.FileSys.Config.SaveMapCordPair.Home.x, this.FileSys.Config.SaveMapCordPair.Home.y);
+    }
+
+    /** @deprecated AbsoluteMove is not longer possible --map is stored in array, not string */
+    TruePlayerMove(index) {
+        return console.error("TruePlayerMove CANNOT be used, the map is not stored in a string thus this will not work")
+        var indexOfMovement = index;
+
+        const PlayerIcon = this.FileSys.Config.PlayerIcon;
+        const WallIcon = this.FileSys.Config.WallIcon;
+        if (this.Collision(indexOfMovement)) {
+            this.collisionHandler();
+        } else {
+            this.currentMap = this.Replace(this.currentMap, indexOfMovement, PlayerIcon);
+        }
+        this.UpdateMapStatuses(player);
+    }
+    /**@deprecated using StripAnsi(); instead --npm install strip-ansi */
+    DeColorPlayer(player) {
+        return new Promise(resolve => {
+            // var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon); 
+            // var coloredMap = assembledMap.replace(player.PlayerColor, this.FileSys.Config.PlayerIcon);
+            // this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+            let lineNum = 0;
+            this.currentMap.forEach(line => {
+                this.currentMap[lineNum] = line.replace(player.PlayerColor, this.FileSys.Config.PlayerIcon);
+                lineNum++;
+            });
+            if (lineNum == this.currentMap.length) {
+                this.writeAssembledMap();
                 resolve();
             }
-            index++;
-        
-        });
-       
-    })
-    let playerPromise2 = new Promise(resolve => {
-        let index = 1;
-        var replaceNum = 0;
-         players.forEach(player => {
-            if((map[player.y].includes(this.FileSys.Config.PlayerIcon))){
-                const stripAnsi = require('strip-ansi');
+        })
+    }
+    /**
+     * @description replace all rendered players with air
+     */
+    UnRenderPlayers() {
+        this.StripAnsi();
+        var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+        var coloredMap = assembledMap.replace(/ඞ/g, this.FileSys.Config.AirIcon);
+        this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+    }
+    /**
+     * @description render players onto a specified map
+     * @param {*} players all players 
+     * @param {*} map the map to replace
+     * @param {*} renderAll weathor to render invisable players
+     */
+    async RenderPlayers(players, map = this.currentMap, renderAll = false) {
+        let numOfPlays = 0;
+        var multi = 0;
+        let FalseMap = await map.toString().split(",");
+        let playerPromise1 = new Promise(resolve => {
+            this.StripAnsi(map);
+            let index = 1;
+            players.forEach(player => {
                 var charAtPlayerX = map[player.y].charAt(player.x)
-                if(charAtPlayerX != this.FileSys.Config.AirIcon && player.isRendered){
-                map[player.y] = stripAnsi(map[player.y]);
-                let firstPart = map[player.y].substr(0, player.x);
-                let lastPart = map[player.y].substr(player.x+1);
-                map[player.y] = firstPart + this.FileSys.Config.replaceArr[replaceNum] + lastPart; 
-                player.ReplacedChar = this.FileSys.Config.replaceArr[replaceNum];
-            }
+                if (charAtPlayerX == " " && player.isRendered || renderAll == true) {
+                    let firstPart = map[player.y].substr(0, player.x);
+                    let lastPart = map[player.y].substr(player.x + 1);
+                    map[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
+                    FalseMap[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
+                }
+                if (index == players.length) {
+                    resolve();
+                }
                 index++;
-                replaceNum++;
-            }});
+
+            });
+
+        })
+        let playerPromise2 = new Promise(resolve => {
+            let index = 1;
+            var replaceNum = 0;
+            players.forEach(player => {
+                if ((map[player.y].includes(this.FileSys.Config.PlayerIcon))) {
+                    const stripAnsi = require('strip-ansi');
+                    var charAtPlayerX = map[player.y].charAt(player.x)
+                    if (charAtPlayerX != this.FileSys.Config.AirIcon && player.isRendered) {
+                        map[player.y] = stripAnsi(map[player.y]);
+                        let firstPart = map[player.y].substr(0, player.x);
+                        let lastPart = map[player.y].substr(player.x + 1);
+                        map[player.y] = firstPart + this.FileSys.Config.replaceArr[replaceNum] + lastPart;
+                        player.ReplacedChar = this.FileSys.Config.replaceArr[replaceNum];
+                    }
+                    index++;
+                    replaceNum++;
+                }
+            });
             resolve();
-    });
+        });
         let playerPromise3 = new Promise(resolve => {
             for (let indexhrsh = 0; indexhrsh < players.length; indexhrsh++) {
-                    const player = players[indexhrsh];
-                    for (let index2 = 0; index2 < this.FileSys.Config.replaceArr.length; index2++) {
-                        const char = this.FileSys.Config.replaceArr[index2];
-                        if(player.ReplacedChar == char){
-                            map[player.y] = map[player.y].replace(char, player.PlayerColor);
-                        }
+                const player = players[indexhrsh];
+                for (let index2 = 0; index2 < this.FileSys.Config.replaceArr.length; index2++) {
+                    const char = this.FileSys.Config.replaceArr[index2];
+                    if (player.ReplacedChar == char) {
+                        map[player.y] = map[player.y].replace(char, player.PlayerColor);
                     }
-                    if(indexhrsh == players.length-1){
+                }
+                if (indexhrsh == players.length - 1) {
                     resolve();
-                    }
+                }
             }
-                
-            
-            
-            
+
+
+
+
         });
         await playerPromise1.then(await playerPromise2.then(await playerPromise3));
-        
-        
-    
-    
-}
-        /**
-         * @deprecated im not sure why this exists it seems like it might have a use possibly, but for the most part is useless
-         * @param {*} players all players
-         * @param {*} x probably the x cord
-         */       
-        getPlayerByX(players, x){
-            return new Promise(resolve => {
-                players.forEach(player => {
-                    if(player.x = x){
-                        resolve(player);
-                    }
-                })
-            })
-            
-            
-        }
-        /**
-         * @description the message feild on the left of the normal map, but for emergencies
-         * @param {*} msgArr the array of messages to display
-         */
-        EmergencySmallDisplay(msgArr){
-            let that = this
-            function ReduceMsgBox(num){
 
-                for (let index = 0; index < num; index++) {
-                    var BoxEndPos;
-                    var BoxStartPos;
-                    var TextBoxStart;
-                    var TextBoxEnd;
-                    var TextAreaStart;
-                    var TextAreaEnd;
-                    var lineNum = 0;
-                    that.currentEmergencyMap.forEach(line => {
-                        if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒")){
-                            if(BoxStartPos){
-                                BoxEndPos = lineNum;
-                            } else {
-                                BoxStartPos = lineNum;
-                            }
-                        } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒")){
-                            if(TextBoxStart){
-                                TextBoxEnd = lineNum;
-                            } else {
-                                TextBoxStart = lineNum;
-                            }
-                        } else if(line.includes("│")){
-                            if(TextAreaStart){
-                                if(that.currentEmergencyMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                            } else {
-                                TextAreaStart = lineNum;
-                            }
-                        }
-                        lineNum++
-                    });
-                    
-                    
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, BoxEndPos, "██████████████████████▒");
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, TextBoxEnd-1, "▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒");
-                    }
-            }
-            function ExtendMsgBox(num){
-                for (let index = 0; index < num; index++) {
+
+
+
+    }
+    /**
+     * @deprecated im not sure why this exists it seems like it might have a use possibly, but for the most part is useless
+     * @param {*} players all players
+     * @param {*} x probably the x cord
+     */
+    getPlayerByX(players, x) {
+        return new Promise(resolve => {
+            players.forEach(player => {
+                if (player.x = x) {
+                    resolve(player);
+                }
+            })
+        })
+
+
+    }
+    /**
+     * @description the message feild on the left of the normal map, but for emergencies
+     * @param {*} msgArr the array of messages to display
+     */
+    EmergencySmallDisplay(msgArr) {
+        let that = this
+        function ReduceMsgBox(num) {
+
+            for (let index = 0; index < num; index++) {
                 var BoxEndPos;
                 var BoxStartPos;
                 var TextBoxStart;
@@ -1422,20 +1386,58 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                 var TextAreaEnd;
                 var lineNum = 0;
                 that.currentEmergencyMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒")){
-                        if(BoxStartPos){
+                    if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒")) {
+                        if (BoxStartPos) {
                             BoxEndPos = lineNum;
                         } else {
                             BoxStartPos = lineNum;
                         }
-                    } else if(line.includes("▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒")){
-                        if(TextBoxStart){
+                    } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒")) {
+                        if (TextBoxStart) {
                             TextBoxEnd = lineNum;
                         } else {
                             TextBoxStart = lineNum;
                         }
-                    } else if(line.includes("│                  │")){
-                        if(TextAreaStart){
+                    } else if (line.includes("│")) {
+                        if (TextAreaStart) {
+                            if (that.currentEmergencyMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                        } else {
+                            TextAreaStart = lineNum;
+                        }
+                    }
+                    lineNum++
+                });
+
+
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, BoxEndPos, "██████████████████████▒");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, TextBoxEnd - 1, "▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒");
+            }
+        }
+        function ExtendMsgBox(num) {
+            for (let index = 0; index < num; index++) {
+                var BoxEndPos;
+                var BoxStartPos;
+                var TextBoxStart;
+                var TextBoxEnd;
+                var TextAreaStart;
+                var TextAreaEnd;
+                var lineNum = 0;
+                that.currentEmergencyMap.forEach(line => {
+                    if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒")) {
+                        if (BoxStartPos) {
+                            BoxEndPos = lineNum;
+                        } else {
+                            BoxStartPos = lineNum;
+                        }
+                    } else if (line.includes("▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒")) {
+                        if (TextBoxStart) {
+                            TextBoxEnd = lineNum;
+                        } else {
+                            TextBoxStart = lineNum;
+                        }
+                    } else if (line.includes("│                  │")) {
+                        if (TextAreaStart) {
                             TextAreaEnd = lineNum;
                         } else {
                             TextAreaStart = lineNum;
@@ -1443,199 +1445,161 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                     }
                     lineNum++
                 });
-                
-                
+
+
                 that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, TextBoxEnd, "▓│                  │▓▒");
                 that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, BoxEndPos, "▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒");
-                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, BoxEndPos+1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 3, BoxEndPos + 1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
+            }
+        }
+
+        var MaxMsgLength = "                  ".length //18
+        var lineNum = 0;
+        let i = 0;
+        var BoxEndPos;
+        var BoxStartPos;
+        var TextBoxStart;
+        var TextBoxEnd;
+        var TextAreaStart;
+        var TextAreaEnd;
+        var lineNum = 0;
+        var CurrentMsgs = [];
+        that.currentEmergencyMap.forEach(line => {
+            if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                if (BoxStartPos) {
+                    BoxEndPos = lineNum;
+                } else {
+                    BoxStartPos = lineNum;
+                }
+            } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                if (TextBoxStart) {
+                    TextBoxEnd = lineNum;
+                } else {
+                    TextBoxStart = lineNum;
+                }
+            } else if (line.includes("│")) {
+                if (TextAreaStart) {
+                    if (that.currentEmergencyMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                } else {
+                    TextAreaStart = lineNum;
                 }
             }
-            
-            var MaxMsgLength = "                  ".length //18
-            var lineNum = 0;
-            let i = 0;
-            var BoxEndPos;
-                var BoxStartPos;
-                var TextBoxStart;
-                var TextBoxEnd;
-                var TextAreaStart;
-                var TextAreaEnd;
-                var lineNum = 0;
-                var CurrentMsgs = [];
-                that.currentEmergencyMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                        if(BoxStartPos){
-                            BoxEndPos = lineNum;
-                        } else {
-                            BoxStartPos = lineNum;
-                        }
-                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                        if(TextBoxStart){
-                            TextBoxEnd = lineNum;
-                        } else {
-                            TextBoxStart = lineNum;
-                        }
-                    } else if(line.includes("│")){
-                        if(TextAreaStart){
-                            if(that.currentEmergencyMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                        } else {
-                            TextAreaStart = lineNum;
-                        }
-                    }
-                    if(line.includes("│")){
-                        CurrentMsgs.push(that.currentEmergencyMap[lineNum].split("│")[1]);
-                        }
-                    lineNum++
-                });
-                var msgPos = TextAreaStart;
-            msgArr.forEach(msg => {
-                var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length  
-                if(AddedWhiteSpace < 0){
-                    msg = msg.slice(0, MaxMsgLength);
-                }else{
-                    for (let index = 0; index < AddedWhiteSpace; index++) {
-                        msg = msg + " ";
-                    }
-                };
-                
-                
-                if(that.currentEmergencyMap[msgPos].includes("│")){
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 5, msgPos, msg);
-                }else{
-                    ExtendMsgBox(1);
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 5, msgPos, msg);
-                }   
-                msgPos++;
-            });
-            var numLinesToDel = CurrentMsgs.length - msgArr.length;
-            if(numLinesToDel < 0){
-                numLinesToDel = 0;
+            if (line.includes("│")) {
+                CurrentMsgs.push(that.currentEmergencyMap[lineNum].split("│")[1]);
             }
-            var m = 0;
-            ReduceMsgBox(numLinesToDel);
+            lineNum++
+        });
+        var msgPos = TextAreaStart;
+        msgArr.forEach(msg => {
+            var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length
+            if (AddedWhiteSpace < 0) {
+                msg = msg.slice(0, MaxMsgLength);
+            } else {
+                for (let index = 0; index < AddedWhiteSpace; index++) {
+                    msg = msg + " ";
+                }
+            };
+
+
+            if (that.currentEmergencyMap[msgPos].includes("│")) {
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 5, msgPos, msg);
+            } else {
+                ExtendMsgBox(1);
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 5, msgPos, msg);
+            }
+            msgPos++;
+        });
+        var numLinesToDel = CurrentMsgs.length - msgArr.length;
+        if (numLinesToDel < 0) {
+            numLinesToDel = 0;
         }
-        /**
-         * 
-         * @param {*} msgArr the array of messages to display
-         * @param {*} player the player controlled by this client
-         * @param {*} yn weathor or not to immediately updateMapStatuses() after the function completes
-         */
-        DisplayMsg(msgArr, player, yn = false){
-            
-            var MaxMsgLength = "                  ".length //18
-            var lineNum = 0;
-            let i = 0;
-            var BoxEndPos;
-                var BoxStartPos;
-                var TextBoxStart;
-                var TextBoxEnd;
-                var TextAreaStart;
-                var TextAreaEnd;
-                var lineNum = 0;
-                var CurrentMsgs = [];
-                this.currentMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                        if(BoxStartPos){
-                            BoxEndPos = lineNum;
-                        } else {
-                            BoxStartPos = lineNum;
-                        }
-                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                        if(TextBoxStart){
-                            TextBoxEnd = lineNum;
-                        } else {
-                            TextBoxStart = lineNum;
-                        }
-                    } else if(line.includes("║")){
-                        if(TextAreaStart){
-                            if(this.currentMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                        } else {
-                            TextAreaStart = lineNum;
-                        }
-                    }
-                    if(line.includes("║")){
-                        CurrentMsgs.push(this.currentMap[lineNum].split("║")[1]);
-                        }
-                    lineNum++
-                });
-                var msgPos = TextAreaStart;
-            msgArr.forEach(msg => {
-                var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length  
-                if(AddedWhiteSpace < 0){
-                    msg = msg.slice(0, MaxMsgLength);
-                }else{
-                    for (let index = 0; index < AddedWhiteSpace; index++) {
-                        msg = msg + " ";
-                    }
-                };
-                
-                
-                if(this.currentMap[msgPos].includes("║")){
+        var m = 0;
+        ReduceMsgBox(numLinesToDel);
+    }
+    /**
+     * 
+     * @param {*} msgArr the array of messages to display
+     * @param {*} player the player controlled by this client
+     * @param {*} yn weathor or not to immediately updateMapStatuses() after the function completes
+     */
+    DisplayMsg(msgArr, player, yn = false) {
+
+        var MaxMsgLength = "                  ".length //18
+        var lineNum = 0;
+        let i = 0;
+        var BoxEndPos;
+        var BoxStartPos;
+        var TextBoxStart;
+        var TextBoxEnd;
+        var TextAreaStart;
+        var TextAreaEnd;
+        var lineNum = 0;
+        var CurrentMsgs = [];
+        this.currentMap.forEach(line => {
+            if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                if (BoxStartPos) {
+                    BoxEndPos = lineNum;
+                } else {
+                    BoxStartPos = lineNum;
+                }
+            } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                if (TextBoxStart) {
+                    TextBoxEnd = lineNum;
+                } else {
+                    TextBoxStart = lineNum;
+                }
+            } else if (line.includes("║")) {
+                if (TextAreaStart) {
+                    if (this.currentMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                } else {
+                    TextAreaStart = lineNum;
+                }
+            }
+            if (line.includes("║")) {
+                CurrentMsgs.push(this.currentMap[lineNum].split("║")[1]);
+            }
+            lineNum++
+        });
+        var msgPos = TextAreaStart;
+        msgArr.forEach(msg => {
+            var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length
+            if (AddedWhiteSpace < 0) {
+                msg = msg.slice(0, MaxMsgLength);
+            } else {
+                for (let index = 0; index < AddedWhiteSpace; index++) {
+                    msg = msg + " ";
+                }
+            };
+
+
+            if (this.currentMap[msgPos].includes("║")) {
                 this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
-                }else{
-                    this.ExtendMsgBox(1);
-                    this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
-                }   
-                msgPos++;
-            });
-            var numLinesToDel = CurrentMsgs.length - msgArr.length;
-            if(numLinesToDel < 0){
-                numLinesToDel = 0;
+            } else {
+                this.ExtendMsgBox(1);
+                this.currentMap = this.Replace(this.currentMap, 5, msgPos, msg);
             }
-            var m = 0;
-            this.ReduceMsgBox(numLinesToDel);
-            if(yn == false)this.UpdateMapStatuses(player);
+            msgPos++;
+        });
+        var numLinesToDel = CurrentMsgs.length - msgArr.length;
+        if (numLinesToDel < 0) {
+            numLinesToDel = 0;
         }
-        /**
-         * 
-         * @description update the emergency meeting map
-         * @param {*} msgArr the main message array rendered in the chat box
-         * @param {*} msgArrSmall the small msg array used to display players
-         * @param {*} Gimme if true do not print the map immidietly and instead return it
-         * 
-         */
-        updateEmergencyMap(msgArr, msgArrSmall =false, Gimme = false){
-            var that = this
-            function ReduceMsgBoxEM(num){
-                for (let index = 0; index < num; index++) {
-                    var BoxEndPos;
-                    var BoxStartPos;
-                    var TextBoxStart;
-                    var TextBoxEnd;
-                    var TextAreaStart;
-                    var TextAreaEnd;
-                    var lineNum = 0;
-                    that.currentEmergencyMap.forEach(line => {
-                        if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                            if(BoxStartPos){
-                                BoxEndPos = lineNum;
-                            } else {
-                                BoxStartPos = lineNum;
-                            }
-                        } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                            if(TextBoxStart){
-                                TextBoxEnd = lineNum;
-                            } else {
-                                TextBoxStart = lineNum;
-                            }
-                        } else if(line.includes("║║")){
-                            if(TextAreaStart){
-                                if(that.currentEmergencyMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                            } else {
-                                TextAreaStart = lineNum;
-                            }
-                        }
-                        lineNum++
-                    });
-                    
-                    
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, BoxEndPos, "██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████");
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 42, TextBoxEnd-1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓");
-                    }
-            }
-            function ExtendMsgBoxEM(num){
-                for (let index = 0; index < num; index++) {
+        var m = 0;
+        this.ReduceMsgBox(numLinesToDel);
+        if (yn == false) this.UpdateMapStatuses(player);
+    }
+    /**
+     * 
+     * @description update the emergency meeting map
+     * @param {*} msgArr the main message array rendered in the chat box
+     * @param {*} msgArrSmall the small msg array used to display players
+     * @param {*} Gimme if true do not print the map immidietly and instead return it
+     * 
+     */
+    updateEmergencyMap(msgArr, msgArrSmall = false, Gimme = false) {
+        var that = this
+        function ReduceMsgBoxEM(num) {
+            for (let index = 0; index < num; index++) {
                 var BoxEndPos;
                 var BoxStartPos;
                 var TextBoxStart;
@@ -1644,20 +1608,58 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                 var TextAreaEnd;
                 var lineNum = 0;
                 that.currentEmergencyMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                        if(BoxStartPos){
+                    if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                        if (BoxStartPos) {
                             BoxEndPos = lineNum;
                         } else {
                             BoxStartPos = lineNum;
                         }
-                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                        if(TextBoxStart){
+                    } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                        if (TextBoxStart) {
                             TextBoxEnd = lineNum;
                         } else {
                             TextBoxStart = lineNum;
                         }
-                    } else if(line.includes("║║                                                                                                              ║║")){
-                        if(TextAreaStart){
+                    } else if (line.includes("║║")) {
+                        if (TextAreaStart) {
+                            if (that.currentEmergencyMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                        } else {
+                            TextAreaStart = lineNum;
+                        }
+                    }
+                    lineNum++
+                });
+
+
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, BoxEndPos, "██████████████████████████████████████████████████████████████████████████████████████████████████████████████████████");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 42, TextBoxEnd - 1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▓");
+            }
+        }
+        function ExtendMsgBoxEM(num) {
+            for (let index = 0; index < num; index++) {
+                var BoxEndPos;
+                var BoxStartPos;
+                var TextBoxStart;
+                var TextBoxEnd;
+                var TextAreaStart;
+                var TextAreaEnd;
+                var lineNum = 0;
+                that.currentEmergencyMap.forEach(line => {
+                    if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                        if (BoxStartPos) {
+                            BoxEndPos = lineNum;
+                        } else {
+                            BoxStartPos = lineNum;
+                        }
+                    } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                        if (TextBoxStart) {
+                            TextBoxEnd = lineNum;
+                        } else {
+                            TextBoxStart = lineNum;
+                        }
+                    } else if (line.includes("║║                                                                                                              ║║")) {
+                        if (TextAreaStart) {
                             TextAreaEnd = lineNum;
                         } else {
                             TextAreaStart = lineNum;
@@ -1665,136 +1667,94 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                     }
                     lineNum++
                 });
-                
-                
+
+
                 that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 42, TextBoxEnd, "║║                                                                                                              ║║▓▓");
                 that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 42, BoxEndPos, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒");
-                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, BoxEndPos+1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 40, BoxEndPos + 1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+            }
+        }
+        var MaxMsgLength = "                                                                                                                ".length //18
+        var lineNum = 0;
+        let i = 0;
+        var BoxEndPos;
+        var BoxStartPos;
+        var TextBoxStart;
+        var TextBoxEnd;
+        var TextAreaStart;
+        var TextAreaEnd;
+        var lineNum = 0;
+        var CurrentMsgs = [];
+        that.currentEmergencyMap.forEach(line => {
+            if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                if (BoxStartPos) {
+                    BoxEndPos = lineNum;
+                } else {
+                    BoxStartPos = lineNum;
+                }
+            } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                if (TextBoxStart) {
+                    TextBoxEnd = lineNum;
+                } else {
+                    TextBoxStart = lineNum;
+                }
+            } else if (line.includes("║║")) {
+                if (TextAreaStart) {
+                    if (that.currentEmergencyMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                } else {
+                    TextAreaStart = lineNum;
                 }
             }
-            var MaxMsgLength = "                                                                                                                ".length //18
-            var lineNum = 0;
-            let i = 0;
-            var BoxEndPos;
-                var BoxStartPos;
-                var TextBoxStart;
-                var TextBoxEnd;
-                var TextAreaStart;
-                var TextAreaEnd;
-                var lineNum = 0;
-                var CurrentMsgs = [];
-                that.currentEmergencyMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                        if(BoxStartPos){
-                            BoxEndPos = lineNum;
-                        } else {
-                            BoxStartPos = lineNum;
-                        }
-                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                        if(TextBoxStart){
-                            TextBoxEnd = lineNum;
-                        } else {
-                            TextBoxStart = lineNum;
-                        }
-                    } else if(line.includes("║║")){
-                        if(TextAreaStart){
-                            if(that.currentEmergencyMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                        } else {
-                            TextAreaStart = lineNum;
-                        }
-                    }
-                    if(line.includes("║║")){
-                        CurrentMsgs.push(that.currentEmergencyMap[lineNum].split("║║")[1]);
-                        }
-                    lineNum++
-                });
-                var msgPos = TextAreaStart;
-            msgArr.forEach(msg => {
-                var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length 
-                if(AddedWhiteSpace < 0){
-                    msg = msg.slice(0, MaxMsgLength);
-                }else{
-                    for (let index = 0; index < AddedWhiteSpace; index++) {
-                        msg = msg + " ";
-                    }
-                };
-                
-                
-                if(that.currentEmergencyMap[msgPos].includes("║║")){
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 44, msgPos, msg);
-                }else{
-                    ExtendMsgBoxEM(1);
-                    that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 44, msgPos, msg);
-                }   
-                msgPos++;
-            });
-            var numLinesToDel = CurrentMsgs.length - msgArr.length;
-            if(numLinesToDel < 0){
-                numLinesToDel = 0;
+            if (line.includes("║║")) {
+                CurrentMsgs.push(that.currentEmergencyMap[lineNum].split("║║")[1]);
             }
-            var m = 0;
-            ReduceMsgBoxEM(numLinesToDel);
-            if(msgArrSmall != false){
+            lineNum++
+        });
+        var msgPos = TextAreaStart;
+        msgArr.forEach(msg => {
+            var AddedWhiteSpace = MaxMsgLength - stripAnsi(msg).length
+            if (AddedWhiteSpace < 0) {
+                msg = msg.slice(0, MaxMsgLength);
+            } else {
+                for (let index = 0; index < AddedWhiteSpace; index++) {
+                    msg = msg + " ";
+                }
+            };
+
+
+            if (that.currentEmergencyMap[msgPos].includes("║║")) {
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 44, msgPos, msg);
+            } else {
+                ExtendMsgBoxEM(1);
+                that.currentEmergencyMap = that.Replace(that.currentEmergencyMap, 44, msgPos, msg);
+            }
+            msgPos++;
+        });
+        var numLinesToDel = CurrentMsgs.length - msgArr.length;
+        if (numLinesToDel < 0) {
+            numLinesToDel = 0;
+        }
+        var m = 0;
+        ReduceMsgBoxEM(numLinesToDel);
+        if (msgArrSmall != false) {
             this.EmergencySmallDisplay(msgArrSmall);
-            }
-            if(Gimme == false){
+        }
+        if (Gimme == false) {
             process.stdout.write("\x1b[?25l");
             var readline = require("readline");
             readline.cursorTo(process.stdout, 1, 1)
             process.stdout.write(that.currentEmergencyMap.join("\n"));
             process.stdout.write("\x1b[?25h");
-        }else{
+        } else {
             return that.currentEmergencyMap;
         }
-        }
-        /**
-         * @description reduce the message box by x number of lines (on main map)
-         * @param {*} num the number of lines to reduce the box by
-         */
-        ReduceMsgBox(num){
-            for (let index = 0; index < num; index++) {
-                var BoxEndPos;
-                var BoxStartPos;
-                var TextBoxStart;
-                var TextBoxEnd;
-                var TextAreaStart;
-                var TextAreaEnd;
-                var lineNum = 0;
-                this.currentMap.forEach(line => {
-                    if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                        if(BoxStartPos){
-                            BoxEndPos = lineNum;
-                        } else {
-                            BoxStartPos = lineNum;
-                        }
-                    } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                        if(TextBoxStart){
-                            TextBoxEnd = lineNum;
-                        } else {
-                            TextBoxStart = lineNum;
-                        }
-                    } else if(line.includes("║")){
-                        if(TextAreaStart){
-                            if(this.currentMap[lineNum+1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒"))TextAreaEnd = lineNum;
-                        } else {
-                            TextAreaStart = lineNum;
-                        }
-                    }
-                    lineNum++
-                });
-                
-                
-                this.currentMap = this.Replace(this.currentMap, 3, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
-                this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos, "░░░░░░░░░░░░░░░░░░░░░░");
-                this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd-1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓");
-                }
-        }
-        /**
-         * @description extend the msg box by x line (on main map)
-         * @param {*} num the number of lines to extend the msg box by
-         */
-        ExtendMsgBox(num){
-            for (let index = 0; index < num; index++) {
+    }
+    /**
+     * @description reduce the message box by x number of lines (on main map)
+     * @param {*} num the number of lines to reduce the box by
+     */
+    ReduceMsgBox(num) {
+        for (let index = 0; index < num; index++) {
             var BoxEndPos;
             var BoxStartPos;
             var TextBoxStart;
@@ -1803,20 +1763,62 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
             var TextAreaEnd;
             var lineNum = 0;
             this.currentMap.forEach(line => {
-                if(line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")){
-                    if(BoxStartPos){
+                if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                    if (BoxStartPos) {
                         BoxEndPos = lineNum;
                     } else {
                         BoxStartPos = lineNum;
                     }
-                } else if(line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")){
-                    if(TextBoxStart){
+                } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                    if (TextBoxStart) {
                         TextBoxEnd = lineNum;
                     } else {
                         TextBoxStart = lineNum;
                     }
-                } else if(line.includes("║                  ║")){
-                    if(TextAreaStart){
+                } else if (line.includes("║")) {
+                    if (TextAreaStart) {
+                        if (this.currentMap[lineNum + 1].includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) TextAreaEnd = lineNum;
+                    } else {
+                        TextAreaStart = lineNum;
+                    }
+                }
+                lineNum++
+            });
+
+
+            this.currentMap = this.Replace(this.currentMap, 3, TextBoxEnd, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓");
+            this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos, "░░░░░░░░░░░░░░░░░░░░░░");
+            this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd - 1, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓");
+        }
+    }
+    /**
+     * @description extend the msg box by x line (on main map)
+     * @param {*} num the number of lines to extend the msg box by
+     */
+    ExtendMsgBox(num) {
+        for (let index = 0; index < num; index++) {
+            var BoxEndPos;
+            var BoxStartPos;
+            var TextBoxStart;
+            var TextBoxEnd;
+            var TextAreaStart;
+            var TextAreaEnd;
+            var lineNum = 0;
+            this.currentMap.forEach(line => {
+                if (line.includes("▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓")) {
+                    if (BoxStartPos) {
+                        BoxEndPos = lineNum;
+                    } else {
+                        BoxStartPos = lineNum;
+                    }
+                } else if (line.includes("▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒")) {
+                    if (TextBoxStart) {
+                        TextBoxEnd = lineNum;
+                    } else {
+                        TextBoxStart = lineNum;
+                    }
+                } else if (line.includes("║                  ║")) {
+                    if (TextAreaStart) {
                         TextAreaEnd = lineNum;
                     } else {
                         TextAreaStart = lineNum;
@@ -1824,18 +1826,18 @@ async RenderPlayers(players, map =this.currentMap, renderAll = false){
                 }
                 lineNum++
             });
-            
-            
+
+
             this.currentMap = this.Replace(this.currentMap, 4, TextBoxEnd, "║                  ║▓▒");
             this.currentMap = this.Replace(this.currentMap, 4, BoxEndPos, "▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒");
-            this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos+1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
-            }
+            this.currentMap = this.Replace(this.currentMap, 3, BoxEndPos + 1, "▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▒");
         }
-        /** @deprecated map is stored in array, thus y does not need to equal length of a line thus this function is unused */
-        MapGetLengthOfLine(i){
-           var lines = this.BaseMap.split("\n")
-           if(this.FileSys.Config.Verbose)console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒"))
-           if(this.FileSys.Config.Verbose)console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length)
-           return lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length+1;
-        }
+    }
+    /** @deprecated map is stored in array, thus y does not need to equal length of a line thus this function is unused */
+    MapGetLengthOfLine(i) {
+        var lines = this.BaseMap.split("\n")
+        if (this.FileSys.Config.Verbose) console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒"))
+        if (this.FileSys.Config.Verbose) console.log(lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length)
+        return lines[i].replace(/ /g, "▒").replace(/\n/g, "▒▒").length + 1;
+    }
 }
