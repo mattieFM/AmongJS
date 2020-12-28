@@ -1,9 +1,7 @@
 
 
 /*#Program "Heck" 
- #Program description: very bad code 
  #Programmer: Matt /AuthoredEntropy
- #Course: Bad_JS.net.com.lol.funnyjoke.net
 */
  
 const util = require("./Utility/util");
@@ -370,9 +368,18 @@ KillPlayer(id) {
         await this.util.wait(100);
         }
         const YesNo = prompt("[y/n]: ")
+        if(YesNo == null || YesNo == "") {
+        console.log("TEMP: you didn't answer anything so i took the liberty to kill you, hope that was ok..."); 
+        process.exit(0);}
         if(YesNo.toLowerCase() == "y"){
+          try {
             return this.ConnectPlayer(this.player_1);
-        }else {
+          } catch (error) {
+            console.log("TEMP err: Could not connect"); 
+            process.exit(0);
+          }
+            
+        }else{
             process.exit(0);
         }
         
