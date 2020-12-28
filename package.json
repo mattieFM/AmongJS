@@ -1,6 +1,6 @@
 {
   "name": "among_js",
-  "version": "Alpha.2",
+  "version": "Alpha.2.1",
   "description": "javascript, terminal based graphics, welcome to hell",
   "main": "Init.js",
   "bin": "bin.js",
