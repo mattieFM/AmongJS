@@ -231,27 +231,3 @@ async YesNo(bool) {
     this.QuestionNum = 0;
 }
 }
-
-// /**
-//  * @description True / False command controller
-//  */
-
-// var that = this;
-// module.exports.TF = class TFController{
-//     QuestionNum;
-//     FileSys;
-//     LoadFileSys(FileSystem){
-//         this
-//     that.FileSys = FileSystem
-//     that.QuestionNum = that.FileSys.BaseFileSys.TFQuestionNum;
-//     }
-
-//     constructor(){
-        
-//     }
-    
-    
-    
-    // }
-    
-    

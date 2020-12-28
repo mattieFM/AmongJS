@@ -399,6 +399,7 @@ const init = class {
       });
     });
   }
+  /**@description ask if the player wants to play the game, then run connectPlayer() if they answer y */
   async BasicGameInit() {
     const prompt = require('prompt-sync')();
     var msgArr = MSGs.WelcomeMsg.split("\n")
@@ -432,7 +433,7 @@ const init = class {
 
     }, this.Config.delay)
   }
-
+/**@description loads filesystem into all controllers and loads all controllers into filesystem */
   BaseInit() {
     //initalizing controllers into filesystem
     this.FsController = new this._FileSystem.fs();
@@ -459,6 +460,7 @@ const init = class {
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into IO Controller--")
 
   }
+  /**@description by creating a new init object the game is started */
   constructor() {
     this.BaseInit();
     var client = this.BasicGameInit();
