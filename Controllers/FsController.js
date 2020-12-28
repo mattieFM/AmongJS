@@ -9,6 +9,7 @@ Programmer: Matt/AuthoredEntropy
 
 const chalk = require('chalk');
 const colors = require('colors/safe');
+const { config } = require('process');
 const stripAnsi = require('strip-ansi');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
@@ -303,7 +304,18 @@ module.exports.map = class {
                 }
             }
             await this.RenderPlayers(obj.players);
-
+            this.currentMap.forEach(line => {
+                if(line.includes("³")){
+                    this.currentMap[this.currentMap.indexOf(line)] = chalk.red(line)
+                };
+                if(line.includes("²")){
+                    this.currentMap[this.currentMap.indexOf(line)] = chalk.green(line)
+                };
+                if(line.includes("¹")){
+                    this.currentMap[this.currentMap.indexOf(line)] = chalk.yellow(line)
+                };
+            });
+            
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
                 var status = this.Statuses[name];

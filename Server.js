@@ -128,6 +128,7 @@ async function killPlayer(playerToKillId, spawnCorpse = true){
       corpse.x = player.x;
       corpse.IsDead = true
       corpse.PreviousColor = player.PlayerColor;
+      corpse.instanceOfPlayer = player.PlayerID
       ghost.y = player.y;
       ghost.x = player.x;
       ghost.IsDead = true;
@@ -135,6 +136,7 @@ async function killPlayer(playerToKillId, spawnCorpse = true){
       ghost.PlayerColor = player.PlayerColor;
       ghost.isRendered = false;
       ghost.isGhost = true;
+      ghost.PlayerID = player.PlayerID;
       if(spawnCorpse){
       players.push(corpse);
       players.splice(players.indexOf(player),1, ghost);
@@ -248,9 +250,8 @@ socket.on('data',(data)=>{
       var reporter = obj["reporter"];
       var dead = obj["dead"];
       if(dead != null){
-      
       players.forEach(player => {
-        if(player.PlayerID == dead.PlayerID){
+        if(player.instanceOfPlayer == dead.instanceOfPlayer){
           player.isRendered = false;
         }
       });
@@ -260,6 +261,21 @@ socket.on('data',(data)=>{
       });
     }else if (data1.startsWith("giveMeResults")){
       socket.write(JSON.stringify(winner));
+    }else if (data1.startsWith("removePlayer:")){
+      var playerId = JSON.parse(data1.slice("removePlayer:".length));
+      let numOfRemoved = 0;
+      players.forEach(player => {
+        if(player.PlayerID == playerId){
+          players.splice(players.indexOf(player), 1);
+          numOfRemoved++;
+        }
+        if(player.instanceOfPlayer == playerId){
+          players.splice(players.indexOf(player), 1);
+          numOfRemoved++;
+        }
+      });
+      socket.write(JSON.stringify(numOfRemoved));
+      socket.end();
     }
   
 

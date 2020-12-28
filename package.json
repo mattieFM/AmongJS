@@ -1,6 +1,6 @@
 {
   "name": "among_js",
-  "version": "Alpha.2.1",
+  "version": "2.0.1",
   "description": "javascript, terminal based graphics, welcome to hell",
   "main": "Init.js",
   "bin": "bin.js",
@@ -17,12 +17,11 @@
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AuthoredEntropy/AmoungUS.git"
+    "url": "git+https://github.com/AuthoredEntropy/AmongJS.git"
   },
   "author": "Matt/AuthoredEntropy",
-  "license": "ISC",
   "bugs": {
-    "url": "https://github.com/AuthoredEntropy/AmoungUS/issues"
+    "url": "https://github.com/AuthoredEntropy/AmongJS/issues"
   },
-  "homepage": "https://github.com/AuthoredEntropy/AmoungUS#readme"
+  "homepage": "https://github.com/AuthoredEntropy/AmongJS#readme"
 }

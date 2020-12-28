@@ -15,6 +15,7 @@
  * only slightly.....
 Programmer: Matt/AuthoredEntropy
 */
+const util = require("../Utility/util")
 const MSGs = require("../FileSys/Msg.json");
 const Config = require("../FileSys/Config.json")
 /**
@@ -25,7 +26,7 @@ const Config = require("../FileSys/Config.json")
 module.exports.CMD = class {
     constructor(){
     }
-    
+    util = new util();             
     self = this;
     QuestionNum;
     FileSys;
@@ -36,6 +37,7 @@ module.exports.CMD = class {
     this.QuestionNum = this.FileSys.BaseFileSys.TFQuestionNum;
     this.PROMPT = this.FileSys.BaseFileSys.PROMPT;
     this.IOController = this.FileSys.IOController;
+    this.util.loadFileSys(FileSystem)
     }
     /**@description The basic command processor, processing all commands sent to it, then sending them to more advanced handlers/emitting events */
      ArrowMoveMultiplier =1;
@@ -138,6 +140,7 @@ module.exports.CMD = class {
                         this.FileSys.pause = true
                     }
                     break;
+                
                 case "longMsg":
                     let msgArr =[]
                     args.forEach(arg => {

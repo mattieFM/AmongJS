@@ -120,6 +120,31 @@ const init = class {
     })
 
   }
+  /**@description connect to the server and remove specified client*/
+  removePlayerFromServer(id){
+    return new Promise(resolve => {
+      var net = require('net');
+
+      const client = new net.Socket();
+      client.connect({
+        port: this.port,
+        host: this.IpAdress
+      });
+      client.setTimeout(0);
+      client.on('connect', function () {
+        client.write('removePlayer:' + id);
+      })
+      client.on('data', (data) => {
+        console.log("removed " + data + " entities from the game when you left")
+        client.end();
+        resolve(data);
+      });
+      client.on('error', (error) => {
+        if (this.Config.Verbose) console.log('removePlayer: ' + id);
+      });
+    })
+    
+  }
   /**
    * @description sends the player object to the server
    * @returns a json string containing an object with an array of all players and the turn number
@@ -410,14 +435,14 @@ const init = class {
     }
     const YesNo = prompt("[y/n]: ")
     if (YesNo == null || YesNo == "") {
-      console.log("TEMP: you didn't answer anything so i took the liberty to kill you, hope that was ok...");
+      console.log("you didn't answer anything so i took the liberty to kill you, hope that was ok...");
       process.exit(0);
     }
     if (YesNo.toLowerCase() == "y") {
       try {
         return this.ConnectPlayer(this.player_1);
       } catch (error) {
-        console.log("TEMP err: Could not connect");
+        console.log("err: Could not connect");
         process.exit(0);
       }
 
@@ -447,6 +472,7 @@ const init = class {
     this.IOController = new this.IO_Controller.IO();
     if (this.Config.Verbose) console.log("--Init: IO Controller Initialized into Filesystem--")
 
+    this.util.loadFileSys(this);
     this.player_1.LoadFileSys(this);
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into player_1--")
     this.map.LoadFileSys(this);

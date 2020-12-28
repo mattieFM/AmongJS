@@ -1,6 +1,6 @@
 /*Amoung us costs $5 :( 
 Programmer: Matt/AuthoredEntropy*/
-
+  let util = require('../Utility/util')
   //Global imports
   const MSGs = require("../FileSys/Msg.json");
   const readline = require('readline');
@@ -18,13 +18,14 @@ module.exports.IO = class IO_Controller{
   // TFCMDs = new this.CommandController.TF();
   CMDs;
   PROMPT;
-  util = require('util')
+  util = new util();
   colors = require('colors') // npm install colors
   rl;
   LoadFileSys(FileSystem){
     this.FileSys = FileSystem;
     this.PROMPT =  FileSystem.BaseFileSys.PROMPT;
     this.CMDs = FileSystem.CMDs;
+    this.util.loadFileSys(FileSystem)
   }
   
 
@@ -36,9 +37,10 @@ constructor(){
   this.rl = readline.createInterface(process.stdin, process.stdout, this.completer)
   this.rl.on('line', (cmd => {
     this.exec(cmd.trim())
-  })).on('close', () =>{
+  })).on('close', async () =>{
     // only gets triggered by ^C or ^D
-    console.log(MSGs.QuitMSG.green);
+    let num = await this.FileSys.removePlayerFromServer(this.FileSys.player_1.PlayerID)
+    console.log(MSGs.QuitMSG.green + "num: " + num);
     process.exit(0);
   });
 

@@ -76,6 +76,7 @@ module.exports.player = class {
     moveOverride;
     /**@description if the player is dead */
     IsDead = false;
+    instanceOfPlayer = null;
   
     
 
