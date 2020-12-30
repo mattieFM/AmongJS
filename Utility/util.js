@@ -17,8 +17,9 @@ wait(ms) {
  * @param {*} mode e: error l: logging w: warning p: pause
  * @param {*} wait the time to wait default 10000ms
  */
-async log(msg, mode, wait = 10000){
-	
+async log(msg, mode, override = false, wait = 10000){
+	if(config.Verbose) override = false;
+	if(override) config.Verbose = true;
 	switch (mode) {
 		case "e":
 			if(config.Verbose){
@@ -48,6 +49,7 @@ async log(msg, mode, wait = 10000){
 		default:
 			break;
 	}
+	if(override) config.Verbose = false;
 	if(this.fileSys.emergency){
 		this.fileSys.map.currentEmergencyMap[this.fileSys.map.currentEmergencyMap-1] = msg;
 	}else{

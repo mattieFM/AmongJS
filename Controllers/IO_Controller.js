@@ -4,6 +4,7 @@ Programmer: Matt/AuthoredEntropy*/
   //Global imports
   const MSGs = require("../FileSys/Msg.json");
   const readline = require('readline');
+const config = require("../FileSys/Config.json")
 module.exports.baseFileSys = class {
   TFQuestion;
   PROMPT;
@@ -40,7 +41,7 @@ constructor(){
   })).on('close', async () =>{
     // only gets triggered by ^C or ^D
     let num = await this.FileSys.removePlayerFromServer(this.FileSys.player_1.PlayerID)
-    console.log(MSGs.QuitMSG.green + "num: " + num);
+    if(config.Verbose)console.log(MSGs.QuitMSG.green + "num: " + num);
     process.exit(0);
   });
 

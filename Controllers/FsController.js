@@ -620,7 +620,7 @@ module.exports.map = class {
             let i = 5;
             let Msgarr = []
             await falsePlayers.forEach(player => {
-                if (player.isRendered || player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
+                if (player.isRendered && !player.isCorpse|| player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
                 x++
             });
             Msgarr.push(x.toString() + ": skip vote")
@@ -1306,7 +1306,7 @@ module.exports.map = class {
             let index = 1;
             players.forEach(player => {
                 var charAtPlayerX = map[player.y].charAt(player.x)
-                if (charAtPlayerX == " " && player.isRendered || renderAll == true) {
+                if (charAtPlayerX == " " && player.isRendered || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
                     let firstPart = map[player.y].substr(0, player.x);
                     let lastPart = map[player.y].substr(player.x + 1);
                     map[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
@@ -1319,7 +1319,7 @@ module.exports.map = class {
 
             });
 
-        })
+        });
         let playerPromise2 = new Promise(resolve => {
             let index = 1;
             var replaceNum = 0;

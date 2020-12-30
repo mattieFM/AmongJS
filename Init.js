@@ -135,7 +135,6 @@ const init = class {
         client.write('removePlayer:' + id);
       })
       client.on('data', (data) => {
-        console.log("removed " + data + " entities from the game when you left")
         client.end();
         resolve(data);
       });
@@ -290,8 +289,11 @@ const init = class {
         if (!isNaN(num) && !this.Voted) {
 
           client.write("sendMsgsToServer: " + this.player_1.PlayerColor + " : " + "vote" + msg);
-
+          if(num < this.allPlayers.length){
           if (!this.allPlayers[parseInt(num) - 1].IsDead) this.Voted = true;
+          }else{
+            voted = true
+          }
         } else if (!isNaN(num)) {
           client.write("sendMsgsToServer: " + this.player_1.PlayerColor + " : " + "No Vote For U");
         }
@@ -326,8 +328,9 @@ const init = class {
       client.write('DeathWaiting' + player.PlayerID);
     })
     client.on('data', (data) => {
-
-      this.FsController.FileSys.map.death(player)
+      let newPlayer = JSON.parse(data.toString().slice("die:".length))
+      this.player_1 = newPlayer;
+      this.FsController.FileSys.map.death(this.player_1)
       client.end();
     });
     client.on('error', (error) => {
@@ -355,10 +358,10 @@ const init = class {
       client.write('ReportWaiting' + player.PlayerID);
     })
     client.on('data', (data) => {
-      this.ReportPlayer(player);
+      this.ReportPlayer(this.player_1);
       var data2 = data.toString()
       var data1 = JSON.parse(data2)
-      this.FsController.FileSys.map.Report(player, data1)
+      this.FsController.FileSys.map.Report(this.player_1, data1)
       client.end();
     });
     client.on('error', (error) => {

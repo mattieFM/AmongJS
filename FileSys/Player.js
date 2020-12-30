@@ -28,6 +28,7 @@ module.exports.player = class {
     isRendered = true;
     /**@description if the player is a ghost */
     isGhost = false;
+    isCorpse = false;
     /**@description if the player has gas as it relates to the feul tasks */
     hasGas = false;
     /**@description if the player has feuled the upper engine */
