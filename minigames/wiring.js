@@ -187,7 +187,7 @@ module.exports = async function main() {
 }
 let selected = 0
 function renderSelect(){
-  let selectBody=[]
+  
   if(workingWires[0].length == 0){
     shouldDraw = false
     gameHasStarted = true;
@@ -195,16 +195,23 @@ function renderSelect(){
   }
   let x = workingWires[0][selected].x-4;
   let y = workingWires[0][selected].y;
-  for (let i = 0; i < 6; i++) {
-    selectBody.push({"x": x+(i*2), "y": y-2})
-    selectBody.push({"x": x+(i*2), "y": y+2})
-  }
-  for (let z = 0; z < 3; z++) {
-    selectBody.push({"x": x, "y": (y-1)+z})
-    selectBody.push({"x": x+10, "y": (y-1)+z})
-  }
+  let selectBody=getBoxCords(x,y,6,3)
   
   selectBody.forEach(drawSnakePart);
+}
+function getBoxCords(xOrigin,yOrigin,xLen,yLen){
+  let cords = [];
+  let x = xOrigin
+  let y = yOrigin
+  for (let i = 0; i < xLen; i++) {
+      cords.push({"x": x+(i*2), "y": y-2})
+      cords.push({"x": x+(i*2), "y": y+2})
+  }
+  for (let z = 0; z < yLen; z++) {
+      cords.push({"x": x, "y": (y-1)+z})
+      cords.push({"x": x+10, "y": (y-1)+z})
+  }
+  return cords;
 }
 function writeScore(msg) {
   let space = "══════════════════════════════════════════════════════════════════════════";

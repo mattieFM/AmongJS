@@ -11,6 +11,7 @@ const chalk = require('chalk');
 const colors = require('colors/safe');
 const { config } = require('process');
 const stripAnsi = require('strip-ansi');
+const { replace } = require('../FileSys/BaseMap');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
  *   this has not been implemented yet and is only used in updateCurrentMsg a function that is not used
@@ -42,7 +43,7 @@ module.exports.fs = class FsController {
     LoadFileSys(FileSystem) {
         this.FileSys = FileSystem;
     }
-
+    
     /**
      * @description get the BaseMap object
      * @returns a new BaseMap object */
@@ -96,6 +97,7 @@ module.exports.fs = class FsController {
  * @description the class that represents the map: the board that players move on.
  */
 module.exports.map = class {
+    sabotageMap = require("../FileSys/SabatageMap").split("\n");
     /**@description the variable representing the init class, where all global runtime variables are stored*/
     FileSys;
     /**
@@ -135,6 +137,7 @@ module.exports.map = class {
         if (!this.currentMap) {
             this.currentMap = this.BaseMap.split("\n")
             this.currentEmergencyMap = this.currentEmergencyMap.split("\n")
+            
         }
 
     }
@@ -562,6 +565,91 @@ module.exports.map = class {
             killer.nextKillTurn = this.FileSys.TickCount + this.FileSys.Config.killCooldown;
         }
     }
+    /**
+     * @description pause the map and let the player sabotage the map if they are a traitor
+     * @param {*} player the player controled by this client
+     */
+    Sabotage(player){
+        if(!player.IsTraitor) return;
+        this.FileSys.pause = true;
+
+    }
+    /**
+     * @description used for sabotage map
+     * @param {String} text the string to render a box around
+     */
+    async renderBoxAroundText(text){
+        let indexOfText =await this.checkMapForText(this.sabotageMap,text)
+        if(indexOfText){
+            let line = this.sabotageMap[indexOfText];
+            let wordStart = parseInt(line.indexOf(text));
+            let wordEnd = wordStart + text.length;
+            let yLength = 4
+            if(text.length > 8) yLength = 6
+            let boxCords = this.getBoxCords((wordStart - Math.floor(text.length/3)/2 )-1, indexOfText, text.length+Math.floor(text.length/3)+1, yLength)
+            boxCords.forEach(cord=>{
+                console.log(cord)
+                let x= cord.x;
+                let y = cord.y;
+                this.Replace(this.sabotageMap,x,y,"█")
+            })
+            
+            process.stdout.write("\x1b[?25l");
+            var readline = require("readline");
+            readline.cursorTo(process.stdout, 1, 1)
+            process.stdout.write(this.sabotageMap.join("\n"));
+            process.stdout.write("\x1b[?25h");
+        }
+    }
+     /**
+     * @description used for sabotage map
+     * @param {String} text the string to erase a box from
+     */
+    eraseBoxFromText(text){
+
+    }
+    /**
+     * @description gets all x,y cord pairs to render a box around text
+     * @param {*} xLen the x length of the box
+     * @param {*} yLen the y length of the box
+     * @param {*} xOrigin the x cord origin of the box (farthest right point in the box)
+     * @param {*} yOrigin the y cord origin of the box (lowest point in the box)
+     * @returns an array of cord pairs {x:x,y:y}
+     */
+    getBoxCords(xOrigin,yOrigin,xLen,yLen){
+        let cords = [];
+        let x = xOrigin
+        let y = yOrigin
+        for (let i = 0; i < xLen; i++) {
+            cords.push({"x": x+(i), "y": y-(yLen/2)})
+            cords.push({"x": x+(i), "y": y+(yLen/2)})
+            cords.push({"x": x+(i+1), "y": y+(yLen/2)})
+        }
+        for (let z = 0; z < yLen; z++) {
+            cords.push({"x": x, "y": (y-(yLen/2))+z})
+            cords.push({"x": x+xLen, "y": (y-(yLen/2))+z})
+        }
+        return cords;
+    }
+    /**
+     * 
+     * @param {*} map the array representing the map to check
+     * @param {*} text the text to check for
+     * @returns promise for the index in the array that includes the text or false if none
+     */
+    checkMapForText(map, text){
+        return new Promise(resolve => {
+            let object = false;
+            map.forEach(line => {
+                if(line.includes(text)){
+                    object = map.indexOf(line);
+                }
+            });
+            resolve(object)
+        })
+        
+    }
+    
     /**
      * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
      * @param {*} letter the key typed

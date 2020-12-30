@@ -107,6 +107,15 @@ module.exports.CMD = class {
                     this.FileSys.player_1.emergencyCoolDown + this.FileSys.Config.emergencyCoolDown;
                     //}
                     break;
+                case "gogoGgo":
+                    async function run (that) {
+                        that.FileSys.pause = true;
+                        that.FileSys.map.renderBoxAroundText("Shields")
+                    await that.util.wait(10000)
+                    that.FileSys.pause = false;
+                    }
+                    run(this)
+                    break;
                 case "left":
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMultiplier, 0 );
                     break;
