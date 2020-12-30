@@ -292,7 +292,7 @@ const init = class {
           if(num < this.allPlayers.length){
           if (!this.allPlayers[parseInt(num) - 1].IsDead) this.Voted = true;
           }else{
-            voted = true
+            this.Voted = true
           }
         } else if (!isNaN(num)) {
           client.write("sendMsgsToServer: " + this.player_1.PlayerColor + " : " + "No Vote For U");

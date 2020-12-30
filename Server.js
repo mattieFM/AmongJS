@@ -212,9 +212,10 @@ server.on('connection', function (socket) {
           validVote = false;
           msg = `SERVER: ${currentPlayer.PlayerColor} , you have already voted, you cannot vote again`
         }
-      }
-      if (validVote)
+        if (validVote)
         votes.push(parseInt(num));
+      }
+      
       msgs.push(msg);
     } else
       if (data1 == "sendMsgsPls") {
