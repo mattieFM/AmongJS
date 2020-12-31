@@ -4,6 +4,7 @@
 */
 const { random } = require('colors/safe');
 let msgs = [" "];
+
 let gameStarted = false;
 var net = require('net');
 const chalk = require("chalk")
@@ -28,6 +29,7 @@ let votes = [];
 TraitorWin = false;
 InnocentWin = false;
 const Config = require("./FileSys/Config.json");
+let visionBase = Config.VisionTiles;
 var turnCount = 0;
 var GameHasStarted = gameStarted;
 const readline = require("readline")
@@ -320,7 +322,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Electrical":
-
+          Config.VisionTiles = 1
           break;
         case "Storage":
 
@@ -362,6 +364,52 @@ server.on('connection', function (socket) {
           allEmergencies.splice(allEmergencies.indexOf(eme),1)
         }
       });
+      switch (room) {
+        case "Upper_Engine":
+          
+          break;
+        case "Reactors":
+
+          break;
+        case "Lower_Engine":
+
+          break;
+        case "Security":
+
+          break;
+        case "MedBay":
+
+          break;
+        case "Electrical":
+          Config.VisionTiles = visionBase
+          break;
+        case "Storage":
+
+          break;
+        case "Communications":
+
+          break;
+        case "Shields":
+
+          break;
+        case "Admin":
+
+          break;
+        case "Cafeteria":
+
+          break;
+        case "O2":
+
+          break;
+        case "Weapons":
+
+          break;
+        case "Navigation":
+
+          break;
+        default:
+          break;
+      }
       if(allEmergencies.length == 0){
         isEmergency = false;
       }
@@ -464,7 +512,8 @@ server.on('connection', function (socket) {
         turnCount,
         "gameStarted?": true,
         isEmergency,
-        allEmergencies
+        allEmergencies,
+        Config
       }
       if (gameStarted == false)
         infoObj = {
@@ -472,7 +521,8 @@ server.on('connection', function (socket) {
           turnCount,
           "gameStarted?": false,
           isEmergency,
-          allEmergencies
+          allEmergencies,
+          Config
         }
       if(isEmergency){
         infoObj = {
@@ -480,7 +530,8 @@ server.on('connection', function (socket) {
           turnCount,
           "gameStarted?": true,
           isEmergency,
-          allEmergencies
+          allEmergencies,
+          Config
         }
       }
 

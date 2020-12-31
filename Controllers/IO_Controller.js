@@ -54,6 +54,7 @@ constructor(){
       if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "q"){
         this.FileSys.map.moveInMenu(key.name)
       }
+      return
     }
     if(this.FileSys.fuelTaskActive){
       if(key.name == "f"){

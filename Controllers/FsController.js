@@ -9,7 +9,6 @@ Programmer: Matt/AuthoredEntropy
 
 const chalk = require('chalk');
 const colors = require('colors/safe');
-const { config } = require('process');
 const stripAnsi = require('strip-ansi');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
@@ -960,6 +959,28 @@ module.exports.map = class {
             this.Statuses.Electrical = this.StatusTypes.TASKSAVAILABLE
         }
     }
+    async emeTask(area){
+        let result;
+        switch (area) {
+            case "Electrical":
+                if (this.FileSys.player_1.fixElecQuestActive == true) {
+                    let wiring = require("../minigames/wiring")
+                    this.FileSys.pause = true;
+                    result = await wiring();
+
+                }
+                break;
+        
+            default:
+                result = "win"
+                break;
+        }
+        if(result == "win"){
+            this.FileSys.completeSabotageTask(area)
+        }
+        this.FileSys.pause = false;
+        return result
+    }
     /**
      * @description the function triggered whenever a task is attempted
      */
@@ -971,7 +992,8 @@ module.exports.map = class {
         let currentArea = this.FileSys.word;
         let currentAreaStatus = this.TaskStatuses[currentArea];
         if (this.emergencyStatuses[currentArea] == this.StatusTypes.EMERGENCY) {
-            this.FileSys.completeSabotageTask(currentArea)
+            await this.emeTask(currentArea)
+            
         } else if (currentAreaStatus == this.StatusTypes.TASKSAVAILABLE) {
                 let repeat = require("../minigames/repeteAfterMe")
                 let snake = require("../minigames/snake").main;

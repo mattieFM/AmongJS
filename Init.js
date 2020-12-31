@@ -92,6 +92,7 @@ const init = class {
       })
       client.on('data', (data) => {
         client.end();
+        
         resolve();
       });
       client.on('error', (error) => {
@@ -260,6 +261,7 @@ const init = class {
           var obj = JSON.parse(players2);
           that.FileSystem.allPlayers = obj.players;
           that.FileSystem.TickCount = parseInt(obj.turnCount);
+          that.FileSystem.Config = obj.Config
           resolve(obj);
           client.end();
         }
