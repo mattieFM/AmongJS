@@ -1,6 +1,6 @@
 /**
  * Among us costs $5 guess I should make it myself :( 
- * ...and thus among JS was born
+ * ...and thus Among JS was born
  * ...if atleast 10 people donate $1 I will make 10cents an hour (on the high end) for coding this....
  * ... do I regret my decisions?...
  * only slightly.....
@@ -11,7 +11,6 @@ const chalk = require('chalk');
 const colors = require('colors/safe');
 const { config } = require('process');
 const stripAnsi = require('strip-ansi');
-const { replace } = require('../FileSys/BaseMap');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
  *   this has not been implemented yet and is only used in updateCurrentMsg a function that is not used
@@ -173,7 +172,23 @@ module.exports.map = class {
         Lower_Engine: this.StatusTypes.NORMAL,
         Security: this.StatusTypes.NORMAL,
         MedBay: this.StatusTypes.NORMAL,
-        Electrical: this.StatusTypes.TASKSAVAILABLE,
+        Electrical: this.StatusTypes.NORMAL,
+        "Storage": this.StatusTypes.NORMAL,
+        Communications: this.StatusTypes.NORMAL,
+        Shields: this.StatusTypes.NORMAL,
+        Admin: this.StatusTypes.NORMAL,
+        Cafeteria: this.StatusTypes.NORMAL,
+        O2: this.StatusTypes.NORMAL,
+        Weapons: this.StatusTypes.NORMAL,
+        Navigation: this.StatusTypes.NORMAL
+    }
+    emergencyStatuses = {
+        Upper_Engine: this.StatusTypes.NORMAL,
+        "Reactors": this.StatusTypes.NORMAL,
+        Lower_Engine: this.StatusTypes.NORMAL,
+        Security: this.StatusTypes.NORMAL,
+        MedBay: this.StatusTypes.NORMAL,
+        Electrical: this.StatusTypes.NORMAL,
         "Storage": this.StatusTypes.NORMAL,
         Communications: this.StatusTypes.NORMAL,
         Shields: this.StatusTypes.NORMAL,
@@ -271,19 +286,55 @@ module.exports.map = class {
         currentMsg = msg
         return;
     }
+    rooms =[];
     /**
      * @description this is the main function that renders the game, it should be called in the main game loop
      * @param {Object} player the player controlled by this client
      */
     async UpdateMapStatuses(player) {
-        if (this.FileSys.pause | this.FileSys.emergency) { if (util.Verbose) console.log("PAUSED"); return }
+        if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
         const obj = await this.FileSys.getPlayersAndTick(player);
         if (obj["gameStarted?"] == false) {
             console.log(chalk.blue("You are in the lobby, please wait for the host to start the game"))
             player.moveOverride = true;
-            return
+            return;
         } else {
             player.moveOverride = false;
+        }
+        if(obj.isEmergency){
+            this.FileSys.sabotageActive = true;
+            if(this.rooms != obj.allEmergencies){
+                this.rooms.forEach(room2 => {
+                    let exists = false
+                    obj.allEmergencies.forEach(room => {
+                        if(room2 == room){
+                            exists = true
+                        }
+                    });
+                    if(!exists){
+                        this.emergencyStatuses[room2] =this.StatusTypes.NORMAL;
+                    }
+                });
+            }
+            this.rooms = obj.allEmergencies;
+            this.rooms.forEach(room => {
+                this.emergencyStatuses[room] = this.StatusTypes.EMERGENCY;
+            });
+        }else{
+            if(this.rooms != obj.allEmergencies){
+                this.rooms.forEach(room2 => {
+                    let exists = false
+                    obj.allEmergencies.forEach(room => {
+                        if(room2 == room){
+                            exists = true
+                        }
+                    });
+                    if(!exists){
+                        this.emergencyStatuses[room2] =this.StatusTypes.NORMAL;
+                    }
+                });
+            }
+            this.FileSys.sabotageActive = false;
         }
 
         this.SetCurrentMap();
@@ -323,9 +374,10 @@ module.exports.map = class {
             NamesArr.forEach(name => {
                 var status = this.Statuses[name];
                 var coloredName = name;
+                if(this.emergencyStatuses[name] != this.StatusTypes.EMERGENCY){
                 switch (status) {
                     case "Sabotaged":
-                        coloredName = colors.emergency(name);
+                        coloredName = chalk.red(name);
                         break;
                     case "TasksHere":
                         coloredName = colors.tasks(name);
@@ -342,6 +394,9 @@ module.exports.map = class {
                     default:
                         break;
                 }
+            }else{
+                coloredName = chalk.red(name)
+            }
                 /**@description the current map assembled into one string */
                 var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
                 /**@description the current map assembled into one string with one name replaced with its proper color */
@@ -577,21 +632,25 @@ module.exports.map = class {
     /**
      * @description used for sabotage map
      * @param {String} text the string to render a box around
+     * @param renChar the charector to render the box out of
      */
-    async renderBoxAroundText(text){
+    async renderBoxAroundText(text, renChar = "█"){
         let indexOfText =await this.checkMapForText(this.sabotageMap,text)
         if(indexOfText){
             let line = this.sabotageMap[indexOfText];
             let wordStart = parseInt(line.indexOf(text));
             let wordEnd = wordStart + text.length;
             let yLength = 4
+            let xLength = text.length+Math.floor(text.length/3)+1;
+            let xOrgin = (wordStart -Math.floor(text.length/3)/2)-1;
+            if(xLength < 6) {xLength = 9; xOrgin = wordStart - (xLength/2)+1}
             if(text.length > 8) yLength = 6
-            let boxCords = this.getBoxCords((wordStart - Math.floor(text.length/3)/2 )-1, indexOfText, text.length+Math.floor(text.length/3)+1, yLength)
+            let boxCords = this.getBoxCords(xOrgin, indexOfText, xLength, yLength)
             boxCords.forEach(cord=>{
-                console.log(cord)
+                if(this.FileSys.Config.Verbose)console.log(cord)
                 let x= cord.x;
                 let y = cord.y;
-                this.Replace(this.sabotageMap,x,y,"█")
+                this.Replace(this.sabotageMap,x,y,renChar)
             })
             
             process.stdout.write("\x1b[?25l");
@@ -606,7 +665,8 @@ module.exports.map = class {
      * @param {String} text the string to erase a box from
      */
     eraseBoxFromText(text){
-
+        //just render a box of spaces
+        this.renderBoxAroundText(text, " ")
     }
     /**
      * @description gets all x,y cord pairs to render a box around text
@@ -624,8 +684,13 @@ module.exports.map = class {
             cords.push({"x": x+(i), "y": y-(yLen/2)})
             cords.push({"x": x+(i), "y": y+(yLen/2)})
             cords.push({"x": x+(i+1), "y": y+(yLen/2)})
+            cords.push({"x": x+(i+2), "y": y+(yLen/2)})
+            cords.push({"x": x+(i-1), "y": y+(yLen/2)})
+            
         }
         for (let z = 0; z < yLen; z++) {
+            cords.push({"x": x-1, "y": (y-(yLen/2))+z})
+            cords.push({"x": x+xLen+1, "y": (y-(yLen/2))+z})
             cords.push({"x": x, "y": (y-(yLen/2))+z})
             cords.push({"x": x+xLen, "y": (y-(yLen/2))+z})
         }
@@ -649,7 +714,44 @@ module.exports.map = class {
         })
         
     }
-    
+    /**@description open the sabotage menu and activate the keypress listener for it */
+    activateSabotageSelector(){
+        let config = this.FileSys.Config
+        this.FileSys.sabotageMapActive = true;
+        this.FileSys.pause = true;
+        this.FileSys.map.renderBoxAroundText("Cafeteria")
+        this.FileSys.currentMenuPos = "Cafeteria";
+    }
+    /**@description pass a key.name and this will move the active menu accordingly*/
+    moveInMenu(key){
+        let PosMap;
+        
+        if(this.FileSys.sabotageMapActive){
+            PosMap = require("../FileSys/selectPosMap")
+            let currentPos = PosMap[this.FileSys.currentMenuPos];
+            if(key == "q"){
+                this.eraseBoxFromText(currentPos["name"])
+                this.deactivateSabotageSelector();
+                if(currentPos["subMenu"] != null){
+                    this.FileSys.triggerSabotage(currentPos["name"])
+                }else{
+                    this.FileSys.triggerSabotage(currentPos["name"],currentPos["subMenu"])
+                }
+                return
+            }
+            let newPos = currentPos[key];
+            if(newPos != null){
+                this.eraseBoxFromText(currentPos["name"])
+                this.FileSys.map.renderBoxAroundText(newPos)
+                this.FileSys.currentMenuPos = newPos;
+            }
+        }
+    }
+    /**@description deactivate the selector for sabotage  */
+    deactivateSabotageSelector(){
+        this.FileSys.sabotageMapActive = false;
+        this.FileSys.pause = false;
+    }
     /**
      * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
      * @param {*} letter the key typed
@@ -868,10 +970,9 @@ module.exports.map = class {
 
         let currentArea = this.FileSys.word;
         let currentAreaStatus = this.TaskStatuses[currentArea];
-        if (currentAreaStatus == this.StatusTypes.EMERGENCY) {
-            //emergency task
-        } else
-            if (currentAreaStatus == this.StatusTypes.TASKSAVAILABLE) {
+        if (this.emergencyStatuses[currentArea] == this.StatusTypes.EMERGENCY) {
+            this.FileSys.completeSabotageTask(currentArea)
+        } else if (currentAreaStatus == this.StatusTypes.TASKSAVAILABLE) {
                 let repeat = require("../minigames/repeteAfterMe")
                 let snake = require("../minigames/snake").main;
                 let download = require("../minigames/download");

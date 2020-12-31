@@ -101,20 +101,15 @@ module.exports.CMD = class {
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMultiplier);
                     break;
                 case "e":
-                   // if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown){
+                    if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown & this.FileSys.word == "Cafeteria" & !this.FileSys.sabotageActive){
+                    
                     this.FileSys.SendReportToServer(this.FileSys.player_1, null);
                     this.FileSys.player_1.emergencyMeetingsCalled++;
                     this.FileSys.player_1.emergencyCoolDown + this.FileSys.Config.emergencyCoolDown;
-                    //}
+                    }
                     break;
                 case "gogoGgo":
-                    async function run (that) {
-                        that.FileSys.pause = true;
-                        that.FileSys.map.renderBoxAroundText("Shields")
-                    await that.util.wait(10000)
-                    that.FileSys.pause = false;
-                    }
-                    run(this)
+                    this.FileSys.map.activateSabotageSelector()
                     break;
                 case "left":
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMultiplier, 0 );

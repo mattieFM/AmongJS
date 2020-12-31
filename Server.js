@@ -7,6 +7,8 @@ let msgs = [" "];
 let gameStarted = false;
 var net = require('net');
 const chalk = require("chalk")
+let isEmergency = false;
+let allEmergencies = [];
 const prompt = require('prompt-sync')();
 var date = new Date();
 let LastTime = 0;
@@ -213,9 +215,9 @@ server.on('connection', function (socket) {
           msg = `SERVER: ${currentPlayer.PlayerColor} , you have already voted, you cannot vote again`
         }
         if (validVote)
-        votes.push(parseInt(num));
+          votes.push(parseInt(num));
       }
-      
+
       msgs.push(msg);
     } else
       if (data1 == "sendMsgsPls") {
@@ -279,6 +281,90 @@ server.on('connection', function (socket) {
       });
       socket.write(JSON.stringify(numOfRemoved));
       socket.end();
+    } else if (data1.startsWith("triggerSabotage:")) {
+      socket.end();
+      isEmergency = true;
+      /**
+       * @description an obj containing the room adn type of sabotage 
+       * @property room
+       * @property type
+      */
+      var obj = JSON.parse(data1.slice("triggerSabotage:".length));
+      let room = obj.room;
+      let type = obj.type;
+      let typeExists = false;
+      if (type != null) {
+        typeExists = true;
+      }
+      let exists = false;
+      allEmergencies.forEach(eme => {
+        if(eme === room){
+          exists = true
+        }
+      });
+      if(exists == false)allEmergencies.push(room);
+      switch (room) {
+        case "Upper_Engine":
+          
+          break;
+        case "Reactors":
+
+          break;
+        case "Lower_Engine":
+
+          break;
+        case "Security":
+
+          break;
+        case "MedBay":
+
+          break;
+        case "Electrical":
+
+          break;
+        case "Storage":
+
+          break;
+        case "Communications":
+
+          break;
+        case "Shields":
+
+          break;
+        case "Admin":
+
+          break;
+        case "Cafeteria":
+
+          break;
+        case "O2":
+
+          break;
+        case "Weapons":
+
+          break;
+        case "Navigation":
+
+          break;
+        default:
+          break;
+      }
+    }else if(data1.startsWith("removeSabotage:")){
+      var obj = JSON.parse(data1.slice("removeSabotage:".length));
+      let room = obj.room;
+      let type = obj.type;
+      let typeExists = false;
+      if (type != null) {
+        typeExists = true;
+      }
+      allEmergencies.forEach(eme => {
+        if(eme === room){
+          allEmergencies.splice(allEmergencies.indexOf(eme),1)
+        }
+      });
+      if(allEmergencies.length == 0){
+        isEmergency = false;
+      }
     }
 
 
@@ -376,14 +462,27 @@ server.on('connection', function (socket) {
       infoObj = {
         players,
         turnCount,
-        "gameStarted?": true
+        "gameStarted?": true,
+        isEmergency,
+        allEmergencies
       }
       if (gameStarted == false)
         infoObj = {
           players,
           turnCount,
-          "gameStarted?": false
+          "gameStarted?": false,
+          isEmergency,
+          allEmergencies
         }
+      if(isEmergency){
+        infoObj = {
+          players,
+          turnCount,
+          "gameStarted?": true,
+          isEmergency,
+          allEmergencies
+        }
+      }
 
       socket.write("hereAreYourPlayers: " + JSON.stringify(infoObj) + "\n");
       socket.end()

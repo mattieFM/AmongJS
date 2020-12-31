@@ -1,14 +1,15 @@
-
-
 /*#Program "Hecking heck V2" 
  #Programmer: Matt /AuthoredEntropy
 */
 
 const util = require("./Utility/util");
 const MSGs = require("./FileSys/Msg.json");
-const { Socket } = require("dgram");
+
 const that = this;
 const init = class {
+  currentMenuPos = "Cafeteria";
+  sabotageActive = false;
+  sabotageMapActive= false;
   Voted = false;
   Config = require("./FileSys/Config.json");
   _FileSystem = require("./Controllers/FsController");
@@ -65,6 +66,70 @@ const init = class {
     client.on('error', (error) => {
       if (this.Config.Verbose) console.log('waitingError : ' + error);
     });
+  }
+  /**
+   * @description remove a sabotage event from the server
+   * @param {*} room the room
+   * @param {*} subType if multiple types of sabotage are avalible for that room, the type to remove
+   * @returns Promise
+   */
+  completeSabotageTask(room, subType = null){
+    return new Promise(resolve => {
+      var net = require('net');
+
+      const client = new net.Socket();
+      client.connect({
+        port: this.port,
+        host: this.IpAdress
+      });
+      client.setTimeout(0);
+      let obj = {
+        "room":room,
+        "type":subType
+      }
+      client.on('connect', function () {
+        client.write('removeSabotage:' + JSON.stringify(obj));
+      })
+      client.on('data', (data) => {
+        client.end();
+        resolve();
+      });
+      client.on('error', (error) => {
+        if (this.Config.Verbose) console.log('Err-removeSabotage: ' + JSON.stringify(obj));
+      });
+    })
+  }
+  /**
+   * @description trigger a sabotage event on the server
+   * @param {*} room the room to sabotage
+   * @param {*} subType if multiple types of sabotage are avalible for that room, the type to activate
+   * @returns Promise
+   */
+  triggerSabotage(room, subType = null){
+    return new Promise(resolve => {
+      var net = require('net');
+
+      const client = new net.Socket();
+      client.connect({
+        port: this.port,
+        host: this.IpAdress
+      });
+      client.setTimeout(0);
+      let obj = {
+        "room":room,
+        "type":subType
+      }
+      client.on('connect', function () {
+        client.write('triggerSabotage:' + JSON.stringify(obj));
+      })
+      client.on('data', (data) => {
+        client.end();
+        resolve();
+      });
+      client.on('error', (error) => {
+        if (this.Config.Verbose) console.log('Err-triggerSabotage: ' + JSON.stringify(obj));
+      });
+    })
   }
   /**
    * @description send a new player to the server and load the server's config file into memory
@@ -160,7 +225,7 @@ const init = class {
       });
 
       client.on('error', (error) => {
-        if (this.Config.Verbose) console.log('Client2Error : ' + error);
+        if (this.Config.Verbose) console.log('getPlayersAndTick : ' + error);
       });
 
       client.on('connect', () => {
