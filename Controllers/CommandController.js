@@ -108,8 +108,8 @@ module.exports.CMD = class {
                     this.FileSys.player_1.emergencyCoolDown + this.FileSys.Config.emergencyCoolDown;
                     }
                     break;
-                case "gogoGgo":
-                    this.FileSys.map.activateSabotageSelector()
+                case "warp":
+                    this.FileSys.map.activateVentMapSelector()
                     break;
                 case "left":
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, -1 * this.ArrowMoveMultiplier, 0 );

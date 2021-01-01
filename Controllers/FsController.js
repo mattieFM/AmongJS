@@ -41,7 +41,7 @@ module.exports.fs = class FsController {
     LoadFileSys(FileSystem) {
         this.FileSys = FileSystem;
     }
-    
+
     /**
      * @description get the BaseMap object
      * @returns a new BaseMap object */
@@ -135,7 +135,7 @@ module.exports.map = class {
         if (!this.currentMap) {
             this.currentMap = this.BaseMap.split("\n")
             this.currentEmergencyMap = this.currentEmergencyMap.split("\n")
-            
+
         }
 
     }
@@ -285,7 +285,7 @@ module.exports.map = class {
         currentMsg = msg
         return;
     }
-    rooms =[];
+    rooms = [];
     /**
      * @description this is the main function that renders the game, it should be called in the main game loop
      * @param {Object} player the player controlled by this client
@@ -300,18 +300,18 @@ module.exports.map = class {
         } else {
             player.moveOverride = false;
         }
-        if(obj.isEmergency){
+        if (obj.isEmergency) {
             this.FileSys.sabotageActive = true;
-            if(this.rooms != obj.allEmergencies){
+            if (this.rooms != obj.allEmergencies) {
                 this.rooms.forEach(room2 => {
                     let exists = false
                     obj.allEmergencies.forEach(room => {
-                        if(room2 == room){
+                        if (room2 == room) {
                             exists = true
                         }
                     });
-                    if(!exists){
-                        this.emergencyStatuses[room2] =this.StatusTypes.NORMAL;
+                    if (!exists) {
+                        this.emergencyStatuses[room2] = this.StatusTypes.NORMAL;
                     }
                 });
             }
@@ -319,17 +319,17 @@ module.exports.map = class {
             this.rooms.forEach(room => {
                 this.emergencyStatuses[room] = this.StatusTypes.EMERGENCY;
             });
-        }else{
-            if(this.rooms != obj.allEmergencies){
+        } else {
+            if (this.rooms != obj.allEmergencies) {
                 this.rooms.forEach(room2 => {
                     let exists = false
                     obj.allEmergencies.forEach(room => {
-                        if(room2 == room){
+                        if (room2 == room) {
                             exists = true
                         }
                     });
-                    if(!exists){
-                        this.emergencyStatuses[room2] =this.StatusTypes.NORMAL;
+                    if (!exists) {
+                        this.emergencyStatuses[room2] = this.StatusTypes.NORMAL;
                     }
                 });
             }
@@ -358,44 +358,44 @@ module.exports.map = class {
             }
             await this.RenderPlayers(obj.players);
             this.currentMap.forEach(line => {
-                if(line.includes("³")){
+                if (line.includes("³")) {
                     this.currentMap[this.currentMap.indexOf(line)] = chalk.red(line)
                 };
-                if(line.includes("²")){
+                if (line.includes("²")) {
                     this.currentMap[this.currentMap.indexOf(line)] = chalk.green(line)
                 };
-                if(line.includes("¹")){
+                if (line.includes("¹")) {
                     this.currentMap[this.currentMap.indexOf(line)] = chalk.yellow(line)
                 };
             });
-            
+
             var NamesArr = Object.values(this.Names);
             NamesArr.forEach(name => {
                 var status = this.Statuses[name];
                 var coloredName = name;
-                if(this.emergencyStatuses[name] != this.StatusTypes.EMERGENCY){
-                switch (status) {
-                    case "Sabotaged":
-                        coloredName = chalk.red(name);
-                        break;
-                    case "TasksHere":
-                        coloredName = colors.tasks(name);
-                        break;
-                    case "Normal":
-                        coloredName = colors.normal(name);
-                        break;
-                    case "Highlight":
-                        coloredName = chalk.cyan(name);
-                        break;
-                    case "Unavial":
-                        coloredName = chalk.hex("#705454").strikethrough(name);
-                        break;
-                    default:
-                        break;
+                if (this.emergencyStatuses[name] != this.StatusTypes.EMERGENCY) {
+                    switch (status) {
+                        case "Sabotaged":
+                            coloredName = chalk.red(name);
+                            break;
+                        case "TasksHere":
+                            coloredName = colors.tasks(name);
+                            break;
+                        case "Normal":
+                            coloredName = colors.normal(name);
+                            break;
+                        case "Highlight":
+                            coloredName = chalk.cyan(name);
+                            break;
+                        case "Unavial":
+                            coloredName = chalk.hex("#705454").strikethrough(name);
+                            break;
+                        default:
+                            break;
+                    }
+                } else {
+                    coloredName = chalk.red(name)
                 }
-            }else{
-                coloredName = chalk.red(name)
-            }
                 /**@description the current map assembled into one string */
                 var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
                 /**@description the current map assembled into one string with one name replaced with its proper color */
@@ -579,20 +579,19 @@ module.exports.map = class {
      * @param {*} y y cord of position to move to
      */
     PlayerMove(player, x, y) {
-        this.removePlayerVision();
         this.StripAnsi();
-        const PlayerIcon = this.FileSys.Config.PlayerIcon;
-        const WallIcon = this.FileSys.Config.WallIcon;
+        this.removePlayerVision();
         var collision = this.Collision(x, y);
         if (collision) {
             this.collisionHandler(collision, player, x, y);
         } else {
-            this.currentMap = this.Replace(this.currentMap, player.x, player.y, "░");
-            this.currentMap = this.Replace(this.currentMap, x, y, this.FileSys.Config.PlayerIcon);
             player.x = x;
             player.y = y;
+            this.FileSys.player_1 = player;
         }
+        this.StripAnsi();
         this.UpdateMapStatuses(player);
+        return;
     }
     /**
      * @description kill the first player found when probing the kill range, if player is traitor
@@ -623,8 +622,8 @@ module.exports.map = class {
      * @description pause the map and let the player sabotage the map if they are a traitor
      * @param {*} player the player controled by this client
      */
-    Sabotage(player){
-        if(!player.IsTraitor) return;
+    Sabotage(player) {
+        if (!player.IsTraitor) return;
         this.FileSys.pause = true;
 
     }
@@ -633,25 +632,25 @@ module.exports.map = class {
      * @param {String} text the string to render a box around
      * @param renChar the charector to render the box out of
      */
-    async renderBoxAroundText(text, renChar = "█"){
-        let indexOfText =await this.checkMapForText(this.sabotageMap,text)
-        if(indexOfText){
+    async renderBoxAroundText(text, renChar = "█") {
+        let indexOfText = await this.checkMapForText(this.sabotageMap, text)
+        if (indexOfText) {
             let line = this.sabotageMap[indexOfText];
             let wordStart = parseInt(line.indexOf(text));
             let wordEnd = wordStart + text.length;
             let yLength = 4
-            let xLength = text.length+Math.floor(text.length/3)+1;
-            let xOrgin = (wordStart -Math.floor(text.length/3)/2)-1;
-            if(xLength < 6) {xLength = 9; xOrgin = wordStart - (xLength/2)+1}
-            if(text.length > 8) yLength = 6
+            let xLength = text.length + Math.floor(text.length / 3) + 1;
+            let xOrgin = (wordStart - Math.floor(text.length / 3) / 2) - 1;
+            if (xLength < 6) { xLength = 9; xOrgin = wordStart - (xLength / 2) + 1 }
+            if (text.length > 8) yLength = 6
             let boxCords = this.getBoxCords(xOrgin, indexOfText, xLength, yLength)
-            boxCords.forEach(cord=>{
-                if(this.FileSys.Config.Verbose)console.log(cord)
-                let x= cord.x;
+            boxCords.forEach(cord => {
+                if (this.FileSys.Config.Verbose) console.log(cord)
+                let x = cord.x;
                 let y = cord.y;
-                this.Replace(this.sabotageMap,x,y,renChar)
+                this.Replace(this.sabotageMap, x, y, renChar)
             })
-            
+
             process.stdout.write("\x1b[?25l");
             var readline = require("readline");
             readline.cursorTo(process.stdout, 1, 1)
@@ -659,11 +658,11 @@ module.exports.map = class {
             process.stdout.write("\x1b[?25h");
         }
     }
-     /**
-     * @description used for sabotage map
-     * @param {String} text the string to erase a box from
-     */
-    eraseBoxFromText(text){
+    /**
+    * @description used for sabotage map
+    * @param {String} text the string to erase a box from
+    */
+    eraseBoxFromText(text) {
         //just render a box of spaces
         this.renderBoxAroundText(text, " ")
     }
@@ -675,23 +674,23 @@ module.exports.map = class {
      * @param {*} yOrigin the y cord origin of the box (lowest point in the box)
      * @returns an array of cord pairs {x:x,y:y}
      */
-    getBoxCords(xOrigin,yOrigin,xLen,yLen){
+    getBoxCords(xOrigin, yOrigin, xLen, yLen) {
         let cords = [];
         let x = xOrigin
         let y = yOrigin
         for (let i = 0; i < xLen; i++) {
-            cords.push({"x": x+(i), "y": y-(yLen/2)})
-            cords.push({"x": x+(i), "y": y+(yLen/2)})
-            cords.push({"x": x+(i+1), "y": y+(yLen/2)})
-            cords.push({"x": x+(i+2), "y": y+(yLen/2)})
-            cords.push({"x": x+(i-1), "y": y+(yLen/2)})
-            
+            cords.push({ "x": x + (i), "y": y - (yLen / 2) })
+            cords.push({ "x": x + (i), "y": y + (yLen / 2) })
+            cords.push({ "x": x + (i + 1), "y": y + (yLen / 2) })
+            cords.push({ "x": x + (i + 2), "y": y + (yLen / 2) })
+            cords.push({ "x": x + (i - 1), "y": y + (yLen / 2) })
+
         }
         for (let z = 0; z < yLen; z++) {
-            cords.push({"x": x-1, "y": (y-(yLen/2))+z})
-            cords.push({"x": x+xLen+1, "y": (y-(yLen/2))+z})
-            cords.push({"x": x, "y": (y-(yLen/2))+z})
-            cords.push({"x": x+xLen, "y": (y-(yLen/2))+z})
+            cords.push({ "x": x - 1, "y": (y - (yLen / 2)) + z })
+            cords.push({ "x": x + xLen + 1, "y": (y - (yLen / 2)) + z })
+            cords.push({ "x": x, "y": (y - (yLen / 2)) + z })
+            cords.push({ "x": x + xLen, "y": (y - (yLen / 2)) + z })
         }
         return cords;
     }
@@ -701,56 +700,90 @@ module.exports.map = class {
      * @param {*} text the text to check for
      * @returns promise for the index in the array that includes the text or false if none
      */
-    checkMapForText(map, text){
+    checkMapForText(map, text) {
         return new Promise(resolve => {
             let object = false;
             map.forEach(line => {
-                if(line.includes(text)){
+                if (line.includes(text)) {
                     object = map.indexOf(line);
                 }
             });
             resolve(object)
         })
-        
+
     }
     /**@description open the sabotage menu and activate the keypress listener for it */
-    activateSabotageSelector(){
+    activateSabotageSelector() {
         let config = this.FileSys.Config
         this.FileSys.sabotageMapActive = true;
         this.FileSys.pause = true;
         this.FileSys.map.renderBoxAroundText("Cafeteria")
         this.FileSys.currentMenuPos = "Cafeteria";
     }
+    /**@description deactivate the selector for sabotage  */
+    deactivateSabotageSelector() {
+        this.FileSys.sabotageMapActive = false;
+        this.FileSys.pause = false;
+    }
+    activateVentMapSelector() {
+        let config = this.FileSys.Config
+        this.FileSys.ventMapActive = true;
+        this.FileSys.pause = true;
+        if (this.FileSys.word == "none") this.FileSys.word = "Cafeteria"
+        this.FileSys.map.renderBoxAroundText(this.FileSys.word)
+        this.FileSys.currentMenuPos = this.FileSys.word;
+    }
+    /**@description deactivate the selector for sabotage  */
+    deactivateVentMapSelector() {
+        this.FileSys.ventMapActive = false;
+        this.FileSys.pause = false;
+    }
+
     /**@description pass a key.name and this will move the active menu accordingly*/
-    moveInMenu(key){
+    moveInMenu(key) {
         let PosMap;
-        
-        if(this.FileSys.sabotageMapActive){
+        if (this.FileSys.ventMapActive) {
             PosMap = require("../FileSys/selectPosMap")
             let currentPos = PosMap[this.FileSys.currentMenuPos];
-            if(key == "q"){
+            if (key == "q") {
+                this.eraseBoxFromText(currentPos["name"])
+                this.deactivateVentMapSelector();
+                async function run(that) {
+                    that.PlayerMove(that.FileSys.player_1, currentPos["pos"].x, currentPos["pos"].y)
+                }
+                run(this);
+                return
+                
+            }
+            let newPos = currentPos[key];
+            if (newPos != null) {
+                this.eraseBoxFromText(currentPos["name"])
+                this.FileSys.map.renderBoxAroundText(newPos)
+                this.FileSys.currentMenuPos = newPos;
+            }
+        }
+        if (this.FileSys.sabotageMapActive) {
+            PosMap = require("../FileSys/selectPosMap")
+            let currentPos = PosMap[this.FileSys.currentMenuPos];
+            if (key == "q") {
                 this.eraseBoxFromText(currentPos["name"])
                 this.deactivateSabotageSelector();
-                if(currentPos["subMenu"] != null){
+                if (currentPos["subMenu"] != null) {
                     this.FileSys.triggerSabotage(currentPos["name"])
-                }else{
-                    this.FileSys.triggerSabotage(currentPos["name"],currentPos["subMenu"])
+                } else {
+                    this.FileSys.triggerSabotage(currentPos["name"], currentPos["subMenu"])
                 }
                 return
             }
             let newPos = currentPos[key];
-            if(newPos != null){
+            if (newPos != null) {
                 this.eraseBoxFromText(currentPos["name"])
                 this.FileSys.map.renderBoxAroundText(newPos)
                 this.FileSys.currentMenuPos = newPos;
             }
         }
     }
-    /**@description deactivate the selector for sabotage  */
-    deactivateSabotageSelector(){
-        this.FileSys.sabotageMapActive = false;
-        this.FileSys.pause = false;
-    }
+
     /**
      * @description when in an emergency render the letter typed at the bottem of the map, allowing the player to type
      * @param {*} letter the key typed
@@ -809,7 +842,7 @@ module.exports.map = class {
             let i = 5;
             let Msgarr = []
             await falsePlayers.forEach(player => {
-                if (player.isRendered && !player.isCorpse|| player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
+                if (player.isRendered && !player.isCorpse || player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
                 x++
             });
             Msgarr.push(x.toString() + ": skip vote")
@@ -959,7 +992,7 @@ module.exports.map = class {
             this.Statuses.Electrical = this.StatusTypes.TASKSAVAILABLE
         }
     }
-    async emeTask(area){
+    async emeTask(area) {
         let result;
         switch (area) {
             case "Electrical":
@@ -970,12 +1003,12 @@ module.exports.map = class {
 
                 }
                 break;
-        
+
             default:
                 result = "win"
                 break;
         }
-        if(result == "win"){
+        if (result == "win") {
             this.FileSys.completeSabotageTask(area)
         }
         this.FileSys.pause = false;
@@ -993,117 +1026,117 @@ module.exports.map = class {
         let currentAreaStatus = this.TaskStatuses[currentArea];
         if (this.emergencyStatuses[currentArea] == this.StatusTypes.EMERGENCY) {
             await this.emeTask(currentArea)
-            
+
         } else if (currentAreaStatus == this.StatusTypes.TASKSAVAILABLE) {
-                let repeat = require("../minigames/repeteAfterMe")
-                let snake = require("../minigames/snake").main;
-                let download = require("../minigames/download");
-                let upload = require("../minigames/upload");
-                let randNum = Math.floor(Math.random() * 3);
-                let playerLast = this.FileSys.player_1.lastTask
+            let repeat = require("../minigames/repeteAfterMe")
+            let snake = require("../minigames/snake").main;
+            let download = require("../minigames/download");
+            let upload = require("../minigames/upload");
+            let randNum = Math.floor(Math.random() * 3);
+            let playerLast = this.FileSys.player_1.lastTask
 
-                this.FileSys.pause = true;
-                let result;
-                switch (currentArea) {
-                    case "Storage":
-                        if (!this.FileSys.player_1.hasGas && this.FileSys.player_1.gasQuestActive == true)
-                            this.FileSys.cardFrame = 0;
-                        result = await this.getFuelTask(this)
-                        this.Statuses.Storage = this.StatusTypes.UNAVALIBLE
-                        if (this.TaskStatuses.Lower_Engine == this.StatusTypes.TASKSAVAILABLE)
-                            this.Statuses.Lower_Engine = this.StatusTypes.HIGHLIGHT
-                        if (this.TaskStatuses.Upper_Engine == this.StatusTypes.TASKSAVAILABLE)
-                            this.Statuses.Upper_Engine = this.StatusTypes.HIGHLIGHT
-                        break;
-                    case "Lower_Engine":
-                        if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledLower && this.FileSys.player_1.gasQuestActive == true) {
-                            result = await this.fillReactorsWithGas(this);
-                            this.FileSys.player_1.fueledLower = true;
-                            this.FileSys.player_1.hasGas = false;
-                            this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
-                            this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
-                            this.Statuses.Storage = this.TaskStatuses.Storage
-                            if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
-                        } else {
+            this.FileSys.pause = true;
+            let result;
+            switch (currentArea) {
+                case "Storage":
+                    if (!this.FileSys.player_1.hasGas && this.FileSys.player_1.gasQuestActive == true)
+                        this.FileSys.cardFrame = 0;
+                    result = await this.getFuelTask(this)
+                    this.Statuses.Storage = this.StatusTypes.UNAVALIBLE
+                    if (this.TaskStatuses.Lower_Engine == this.StatusTypes.TASKSAVAILABLE)
+                        this.Statuses.Lower_Engine = this.StatusTypes.HIGHLIGHT
+                    if (this.TaskStatuses.Upper_Engine == this.StatusTypes.TASKSAVAILABLE)
+                        this.Statuses.Upper_Engine = this.StatusTypes.HIGHLIGHT
+                    break;
+                case "Lower_Engine":
+                    if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledLower && this.FileSys.player_1.gasQuestActive == true) {
+                        result = await this.fillReactorsWithGas(this);
+                        this.FileSys.player_1.fueledLower = true;
+                        this.FileSys.player_1.hasGas = false;
+                        this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
+                        this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
+                        this.Statuses.Storage = this.TaskStatuses.Storage
+                        if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
+                    } else {
 
-                        }
-                        break;
-                    case "Upper_Engine":
-                        if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledUpper && this.FileSys.player_1.gasQuestActive == true) {
-                            result = await this.fillReactorsWithGas(this);
-                            this.FileSys.player_1.fueledUpper = true;
-                            this.FileSys.player_1.hasGas = false;
-                            this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
-                            this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
-                            this.Statuses.Storage = this.TaskStatuses.Storage
-                            if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
-                        } else {
-                            //fix engines
-                        }
-                        break
-                    case "Admin":
-                        if (this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData) {
-                            result = await download();
-                            this.FileSys.player_1.hasData = true;
-                            this.Statuses.Security = this.StatusTypes.HIGHLIGHT;
-                        } else {
-                            result = await this.swipeCard(this);
-                        }
-                        break;
-                    case "Security":
-                        if (this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData) {
-                            result = await upload();
-                            this.FileSys.player_1.hasData = false;
-                            this.Statuses.Security = this.TaskStatuses.Security;
-                        } else if (this.FileSys.player_1.snake) {
-                            result = await snake(this.FileSys.Config.snakeGameGoal)
-                        } else {
-                            //add game
-                        }
-                        break;
-                    case "Electrical":
-                        if (this.FileSys.player_1.fixElecQuestActive == true) {
-                            let wiring = require("../minigames/wiring")
-                            this.FileSys.pause = true;
-                            result = await wiring();
-
-                        }
-                        break;
-                    case "Reactors":
-                        if (this.FileSys.player_1.startEngineQuestActive)
-                            result = await repeat();
-                        break;
-                    default:
-                        break;
-                }
-
-
-
-                if (result == "win") {
-
-                    await this.renderTaskComp(20, "./taskCompeted.txt")
-
-                    this.FileSys.pause = false;
-                    this.TaskStatuses[currentArea] = this.StatusTypes.NORMAL;
-                    this.Statuses[currentArea] = this.StatusTypes.NORMAL;
-                } else if (result = "partial") {
-
-                    await this.renderTaskComp(20, "./taskCompeted.txt")
-
-                    this.FileSys.pause = false;
-                } else {
-
-                    this.FileSys.pause = false;
-                }
-                StatusArr.forEach(name => {
-                    if (this.TaskStatuses[name] == this.StatusTypes.TASKSAVAILABLE) {
-                        tasks++
                     }
-                });
-                if (tasks == 0) {
-                    this.FileSys.player_1.tasksCompleted = true;
-                }
+                    break;
+                case "Upper_Engine":
+                    if (this.FileSys.player_1.hasGas && !this.FileSys.player_1.fueledUpper && this.FileSys.player_1.gasQuestActive == true) {
+                        result = await this.fillReactorsWithGas(this);
+                        this.FileSys.player_1.fueledUpper = true;
+                        this.FileSys.player_1.hasGas = false;
+                        this.Statuses.Lower_Engine = this.TaskStatuses.Lower_Engine;
+                        this.Statuses.Upper_Engine = this.TaskStatuses.Upper_Engine;
+                        this.Statuses.Storage = this.TaskStatuses.Storage
+                        if (this.FileSys.player_1.fueledUpper && this.FileSys.player_1.fueledLower) this.FileSys.player_1.gasQuestActive = false;
+                    } else {
+                        //fix engines
+                    }
+                    break
+                case "Admin":
+                    if (this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData) {
+                        result = await download();
+                        this.FileSys.player_1.hasData = true;
+                        this.Statuses.Security = this.StatusTypes.HIGHLIGHT;
+                    } else {
+                        result = await this.swipeCard(this);
+                    }
+                    break;
+                case "Security":
+                    if (this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData) {
+                        result = await upload();
+                        this.FileSys.player_1.hasData = false;
+                        this.Statuses.Security = this.TaskStatuses.Security;
+                    } else if (this.FileSys.player_1.snake) {
+                        result = await snake(this.FileSys.Config.snakeGameGoal)
+                    } else {
+                        //add game
+                    }
+                    break;
+                case "Electrical":
+                    if (this.FileSys.player_1.fixElecQuestActive == true) {
+                        let wiring = require("../minigames/wiring")
+                        this.FileSys.pause = true;
+                        result = await wiring();
+
+                    }
+                    break;
+                case "Reactors":
+                    if (this.FileSys.player_1.startEngineQuestActive)
+                        result = await repeat();
+                    break;
+                default:
+                    break;
             }
+
+
+
+            if (result == "win") {
+
+                await this.renderTaskComp(20, "./taskCompeted.txt")
+
+                this.FileSys.pause = false;
+                this.TaskStatuses[currentArea] = this.StatusTypes.NORMAL;
+                this.Statuses[currentArea] = this.StatusTypes.NORMAL;
+            } else if (result = "partial") {
+
+                await this.renderTaskComp(20, "./taskCompeted.txt")
+
+                this.FileSys.pause = false;
+            } else {
+
+                this.FileSys.pause = false;
+            }
+            StatusArr.forEach(name => {
+                if (this.TaskStatuses[name] == this.StatusTypes.TASKSAVAILABLE) {
+                    tasks++
+                }
+            });
+            if (tasks == 0) {
+                this.FileSys.player_1.tasksCompleted = true;
+            }
+        }
 
     }
     /**
