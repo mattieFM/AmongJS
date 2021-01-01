@@ -73,7 +73,7 @@ constructor(){
       }
       return
     }
-    if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "ctrl"|| key.name == "k" || key.name == "r" || key.name =="e"|| key.name =="q")
+    if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "ctrl"|| key.name == "k" || key.name == "r" || key.name =="e"|| key.name =="q"|| key.name =="x"|| key.name =="c")
       if(!this.FileSys.emergency){
         this.exec("."+key.name);
     }

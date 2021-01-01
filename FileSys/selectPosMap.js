@@ -10,7 +10,7 @@ module.exports = {
     Shields: newPos("Shields","Storage","Navigation","Electrical","Communications",{"x":133,"y":41}),
     Admin: newPos("Admin", "O2", "Navigation","Weapons","Shields",{"x":133,"y":26}),
     Cafeteria: newPos("Cafeteria", "Upper_Engine","Weapons",null,null,{"x":100,"y":7}),
-    O2: newPos("O2","MedBay","Admin","Weapons","Electrical",{"x":117,"y":22}),
+    O2: newPos("O2","MedBay","Admin","Weapons","Electrical",{"x":127,"y":21}),
     Weapons: newPos("Weapons","Cafeteria",null,"Cafeteria","O2",{"x":131,"y":12}),
     Navigation: newPos("Navigation","Admin",null,null,null,{"x":162,"y":29})
 }

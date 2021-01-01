@@ -100,6 +100,14 @@ module.exports.CMD = class {
                     case "up":
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMultiplier);
                     break;
+                case "x":
+                    if(this.FileSys.player_1.IsTraitor & !this.FileSys.ventMapActive)
+                    this.FileSys.map.activateSabotageSelector();
+                    break;
+                case "c":
+                    if(this.FileSys.player_1.IsTraitor && !this.FileSys.sabotageMapActive)
+                    this.FileSys.map.activateVentMapSelector();
+                    break;
                 case "e":
                     if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown & this.FileSys.word == "Cafeteria" & !this.FileSys.sabotageActive){
                     
