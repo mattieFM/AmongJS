@@ -78,6 +78,7 @@ module.exports.player = class {
     /**@description if the player is dead */
     IsDead = false;
     instanceOfPlayer = null;
+    spawnPos;
   
     
 

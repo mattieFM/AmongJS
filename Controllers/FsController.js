@@ -285,6 +285,7 @@ module.exports.map = class {
         currentMsg = msg
         return;
     }
+    once = false;
     rooms = [];
     /**
      * @description this is the main function that renders the game, it should be called in the main game loop
@@ -294,11 +295,20 @@ module.exports.map = class {
         if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
         const obj = await this.FileSys.getPlayersAndTick(player);
         if (obj["gameStarted?"] == false) {
-            console.log(chalk.blue("You are in the lobby, please wait for the host to start the game"))
-            player.moveOverride = true;
-            return;
+            this.FileSys.gameStarted = true;
+            this.once = false;
+            //console.log(chalk.blue("You are in the lobby, please wait for the host to start the game"))
+            //player.moveOverride = true;
+            this.currentMap = require("../FileSys/lobbyMap").split("\n")
+            
         } else {
+            if(!this.once){
+            this.FileSys.gameStarted = true;
+            this.currentMap = this.BaseMap.split("\n")
+            this.PlayerMove(player, player.spawnPos.x, player.spawnPos.y)
             player.moveOverride = false;
+            this.once = true
+            }
         }
         if (obj.isEmergency) {
             this.FileSys.sabotageActive = true;
@@ -341,12 +351,15 @@ module.exports.map = class {
             this.UnRenderPlayers();
             this.StripAnsi();
             this.UpdatePlayerVision(player)
+            if (obj["gameStarted?"] == true){
             if (player.IsTraitor == true) {
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
             } else {
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "], player, true);
             }
-
+        }else {
+            this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "the game has not", "started, press \"q\"", "near the", "\"computer\" to", "customize your", "character"], player, true);
+        }
             if (player.IsDead == true) {
                 player.PlayerColor = chalk.hex("#DBE7E7")(this.FileSys.Config.PlayerIcon);
                 obj.players.push(player);

@@ -455,6 +455,7 @@ server.on('connection', function (socket) {
       NewPlayer.PlayerID = randNum;
       NewPlayer.x = Config.SaveMapCordPair.Home.x - Math.floor(Math.random() * 10);
       NewPlayer.y = Config.SaveMapCordPair.Home.y - Math.floor(Math.random() * 2);
+      NewPlayer.spawnPos = {"x": NewPlayer.x, "y": NewPlayer.y}
       socket.write("SendPlayerWithIdBack: " + JSON.stringify([NewPlayer, Config]) + "\n")
       players.push(NewPlayer);
       console.log(`A new player has joined, there are ${players.length} players in the game, the max is like 10 about, type: "start" whenever you want to start the game.\nNOTE: the system does not handel if players leave, try not to leave`)

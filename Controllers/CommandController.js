@@ -42,6 +42,7 @@ module.exports.CMD = class {
     /**@description The basic command processor, processing all commands sent to it, then sending them to more advanced handlers/emitting events */
      ArrowMoveMultiplier =1;
     BaseCommandProcessor(command){
+        let started = this.FileSys.gameStarted;
         if(this.FileSys.pause) return;
         if (command[0] == ".") {
             
@@ -101,15 +102,15 @@ module.exports.CMD = class {
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMultiplier);
                     break;
                 case "x":
-                    if(this.FileSys.player_1.IsTraitor & !this.FileSys.ventMapActive)
+                    if(this.FileSys.player_1.IsTraitor & !this.FileSys.ventMapActive & started)
                     this.FileSys.map.activateSabotageSelector();
                     break;
                 case "c":
-                    if(this.FileSys.player_1.IsTraitor && !this.FileSys.sabotageMapActive)
+                    if(this.FileSys.player_1.IsTraitor && !this.FileSys.sabotageMapActive & started)
                     this.FileSys.map.activateVentMapSelector();
                     break;
                 case "e":
-                    if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown & this.FileSys.word == "Cafeteria" & !this.FileSys.sabotageActive){
+                    if(Config.emergencyMeetingsPerGamePerPlayer > this.FileSys.player_1.emergencyMeetingsCalled & started & this.FileSys.TickCount >= this.FileSys.player_1.emergencyCoolDown & this.FileSys.word == "Cafeteria" & !this.FileSys.sabotageActive){
                     
                     this.FileSys.SendReportToServer(this.FileSys.player_1, null);
                     this.FileSys.player_1.emergencyMeetingsCalled++;
