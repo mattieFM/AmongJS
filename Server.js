@@ -72,7 +72,7 @@ this.rl.on('line', (cmd => {
 })).on('close', () => {
   // only gets triggered by ^C or ^D
   const MSGs = require("./FileSys/Msg.json");
-  console.log(MSGs.QuitMSG.green);
+  console.log(chalk.green(MSGs.QuitMSG));
   process.exit(0);
 });
 // creates the server
@@ -458,7 +458,7 @@ server.on('connection', function (socket) {
       NewPlayer.spawnPos = {"x": NewPlayer.x, "y": NewPlayer.y}
       socket.write("SendPlayerWithIdBack: " + JSON.stringify([NewPlayer, Config]) + "\n")
       players.push(NewPlayer);
-      console.log(`A new player has joined, there are ${players.length} players in the game, the max is like 10 about, type: "start" whenever you want to start the game.\nNOTE: the system does not handel if players leave, try not to leave`)
+      console.log(`A new player has joined, there are ${players.length} players in the game, the max is like 10 about, type: "start" whenever you want to start the game.`)
     } else if (data1.startsWith("updatePlayer: ")) {
       var UpdatedPlayer = data1.slice(14);
       let i = 0;

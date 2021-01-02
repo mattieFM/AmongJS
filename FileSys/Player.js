@@ -79,6 +79,8 @@ module.exports.player = class {
     IsDead = false;
     instanceOfPlayer = null;
     spawnPos;
+    hasHat = true;
+    hat = "!"
   
     
 

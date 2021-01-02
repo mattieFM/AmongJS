@@ -1343,6 +1343,11 @@ module.exports.map = class {
             CollisionType = null
         }
         if (this.isLetter(collider)) {
+            if(this.FileSys.player_1.hat == collider){
+                var CollisionEvent = CollisionEventBase;
+                CollisionEvent.CollisionType = CollisionEventBase.air;
+                return CollisionEvent;
+            }
             var CollisionEvent = CollisionEventBase;
             CollisionEvent.CollisionType = CollisionEventBase.wall;
             return CollisionEvent;
@@ -1563,11 +1568,18 @@ module.exports.map = class {
             let index = 1;
             players.forEach(player => {
                 var charAtPlayerX = map[player.y].charAt(player.x)
+                var charAtPlayerHatX = map[player.y-1].charAt(player.x)
                 if (charAtPlayerX == " " && player.isRendered || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
                     let firstPart = map[player.y].substr(0, player.x);
                     let lastPart = map[player.y].substr(player.x + 1);
                     map[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
                     FalseMap[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
+                }
+                if (charAtPlayerHatX == " " && player.hasHat || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
+                    let firstPart = map[player.y-1].substr(0, player.x);
+                    let lastPart = map[player.y-1].substr(player.x + 1);
+                    map[player.y-1] = firstPart + player.hat + lastPart;
+                    FalseMap[player.y-1] = firstPart + player.hat + lastPart;
                 }
                 if (index == players.length) {
                     resolve();
