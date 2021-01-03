@@ -855,7 +855,7 @@ module.exports.map = class {
                 this.FileSys.currentMenuPos = newPos;
             }
         }
-        
+
     }
 
     /**
@@ -1391,24 +1391,109 @@ module.exports.map = class {
         var NoVison = assembledMap.replace(/ /g, "░");
         this.currentMap = NoVison.split(this.FileSys.Config.ReplaceIcon);
     }
+    lastColor = null;
+    /**@description get the player to select a color */
+    chooseColor(player) {
+        let colors = [chalk.blue, chalk.blueBright, chalk.cyan, chalk.cyanBright, chalk.green, chalk.greenBright, chalk.magenta, chalk.magentaBright, chalk.yellow, chalk.yellowBright];
+        this.lastColor = null;
+        return new Promise(resolve => {
+            this.FileSys.colorPickerActive = true;
+            let timer = setInterval(async () => {
+                if (this.FileSys.selectedColor == -99) {
+                    let obj = await this.FileSys.getPlayersAndTick(player)
+                    let players = await obj["players"]
+                    let exists = false;
+                    if(!this.FileSys.Config.infiniteColors)
+                    players.forEach(play => {
+                        if (play.PlayerColor == colors[this.lastColor](this.FileSys.Config.PlayerIcon)) {
+                            exists = true;
+                        }
+                    });
+                    if(!exists){
+                    player.PlayerColor = colors[this.lastColor](this.FileSys.Config.PlayerIcon);
+                    this.FileSys.player_1 = player
+                    this.FileSys.selectedColor = this.lastColor;
+                    this.FileSys.colorPickerActive = false;
+                    clearInterval(timer)
+                    resolve()
+                    }else{
+                        this.FileSys.selectedColor = 0;
+                        return
+                    }
+                }
+                if (this.lastColor != this.FileSys.selectedColor && this.FileSys.selectedColor != -99) {
+                    let map = require("../FileSys/colorMap")[0]
+
+                    let updatedMap;
+                    stripAnsi(map);
+                    let obj = await this.FileSys.getPlayersAndTick(player)
+                    let players = await obj["players"]
+                    let exists = false;
+                    if(!this.FileSys.Config.infiniteColors)
+                    players.forEach(play => {
+                        if (play.PlayerColor == colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)) {
+                            exists = true;
+                        }
+                    });
+                    if(player.PlayerColor ==colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)){
+                        exists = false;
+                    }
+                    if (!exists) {
+                        updatedMap = await map.replace(/▓/g, colors[this.FileSys.selectedColor]("▓"))
+                        updatedMap = await updatedMap.replace(/▒/g, colors[this.FileSys.selectedColor]("▒"))
+                        updatedMap = await updatedMap.replace(/░/g, colors[this.FileSys.selectedColor]("░"))
+                    } else {
+                        updatedMap = await map.replace(/▓/g, chalk.red("▓"))
+                        updatedMap = await updatedMap.replace(/▒/g, chalk.red("▒"))
+                        updatedMap = await updatedMap.replace(/░/g, chalk.red("░"))
+                    }
+                    console.log(updatedMap)
+                }
+                this.lastColor = this.FileSys.selectedColor
+            })
+        }, 1000)
+    }
     /**
      * @description open the customise player menu if the player is near the "computer"
      * @param {*} player, the player controlled by this client
      */
     async openCustomMenu(player, menu) {
+        let prompt = require("prompt-sync")();
         switch (menu) {
             case "change_hat":
                 //open hat menu
                 break;
             case "change_color":
                 this.FileSys.pause = true
-                let color = prompt("please enter the number corresponding to the color you would like:")
+                let color = await this.chooseColor(player);
+                console.clear()
+                this.FileSys.pause = false
+                
                 break
             case "change_username":
-                //prompt
+                console.clear();
+                this.FileSys.pause = true
+               
+                let username = prompt("please enter your username below (less than 20 charecters)")
+                while(username.length >= 20){
+                  username = prompt("enter your username, and now that you didn't listen to me you only get 18 chars for you username\n i hope your happy \n enter below:")
+                }
+                this.FileSys.player_1.userName = username;
+                this.FileSys.pause = false
                 break;
             case "SNAKE":
-                //run snake mini game
+                
+                let snake = require("../minigames/snake").main
+                let goal = prompt("how many points would you like to get before the game ends?")
+                if(isNaN(goal)){
+                    console.log("u suck, stop tring to brake this (you didn't enter a integer)")
+                }else{
+                    this.FileSys.pause = true
+                    await snake(goal)
+                    this.FileSys.pause = false;
+                }
+                console.clear()
+                
                 break;
             default:
                 break;

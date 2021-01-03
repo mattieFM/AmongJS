@@ -81,6 +81,7 @@ module.exports.player = class {
     spawnPos;
     hasHat = true;
     hat = "!"
+    userName = "notAssigned"
   
     
 

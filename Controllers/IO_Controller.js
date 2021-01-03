@@ -46,10 +46,20 @@ constructor(){
   });
 
   process.stdin.on('keypress', (str, key) => {
-    if(this.FileSys.emergency){
-      this.FileSys.map.type(key.name);
+    let chalk = require("chalk")
+    if(this.FileSys.colorPickerActive){
+      if(key.name == "up"){
+        if(this.FileSys.selectedColor <[chalk.blue, chalk.blueBright, chalk.cyan, chalk.cyanBright, chalk.green, chalk.greenBright, chalk.magenta, chalk.magentaBright, chalk.yellow, chalk.yellowBright].length-1)
+        this.FileSys.selectedColor++
+      }else if(key.name == "down"){
+        if(this.FileSys.selectedColor > 1)
+        this.FileSys.selectedColor--
+      }else if ( key.name == "q"){
+        this.FileSys.selectedColor = -99;
+      }
       return;
     }
+   
     if(this.FileSys.sabotageMapActive || this.FileSys.ventMapActive || this.FileSys.customMenuActive || this.FileSys.colorMenuActive){
       if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "q"){
         this.FileSys.map.moveInMenu(key.name)

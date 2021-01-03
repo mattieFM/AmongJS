@@ -7,7 +7,9 @@ const MSGs = require("./FileSys/Msg.json");
 
 const that = this;
 const init = class {
+  selectedColor = 0;
   colorMenuActive = false;
+  colorPickerActive = false;
   customMenuActive = false;
   gameStarted = false;
   ventMapActive = false;
@@ -557,7 +559,12 @@ const init = class {
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into Command Controller--")
     this.IOController.LoadFileSys(this)
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into IO Controller--")
-
+    let prompt = require("prompt-sync")();
+    let username = prompt("please enter your username below (less than 20 charecters)")
+    while(username.length >= 20){
+      username = prompt("enter your username, and now that you didn't listen to me you only get 18 chars for you username\n i hope your happy \n enter below:")
+    }
+    this.player_1.userName = username;
   }
   /**@description by creating a new init object the game is started */
   constructor() {
