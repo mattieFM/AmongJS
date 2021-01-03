@@ -14,7 +14,7 @@
     "DeadIcon": "d",
     "Traitors": 1,
     "snakeGameGoal": 15,
-    "emergencyMeetingTime": 10,
+    "emergencyMeetingTime": 1000,
     "emergencyCoolDown": 10,
     "emergencyMeetingsPerGamePerPlayer": 10,
     "infiniteColors": false,

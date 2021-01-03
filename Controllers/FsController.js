@@ -916,10 +916,22 @@ module.exports.map = class {
             let i = 5;
             let Msgarr = []
             await falsePlayers.forEach(player => {
-                if (player.isRendered && !player.isCorpse || player.isGhost) Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
+                if (player.isRendered && !player.isCorpse || player.isGhost){
+                    Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
+                }
                 x++
             });
+            
+            
             Msgarr.push(x.toString() + ": skip vote")
+            Msgarr.push("")
+            Msgarr.push("NAMES")
+            await falsePlayers.forEach(player => {
+                if (player.isRendered && !player.isCorpse || player.isGhost){
+                    Msgarr.push(this.FileSys.Config.replaceArr[0] + " : " +player.userName)
+                }
+                x++
+            });
             Msgarr.push("time left: " + remainingTime)
 
             if (msgs.length > 44) {
@@ -935,7 +947,7 @@ module.exports.map = class {
                 if (isNaN(result)) {
                     this.updateEmergencyMap(["no one was ejected"], Msgarr, true);
                 } else {
-                    this.updateEmergencyMap([await obj.players[result - 1].PlayerColor + " has been ejected"], Msgarr, true);
+                    this.updateEmergencyMap([await obj.players[result - 1].PlayerColor + " " + obj.players[result - 1].userName + " has been ejected"], Msgarr, true);
                 }
                 this.FileSys.pause = false
                 this.FileSys.emergency = false
@@ -952,10 +964,17 @@ module.exports.map = class {
                     this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PreviousColor + " : dead ");
                 } else {
                     this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PlayerColor + " : alive")
+                    
                 }
                 i++
-
             });
+            i +=3
+            falsePlayers.forEach(player => {
+                if (!player.isRendered && !player.isGhost) return;
+                this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0], player.PlayerColor);
+                i++
+            });
+            
 
             process.stdout.write("\x1b[?25l");
             var readline = require("readline");
@@ -1717,10 +1736,19 @@ module.exports.map = class {
      * @description replace all rendered players with air
      */
     UnRenderPlayers() {
+        let hatArr = []
+        this.FileSys.allPlayers.forEach(player => {
+            hatArr.push(player.hat)
+        });
         this.StripAnsi();
         var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
         var coloredMap = assembledMap.replace(/ඞ/g, this.FileSys.Config.AirIcon);
         this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+        hatArr.forEach(hat => {
+            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+            var coloredMap = assembledMap.replace(hat, this.FileSys.Config.AirIcon);
+            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+        });
     }
     /**
      * @description render players onto a specified map

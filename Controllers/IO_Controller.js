@@ -47,6 +47,10 @@ constructor(){
 
   process.stdin.on('keypress', (str, key) => {
     let chalk = require("chalk")
+    if(this.FileSys.emergency){
+      this.FileSys.map.type(key.name)
+      return
+    }
     if(this.FileSys.colorPickerActive){
       if(key.name == "up"){
         if(this.FileSys.selectedColor <[chalk.blue, chalk.blueBright, chalk.cyan, chalk.cyanBright, chalk.green, chalk.greenBright, chalk.magenta, chalk.magentaBright, chalk.yellow, chalk.yellowBright].length-1)

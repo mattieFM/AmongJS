@@ -174,21 +174,27 @@ server.on('connection', function (socket) {
 
 
   socket.on('data', (data) => {
-
+    let currentPlayer;
+ 
     var data1 = data.toString();
     if (Config.Verbose) console.log(data1)
     if (data1.startsWith("sendMsgsToServer: ")) {
       var msg = data1.slice("sendMsgsToServer: ".length);
+      players.forEach(player => {
+        if (msg.includes(player.PlayerColor)) {
+          currentPlayer = player;
+        }
+      });
       const saveMsg = msg;
+      
       var num = stripAnsi(msg.split(" ").join("").replace("ඞ", "").replace(":", "").replace("vote", "").split(" ").join(""))
       let validVote = true;
+      let stripMsg = stripAnsi(saveMsg)
+      let userNameMsg = stripMsg.replace("ඞ", currentPlayer.userName +" "+ currentPlayer.PlayerColor + "")
+      msg = userNameMsg
       if (!isNaN(num) || msg.includes("No Vote For U")) {
-        let currentPlayer;
-        players.forEach(player => {
-          if (msg.includes(player.PlayerColor)) {
-            currentPlayer = player;
-          }
-        });
+        
+        
         let Voted = false;
 
         if (saveMsg.includes("No Vote For U")) {
@@ -219,7 +225,7 @@ server.on('connection', function (socket) {
         if (validVote)
           votes.push(parseInt(num));
       }
-
+     
       msgs.push(msg);
     } else
       if (data1 == "sendMsgsPls") {
