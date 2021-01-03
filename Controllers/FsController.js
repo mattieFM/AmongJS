@@ -285,6 +285,7 @@ module.exports.map = class {
         currentMsg = msg
         return;
     }
+
     once = false;
     rooms = [];
     /**
@@ -295,19 +296,18 @@ module.exports.map = class {
         if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
         const obj = await this.FileSys.getPlayersAndTick(player);
         if (obj["gameStarted?"] == false) {
-            this.FileSys.gameStarted = true;
+            this.FileSys.gameStarted = false;
             this.once = false;
             //console.log(chalk.blue("You are in the lobby, please wait for the host to start the game"))
             //player.moveOverride = true;
             this.currentMap = require("../FileSys/lobbyMap").split("\n")
-            
         } else {
-            if(!this.once){
-            this.FileSys.gameStarted = true;
-            this.currentMap = this.BaseMap.split("\n")
-            this.PlayerMove(player, player.spawnPos.x, player.spawnPos.y)
-            player.moveOverride = false;
-            this.once = true
+            if (!this.once) {
+                this.FileSys.gameStarted = true;
+                this.currentMap = this.BaseMap.split("\n")
+                this.PlayerMove(player, player.spawnPos.x, player.spawnPos.y)
+                player.moveOverride = false;
+                this.once = true
             }
         }
         if (obj.isEmergency) {
@@ -351,15 +351,15 @@ module.exports.map = class {
             this.UnRenderPlayers();
             this.StripAnsi();
             this.UpdatePlayerVision(player)
-            if (obj["gameStarted?"] == true){
-            if (player.IsTraitor == true) {
-                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
+            if (obj["gameStarted?"] == true) {
+                if (player.IsTraitor == true) {
+                    this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
+                } else {
+                    this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "], player, true);
+                }
             } else {
-                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "], player, true);
+                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "the game has not", "started, press \"q\"", "near the", "\"computer\" to", "customize your", "character"], player, true);
             }
-        }else {
-            this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "the game has not", "started, press \"q\"", "near the", "\"computer\" to", "customize your", "character"], player, true);
-        }
             if (player.IsDead == true) {
                 player.PlayerColor = chalk.hex("#DBE7E7")(this.FileSys.Config.PlayerIcon);
                 obj.players.push(player);
@@ -725,8 +725,35 @@ module.exports.map = class {
         })
 
     }
+    activateCustomizeMenu() {
+        console.clear();
+        let config = this.FileSys.Config
+        this.FileSys.customMenuActive = true;
+        this.FileSys.pause = true;
+        this.sabotageMap = require("../FileSys/customisePlayerMap").split("\n")
+        this.renderBoxAroundText("change_hat")
+        this.FileSys.currentMenuPos = "change_hat";
+    }
+    deactivateCustomizeSelector() {
+        this.FileSys.customMenuActive = false;
+        this.FileSys.pause = false;
+    }
+    activateColorMenu() {
+        console.clear();
+        let config = this.FileSys.Config
+        this.FileSys.colorMenuActive = true;
+        this.FileSys.pause = true;
+        this.sabotageMap = require("../FileSys/colorMap").split("\n")
+        this.renderBoxAroundText("blue")
+        this.FileSys.currentMenuPos = "blue";
+    }
+    deactivateColorSelector() {
+        this.FileSys.colorMenuActive = false;
+        this.FileSys.pause = false;
+    }
     /**@description open the sabotage menu and activate the keypress listener for it */
     activateSabotageSelector() {
+        this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
         let config = this.FileSys.Config
         this.FileSys.sabotageMapActive = true;
         this.FileSys.pause = true;
@@ -739,6 +766,7 @@ module.exports.map = class {
         this.FileSys.pause = false;
     }
     activateVentMapSelector() {
+        this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
         let config = this.FileSys.Config
         this.FileSys.ventMapActive = true;
         this.FileSys.pause = true;
@@ -766,7 +794,7 @@ module.exports.map = class {
                 }
                 run(this);
                 return
-                
+
             }
             let newPos = currentPos[key];
             if (newPos != null) {
@@ -795,6 +823,39 @@ module.exports.map = class {
                 this.FileSys.currentMenuPos = newPos;
             }
         }
+        if (this.FileSys.customMenuActive) {
+            PosMap = require("../FileSys/customisePosMap")
+            let currentPos = PosMap[this.FileSys.currentMenuPos];
+            if (key == "q") {
+                this.eraseBoxFromText(currentPos["name"])
+                this.deactivateCustomizeSelector();
+                this.openCustomMenu(this.FileSys.player_1, currentPos["name"])
+                return
+            }
+            let newPos = currentPos[key];
+            if (newPos != null) {
+                this.eraseBoxFromText(currentPos["name"])
+                this.FileSys.map.renderBoxAroundText(newPos)
+                this.FileSys.currentMenuPos = newPos;
+            }
+        }
+        if (this.FileSys.colorMenuActive) {
+            PosMap = require("../FileSys/colorPosMap")
+            let currentPos = PosMap[this.FileSys.currentMenuPos];
+            if (key == "q") {
+                this.eraseBoxFromText(currentPos["name"])
+                this.deactivateColorSelector();
+                //change color
+                return
+            }
+            let newPos = currentPos[key];
+            if (newPos != null) {
+                this.eraseBoxFromText(currentPos["name"])
+                this.FileSys.map.renderBoxAroundText(newPos)
+                this.FileSys.currentMenuPos = newPos;
+            }
+        }
+        
     }
 
     /**
@@ -1331,6 +1392,29 @@ module.exports.map = class {
         this.currentMap = NoVison.split(this.FileSys.Config.ReplaceIcon);
     }
     /**
+     * @description open the customise player menu if the player is near the "computer"
+     * @param {*} player, the player controlled by this client
+     */
+    async openCustomMenu(player, menu) {
+        switch (menu) {
+            case "change_hat":
+                //open hat menu
+                break;
+            case "change_color":
+                this.FileSys.pause = true
+                let color = prompt("please enter the number corresponding to the color you would like:")
+                break
+            case "change_username":
+                //prompt
+                break;
+            case "SNAKE":
+                //run snake mini game
+                break;
+            default:
+                break;
+        }
+    }
+    /**
      * @description check if there is a collision where the player is moving
      * @param {*} x the x cord
      * @param {*} y the y cord
@@ -1343,7 +1427,7 @@ module.exports.map = class {
             CollisionType = null
         }
         if (this.isLetter(collider)) {
-            if(this.FileSys.player_1.hat == collider){
+            if (this.FileSys.player_1.hat == collider) {
                 var CollisionEvent = CollisionEventBase;
                 CollisionEvent.CollisionType = CollisionEventBase.air;
                 return CollisionEvent;
@@ -1568,7 +1652,7 @@ module.exports.map = class {
             let index = 1;
             players.forEach(player => {
                 var charAtPlayerX = map[player.y].charAt(player.x)
-                var charAtPlayerHatX = map[player.y-1].charAt(player.x)
+                var charAtPlayerHatX = map[player.y - 1].charAt(player.x)
                 if (charAtPlayerX == " " && player.isRendered || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
                     let firstPart = map[player.y].substr(0, player.x);
                     let lastPart = map[player.y].substr(player.x + 1);
@@ -1576,10 +1660,10 @@ module.exports.map = class {
                     FalseMap[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
                 }
                 if (charAtPlayerHatX == " " && player.hasHat || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
-                    let firstPart = map[player.y-1].substr(0, player.x);
-                    let lastPart = map[player.y-1].substr(player.x + 1);
-                    map[player.y-1] = firstPart + player.hat + lastPart;
-                    FalseMap[player.y-1] = firstPart + player.hat + lastPart;
+                    let firstPart = map[player.y - 1].substr(0, player.x);
+                    let lastPart = map[player.y - 1].substr(player.x + 1);
+                    map[player.y - 1] = firstPart + player.hat + lastPart;
+                    FalseMap[player.y - 1] = firstPart + player.hat + lastPart;
                 }
                 if (index == players.length) {
                     resolve();

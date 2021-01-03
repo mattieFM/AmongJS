@@ -96,7 +96,11 @@ module.exports.CMD = class {
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, 1 * Multiplier);
                     break;
                 case "q":
+                    if(started){
                     this.FileSys.map.miniGame();
+                    }else{
+                    this.FileSys.map.activateCustomizeMenu();
+                    }
                     break;
                     case "up":
                     this.FileSys.map.RelativePlayerMove(this.FileSys.player_1, 0, -1 * this.ArrowMoveMultiplier);

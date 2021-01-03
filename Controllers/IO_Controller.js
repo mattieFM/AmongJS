@@ -50,7 +50,7 @@ constructor(){
       this.FileSys.map.type(key.name);
       return;
     }
-    if(this.FileSys.sabotageMapActive || this.FileSys.ventMapActive){
+    if(this.FileSys.sabotageMapActive || this.FileSys.ventMapActive || this.FileSys.customMenuActive || this.FileSys.colorMenuActive){
       if(key.name == "left" || key.name == "right" || key.name == "up" || key.name == "down" || key.name == "q"){
         this.FileSys.map.moveInMenu(key.name)
       }

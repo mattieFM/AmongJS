@@ -7,6 +7,8 @@ const MSGs = require("./FileSys/Msg.json");
 
 const that = this;
 const init = class {
+  colorMenuActive = false;
+  customMenuActive = false;
   gameStarted = false;
   ventMapActive = false;
   currentMenuPos = "Cafeteria";
