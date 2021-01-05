@@ -9,6 +9,7 @@ const { player } = require("./FileSys/Player");
 const that = this;
 const init = class {
   selectedColor = 0;
+  pauseAutoMsg = false;
   colorMenuActive = false;
   colorPickerActive = false;
   customMenuActive = false;

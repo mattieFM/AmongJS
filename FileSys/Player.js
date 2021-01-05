@@ -4,6 +4,8 @@
 /**
  * the config file
  */
+
+const chalk = require("chalk")
 const Config = require("./Config.json")
 module.exports.player = class { 
     Fill =" ";
@@ -19,7 +21,7 @@ module.exports.player = class {
     /**@description i got no clue what this is for */
     displayMsg;
     /**@description the current render icon of the player (the player icon with ansi color code) */
-    PlayerColor = Config.PlayerIcon.red;
+    PlayerColor = chalk.red(Config.PlayerIcon);
     /**@description the unquie id of the player */
     PlayerID;
     /**@description weather the player has voted */

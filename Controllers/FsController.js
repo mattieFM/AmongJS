@@ -14,7 +14,7 @@ const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
  *   this has not been implemented yet and is only used in updateCurrentMsg a function that is not used
 */
-let currentMsg;
+let currentMsg = [];
 /**@description the utility class that shares useful functions between all other classes */
 const util = new utility();
 /**@deprecated This was added in very early development, and should not be used */
@@ -282,6 +282,7 @@ module.exports.map = class {
      * update the current displayed message, the message will stay this way until this function is fired again
      */
     updateCurrentMsg(msg) {
+        if(!this.FileSys.pauseAutoMsg)
         currentMsg = msg
         return;
     }
@@ -353,19 +354,24 @@ module.exports.map = class {
             this.UpdatePlayerVision(player)
             if (obj["gameStarted?"] == true) {
                 if (player.IsTraitor == true) {
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
                 } else {
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "], player, true);
                 }
             } else {
+                this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "the game has not", "started, press \"q\"", "near the", "\"computer\" to", "customize your", "character"])
                 this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "the game has not", "started, press \"q\"", "near the", "\"computer\" to", "customize your", "character"], player, true);
             }
             if (player.IsDead == true) {
                 player.PlayerColor = chalk.hex("#DBE7E7")(this.FileSys.Config.PlayerIcon);
                 obj.players.push(player);
                 if (player.IsTraitor == true) {
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "hey shitass...", "wanna see me lose", "among us?"])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "hey shitass...", "wanna see me lose", "among us?"], player, true);
                 } else {
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
                 }
             }
@@ -1493,9 +1499,9 @@ module.exports.map = class {
                 console.clear();
                 this.FileSys.pause = true
                
-                let username = prompt("please enter your username below (less than 20 charecters)")
-                while(username.length >= 20){
-                  username = prompt("enter your username, and now that you didn't listen to me you only get 18 chars for you username\n i hope your happy \n enter below:")
+                let username = prompt("please enter your username below (less than 15 charecters)")
+                while(username.length >= 15){
+                  username = prompt("enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:")
                 }
                 this.FileSys.player_1.userName = username;
                 this.FileSys.pause = false
@@ -1772,7 +1778,7 @@ module.exports.map = class {
                     map[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
                     FalseMap[player.y] = firstPart + this.FileSys.Config.PlayerIcon + lastPart;
                 }
-                if (charAtPlayerHatX == " " && player.hasHat || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
+                if (charAtPlayerHatX == " " && player.hasHat && player.isRendered || renderAll == true || this.FileSys.player_1 == player || this.FileSys.player_1.isGhost && charAtPlayerX == " ") {
                     let firstPart = map[player.y - 1].substr(0, player.x);
                     let lastPart = map[player.y - 1].substr(player.x + 1);
                     map[player.y - 1] = firstPart + player.hat + lastPart;
@@ -2000,7 +2006,7 @@ module.exports.map = class {
      * @param {*} yn weathor or not to immediately updateMapStatuses() after the function completes
      */
     DisplayMsg(msgArr, player, yn = false) {
-
+        msgArr = currentMsg;
         var MaxMsgLength = "                  ".length //18
         var lineNum = 0;
         let i = 0;
