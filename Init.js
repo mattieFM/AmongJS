@@ -8,6 +8,8 @@ const { player } = require("./FileSys/Player");
 
 const that = this;
 const init = class {
+  dontRenderTasks = false;
+  sabotageMsg = [""]
   selectedColor = 0;
   pauseAutoMsg = false;
   colorMenuActive = false;

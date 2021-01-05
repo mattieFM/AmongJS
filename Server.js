@@ -4,7 +4,7 @@
 */
 const { random } = require('colors/safe');
 let msgs = [" "];
-
+let emeMsg = [""]
 let gameStarted = false;
 var net = require('net');
 const chalk = require("chalk")
@@ -334,7 +334,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Communications":
-
+          emeMsg = ["comms have been", "sabotaged fix them","to see tasks again"]
           break;
         case "Shields":
 
@@ -393,7 +393,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Communications":
-
+          emeMsg = [""]
           break;
         case "Shields":
 
@@ -520,7 +520,8 @@ server.on('connection', function (socket) {
         "gameStarted?": true,
         isEmergency,
         allEmergencies,
-        Config
+        Config,
+        emeMsg
       }
       if (gameStarted == false)
         infoObj = {
@@ -538,7 +539,8 @@ server.on('connection', function (socket) {
           "gameStarted?": true,
           isEmergency,
           allEmergencies,
-          Config
+          Config,
+          emeMsg
         }
       }
 

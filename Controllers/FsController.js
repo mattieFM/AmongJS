@@ -310,7 +310,10 @@ module.exports.map = class {
                 player.moveOverride = false;
                 this.once = true
             }
+            this.FileSys.sabotageMsg = obj.emeMsg
+            if(this.FileSys.sabotageMsg[0].includes("comms") == false) this.FileSys.dontRenderTasks = false;
         }
+        
         if (obj.isEmergency) {
             this.FileSys.sabotageActive = true;
             if (this.rooms != obj.allEmergencies) {
@@ -326,6 +329,7 @@ module.exports.map = class {
                     }
                 });
             }
+            
             this.rooms = obj.allEmergencies;
             this.rooms.forEach(room => {
                 this.emergencyStatuses[room] = this.StatusTypes.EMERGENCY;
@@ -375,6 +379,13 @@ module.exports.map = class {
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
                 }
             }
+            let msg = currentMsg;
+            if(this.FileSys.sabotageActive){
+                    currentMsg = msg.concat(this.FileSys.sabotageMsg)
+                    this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
+                    if(this.FileSys.sabotageMsg[0].includes("comms")) this.FileSys.dontRenderTasks = true;
+                    
+            }
             await this.RenderPlayers(obj.players);
             this.currentMap.forEach(line => {
                 if (line.includes("³")) {
@@ -392,7 +403,7 @@ module.exports.map = class {
             NamesArr.forEach(name => {
                 var status = this.Statuses[name];
                 var coloredName = name;
-                if (this.emergencyStatuses[name] != this.StatusTypes.EMERGENCY) {
+                if (this.emergencyStatuses[name] != this.StatusTypes.EMERGENCY && !this.FileSys.dontRenderTasks) {
                     switch (status) {
                         case "Sabotaged":
                             coloredName = chalk.red(name);
@@ -412,8 +423,10 @@ module.exports.map = class {
                         default:
                             break;
                     }
-                } else {
+                } else if(this.emergencyStatuses[name] == this.StatusTypes.EMERGENCY){
                     coloredName = chalk.red(name)
+                }else{
+                    coloredName = chalk.green(name)
                 }
                 /**@description the current map assembled into one string */
                 var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
