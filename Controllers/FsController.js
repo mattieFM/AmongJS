@@ -10,6 +10,7 @@ Programmer: Matt/AuthoredEntropy
 const chalk = require('chalk');
 const colors = require('colors/safe');
 const stripAnsi = require('strip-ansi');
+const { player } = require('../FileSys/Player');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
  *   this has not been implemented yet and is only used in updateCurrentMsg a function that is not used
@@ -358,7 +359,7 @@ module.exports.map = class {
             this.UpdatePlayerVision(player)
             if (obj["gameStarted?"] == true) {
                 if (player.IsTraitor == true) {
-                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn])
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn, "vent Cooldown: "+ player.nextVentTurn, "Sabotage: "+ player.nextSabotageTurn])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
                 } else {
                     this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "])
@@ -773,12 +774,15 @@ module.exports.map = class {
     }
     /**@description open the sabotage menu and activate the keypress listener for it */
     activateSabotageSelector() {
+        if( this.FileSys.TickCount>=this.FileSys.player_1.nextSabotageTurn){
+        this.FileSys.player_1.nextSabotageTurn =this.FileSys.TickCount + this.FileSys.Config.sabotageCooldown
         this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
         let config = this.FileSys.Config
         this.FileSys.sabotageMapActive = true;
         this.FileSys.pause = true;
         this.FileSys.map.renderBoxAroundText("Cafeteria")
         this.FileSys.currentMenuPos = "Cafeteria";
+        }
     }
     /**@description deactivate the selector for sabotage  */
     deactivateSabotageSelector() {
@@ -786,6 +790,8 @@ module.exports.map = class {
         this.FileSys.pause = false;
     }
     activateVentMapSelector() {
+        if(this.FileSys.TickCount >=this.FileSys.player_1.nextVentTurn){
+            this.FileSys.player_1.nextVentTurn =this.FileSys.TickCount + this.FileSys.Config.ventCooldown
         this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
         let config = this.FileSys.Config
         this.FileSys.ventMapActive = true;
@@ -793,6 +799,7 @@ module.exports.map = class {
         if (this.FileSys.word == "none") this.FileSys.word = "Cafeteria"
         this.FileSys.map.renderBoxAroundText(this.FileSys.word)
         this.FileSys.currentMenuPos = this.FileSys.word;
+        }
     }
     /**@description deactivate the selector for sabotage  */
     deactivateVentMapSelector() {

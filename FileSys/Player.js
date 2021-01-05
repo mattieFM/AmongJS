@@ -57,6 +57,10 @@ module.exports.player = class {
     tasksCompleted = false;
     /**@description the next turn that the imposter can kill */
     nextKillTurn = 0;
+    /**@description the next turn that the imposter can Vent */
+    nextVentTurn = 0;
+    /**@description the next turn that the imposter can Sabotage */
+    nextSabotageTurn = 0;
     /**@description the total number of emergency meetings this player has called */
     emergencyMeetingsCalled = 0;
     /**@description the next turn an emergency meeting can be called */
