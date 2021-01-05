@@ -790,7 +790,7 @@ module.exports.map = class {
         this.FileSys.pause = false;
     }
     activateVentMapSelector() {
-        if(this.FileSys.TickCount >=this.FileSys.player_1.nextVentTurn){
+        if(this.FileSys.TickCount >=this.FileSys.player_1.nextVentTurn || this.FileSys.player_1.IsDead){
             this.FileSys.player_1.nextVentTurn =this.FileSys.TickCount + this.FileSys.Config.ventCooldown
         this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
         let config = this.FileSys.Config
