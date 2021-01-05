@@ -3,6 +3,7 @@
  ahhhheeee, its the server file....
 */
 const { random } = require('colors/safe');
+let criticalTimer;
 let msgs = [" "];
 let emeMsg = [""]
 let gameStarted = false;
@@ -319,14 +320,15 @@ server.on('connection', function (socket) {
           break;
         case "Reactors":
           let timeLeft = Config.timeBeforeReactorBlows
-          let timer = setInterval(() => {
+          criticalTimer = setInterval(() => {
             emeMsg = ["reactors have", "been sabotaged", "fix them or die", "timeLeft: " + timeLeft]
             timeLeft--
             if(timeLeft == -1){
-              clearInterval(timer)
+              clearInterval(criticalTimer)
               players.forEach(player => {
                 if(!player.IsTraitor)killPlayer(player.playerId)
               });
+              emeMsg =""
             }
           },1000)
           
@@ -341,6 +343,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Electrical":
+          emeMsg = ["Lights have been","sabotaged, fix them","to see again"]
           Config.VisionTiles = 1
           break;
         case "Storage":
@@ -359,7 +362,18 @@ server.on('connection', function (socket) {
 
           break;
         case "O2":
-
+          let timeLeft2 = Config.timeUntilO2Depletes
+          criticalTimer = setInterval(() => {
+            emeMsg = ["oxygen has been", "been sabotaged", "oxygen is slowly", "depleting, fix it", "timeLeft: " + timeLeft2]
+            timeLeft2--
+            if(timeLeft2 == -1){
+              clearInterval(criticalTimer)
+              players.forEach(player => {
+                if(!player.IsTraitor)killPlayer(player.playerId)
+              });
+              emeMsg =""
+            }
+          },1000)
           break;
         case "Weapons":
 
@@ -383,12 +397,13 @@ server.on('connection', function (socket) {
           allEmergencies.splice(allEmergencies.indexOf(eme),1)
         }
       });
+      emeMsg = [""]
       switch (room) {
         case "Upper_Engine":
           
           break;
         case "Reactors":
-
+          clearInterval(criticalTimer);
           break;
         case "Lower_Engine":
 
@@ -406,7 +421,6 @@ server.on('connection', function (socket) {
 
           break;
         case "Communications":
-          emeMsg = [""]
           break;
         case "Shields":
 
@@ -418,7 +432,7 @@ server.on('connection', function (socket) {
 
           break;
         case "O2":
-
+          clearInterval(criticalTimer);
           break;
         case "Weapons":
 

@@ -1697,7 +1697,7 @@ module.exports.map = class {
      * @returns boolean 
      */
     isLetter(str) {
-        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i);
+        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i)|| str.match(/2/i);
     }
     /**
      * @description replace a char in an array with an x y cord system
