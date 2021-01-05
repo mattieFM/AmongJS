@@ -447,6 +447,7 @@ module.exports.map = class {
     endGameDisplay(msg, player) {
         this.UnRenderPlayers();
         this.StripAnsi();
+        this.updateCurrentMsg(msg)
         this.DisplayMsg(msg, player, true)
         var NamesArr = Object.values(this.Names);
         const obj = this.FileSys.getPlayersAndTick(player);

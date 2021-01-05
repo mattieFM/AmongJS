@@ -15,6 +15,7 @@
     "Traitors": 1,
     "snakeGameGoal": 15,
     "emergencyMeetingTime": 1000,
+    "timeBeforeReactorBlows": 5,
     "emergencyCoolDown": 10,
     "emergencyMeetingsPerGamePerPlayer": 10,
     "infiniteColors": false,

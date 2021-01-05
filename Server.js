@@ -75,6 +75,7 @@ this.rl.on('line', (cmd => {
   console.log(chalk.green(MSGs.QuitMSG));
   process.exit(0);
 });
+
 // creates the server
 var server = net.createServer();
 function StartGame() {
@@ -164,6 +165,7 @@ const { player } = require('./FileSys/Player');
 const { indexOf } = require('./FileSys/BaseMap');
 const stripAnsi = require('strip-ansi');
 const { spawn } = require('child_process');
+const { kill } = require('process');
 server.on('connection', function (socket) {
   if (!GameHasStarted) StartGame();
   server.getConnections(function (error, count) {
@@ -316,7 +318,18 @@ server.on('connection', function (socket) {
           
           break;
         case "Reactors":
-
+          let timeLeft = Config.timeBeforeReactorBlows
+          let timer = setInterval(() => {
+            emeMsg = ["reactors have", "been sabotaged", "fix them or die", "timeLeft: " + timeLeft]
+            timeLeft--
+            if(timeLeft == -1){
+              clearInterval(timer)
+              players.forEach(player => {
+                if(!player.IsTraitor)killPlayer(player.playerId)
+              });
+            }
+          },1000)
+          
           break;
         case "Lower_Engine":
 
