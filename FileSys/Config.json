@@ -51,6 +51,7 @@
     
     "delay": 1000,
     "MovesPerTurn": 5,
+    "moveSpeedWhenCafeSabotage": 3,
     "VisionTiles": 3,
     "WallCollisionMsgArr": ["YOU CAN'T MOVE", "THROUGH WALLS,", "DUMMY"],
     "Commands": [

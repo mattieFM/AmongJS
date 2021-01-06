@@ -31,6 +31,7 @@ TraitorWin = false;
 InnocentWin = false;
 const Config = require("./FileSys/Config.json");
 let visionBase = Config.VisionTiles;
+let moveBase =  Config.MovesPerTurn;
 var turnCount = 0;
 var GameHasStarted = gameStarted;
 const readline = require("readline")
@@ -359,7 +360,8 @@ server.on('connection', function (socket) {
 
           break;
         case "Cafeteria":
-
+          emeMsg = ["the Cafe has been", "sabotaged... so","your slow...","cus you can't eat", "makes sense","right?"]
+          Config.MovesPerTurn = Config.moveSpeedWhenCafeSabotage
           break;
         case "O2":
           let timeLeft2 = Config.timeUntilO2Depletes
@@ -421,6 +423,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Communications":
+          
           break;
         case "Shields":
 
@@ -429,7 +432,7 @@ server.on('connection', function (socket) {
 
           break;
         case "Cafeteria":
-
+          Config.MovesPerTurn = moveBase
           break;
         case "O2":
           clearInterval(criticalTimer);
@@ -533,7 +536,7 @@ server.on('connection', function (socket) {
       }
       let tasksLeft = false;
       players.forEach(player => {
-        if (!player.IsTraitor && !player.tasksCompleted) tasksLeft = true;
+        if (!player.IsTraitor && !player.tasksCompleted || isEmergency) tasksLeft = true;
         if (UpdatedPlayer.PlayerID == player.PlayerID) {
           players[i] = UpdatedPlayer;
           exists = true;

@@ -110,7 +110,7 @@ module.exports.CMD = class {
                     this.FileSys.map.activateSabotageSelector();
                     break;
                 case "c":
-                    if(this.FileSys.player_1.IsTraitor && !this.FileSys.sabotageMapActive & started || this.player_1.IsDead)
+                    if(this.FileSys.player_1.IsTraitor && !this.FileSys.sabotageMapActive & started || this.FileSys.player_1.IsDead)
                     this.FileSys.map.activateVentMapSelector();
                     break;
                 case "e":

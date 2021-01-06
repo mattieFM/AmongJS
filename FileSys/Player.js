@@ -73,8 +73,6 @@ module.exports.player = class {
     IsTraitor = false
     /**@description the current tick of the game */
     currentGameTick = 0;
-    /**@description the total moves a player can make in one turn */
-    MovesPerTurn = Config.MovesPerTurn;
     /**@description the total moves taken this turn */
     MovesThisTurn = 0;
     /**@description the charector this player has been replaced with when rendering DO NOT TOUCH */

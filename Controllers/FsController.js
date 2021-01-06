@@ -548,10 +548,10 @@ module.exports.map = class {
         let NumOfSpaces = x * .5 + y
         var canMove = true;
         if (tickCount == player.currentGameTick) {
-            if (player.MovesThisTurn >= player.MovesPerTurn) {
+            if (player.MovesThisTurn >= this.FileSys.Config.MovesPerTurn) {
                 canMove = false;
             } else {
-                if (Math.abs(player.MovesThisTurn + NumOfSpaces) <= player.MovesPerTurn) {
+                if (Math.abs(player.MovesThisTurn + NumOfSpaces) <= this.FileSys.Config.MovesPerTurn) {
                     player.MovesThisTurn += NumOfSpaces;
                 } else {
                     canMove = false;
