@@ -789,7 +789,22 @@ module.exports.map = class {
         this.FileSys.sabotageMapActive = false;
         this.FileSys.pause = false;
     }
-    activateVentMapSelector() {
+    async activateVentMapSelector() {
+   
+        this.FileSys.player_1.prevHat = this.FileSys.player_1.hat
+        this.FileSys.player_1.hat= this.FileSys.player_1.PlayerColor
+        this.FileSys.player_1.PreviousColor = this.FileSys.player_1.PlayerColor;
+        this.FileSys.player_1.PlayerColor = "▢";
+        await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
+        setTimeout(async ()=>{
+            this.FileSys.player_1.hat = " "
+            this.FileSys.player_1.PlayerColor = this.FileSys.player_1.PreviousColor;
+            await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
+            await util.wait(this.FileSys.Config.ventAnimationLength/2)
+            this.FileSys.player_1.hat = " "
+            this.FileSys.player_1.PlayerColor = "▢";
+            await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
+        },this.FileSys.Config.ventAnimationLength/2)
         if(this.FileSys.TickCount >=this.FileSys.player_1.nextVentTurn || this.FileSys.player_1.IsDead){
             this.FileSys.player_1.nextVentTurn =this.FileSys.TickCount + this.FileSys.Config.ventCooldown
         this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
@@ -808,12 +823,15 @@ module.exports.map = class {
     }
 
     /**@description pass a key.name and this will move the active menu accordingly*/
-    moveInMenu(key) {
+    async moveInMenu(key) {
         let PosMap;
         if (this.FileSys.ventMapActive) {
             PosMap = require("../FileSys/selectPosMap")
             let currentPos = PosMap[this.FileSys.currentMenuPos];
             if (key == "q") {
+                this.FileSys.player_1.PlayerColor = this.FileSys.player_1.PreviousColor;
+                this.FileSys.player_1.hat = this.FileSys.player_1.prevHat;
+                await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
                 this.eraseBoxFromText(currentPos["name"])
                 this.deactivateVentMapSelector();
                 async function run(that) {
@@ -1704,7 +1722,7 @@ module.exports.map = class {
      * @returns boolean 
      */
     isLetter(str) {
-        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i)|| str.match(/2/i);
+        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i)|| str.match(/2/i) || str.match(/▢/i);
     }
     /**
      * @description replace a char in an array with an x y cord system
@@ -1776,6 +1794,9 @@ module.exports.map = class {
             var coloredMap = assembledMap.replace(hat, this.FileSys.Config.AirIcon);
             this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
         });
+        var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+            var coloredMap = assembledMap.replace(/▢/, this.FileSys.Config.AirIcon);
+            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
     }
     /**
      * @description render players onto a specified map

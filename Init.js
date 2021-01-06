@@ -27,7 +27,7 @@ const init = class {
   FsController;
   emergencyInterval;
   emergency = false;
-  word = "none";
+  word = "Cafeteria";
   pause = false;
   CommandController;
   swipeCardActive = false;

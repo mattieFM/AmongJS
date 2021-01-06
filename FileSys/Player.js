@@ -10,6 +10,7 @@ const Config = require("./Config.json")
 module.exports.player = class { 
     Fill =" ";
     PreviousColType = " ";
+    prevHat = ""
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */
     CurrentPosIndex  = Config.SaveMapTruePos.Home
     /** @deprecated map is stored in array, thus y does not need to equal length of a line */

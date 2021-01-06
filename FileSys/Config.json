@@ -9,6 +9,7 @@
     "killCooldown": 25,
     "ventCooldown": 25,
     "sabotageCooldown": 25,
+    "ventAnimationLength": 1500,
     "WallIcon": "█",
     "AirIcon": "░",
     "ReplaceIcon": "©",
