@@ -283,8 +283,8 @@ module.exports.map = class {
      * update the current displayed message, the message will stay this way until this function is fired again
      */
     updateCurrentMsg(msg) {
-        if(!this.FileSys.pauseAutoMsg)
-        currentMsg = msg
+        if (!this.FileSys.pauseAutoMsg)
+            currentMsg = msg
         return;
     }
 
@@ -294,9 +294,11 @@ module.exports.map = class {
      * @description this is the main function that renders the game, it should be called in the main game loop
      * @param {Object} player the player controlled by this client
      */
-    async UpdateMapStatuses(player) {
+    async UpdateMapStatuses(player,clear = true) {
         if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
+        if(clear)console.clear();
         const obj = await this.FileSys.getPlayersAndTick(player);
+        
         if (obj["gameStarted?"] == false) {
             this.FileSys.gameStarted = false;
             this.once = false;
@@ -312,9 +314,9 @@ module.exports.map = class {
                 this.once = true
             }
             this.FileSys.sabotageMsg = obj.emeMsg
-            if(this.FileSys.sabotageMsg[0].includes("comms") == false) this.FileSys.dontRenderTasks = false;
+            if (this.FileSys.sabotageMsg[0].includes("comms") == false) this.FileSys.dontRenderTasks = false;
         }
-        
+
         if (obj.isEmergency) {
             this.FileSys.sabotageActive = true;
             if (this.rooms != obj.allEmergencies) {
@@ -330,7 +332,7 @@ module.exports.map = class {
                     }
                 });
             }
-            
+
             this.rooms = obj.allEmergencies;
             this.rooms.forEach(room => {
                 this.emergencyStatuses[room] = this.StatusTypes.EMERGENCY;
@@ -359,7 +361,7 @@ module.exports.map = class {
             this.UpdatePlayerVision(player)
             if (obj["gameStarted?"] == true) {
                 if (player.IsTraitor == true) {
-                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn, "vent Cooldown: "+ player.nextVentTurn, "Sabotage: "+ player.nextSabotageTurn])
+                    this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn, "vent Cooldown: " + player.nextVentTurn, "Sabotage: " + player.nextSabotageTurn])
                     this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "Imposter", "kill your friends", "", "", "kill Cooldown:" + player.nextKillTurn], player, true);
                 } else {
                     this.updateCurrentMsg(["Turn Num: " + this.FileSys.TickCount, "Crewmate", "compete tasks", " "])
@@ -381,11 +383,11 @@ module.exports.map = class {
                 }
             }
             let msg = currentMsg;
-            if(this.FileSys.sabotageActive){
-                    currentMsg = msg.concat(this.FileSys.sabotageMsg)
-                    this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
-                    if(this.FileSys.sabotageMsg[0].includes("comms")) this.FileSys.dontRenderTasks = true;
-                    
+            if (this.FileSys.sabotageActive) {
+                currentMsg = msg.concat(this.FileSys.sabotageMsg)
+                this.DisplayMsg(["Turn Num: " + this.FileSys.TickCount, "You are dead", "complete your tasks", " "], player, true);
+                if (this.FileSys.sabotageMsg[0].includes("comms")) this.FileSys.dontRenderTasks = true;
+
             }
             await this.RenderPlayers(obj.players);
             this.currentMap.forEach(line => {
@@ -424,9 +426,9 @@ module.exports.map = class {
                         default:
                             break;
                     }
-                } else if(this.emergencyStatuses[name] == this.StatusTypes.EMERGENCY){
+                } else if (this.emergencyStatuses[name] == this.StatusTypes.EMERGENCY) {
                     coloredName = chalk.red(name)
-                }else{
+                } else {
                     coloredName = chalk.green(name)
                 }
                 /**@description the current map assembled into one string */
@@ -439,6 +441,48 @@ module.exports.map = class {
             this.writeAssembledMap();
             resolve(this.currentMap);
         })
+    }
+    replaceGlobally(original, searchTxt, replaceTxt) {
+        const regex = new RegExp(searchTxt, 'g');
+        return original.replace(regex, replaceTxt);
+    }
+    air = []
+   /**@deprecated handled by the terminal*/
+    async updateAir (){
+        this.air = []
+        for (var y = 0; y < this.currentMap.length; y++) {
+            var str = this.currentMap[y]
+            var indices = [];
+            for (var i = 0; i < str.length; i++) {
+                if (str[i] === "░") indices.push(i);
+            }
+            this.air.push({"y": y, x: indices})
+    }
+    }
+    /**@deprecated handled by the terminal*/
+    renderAir() {
+        return new Promise(resolve => {
+            var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
+            var coloredMap = this.replaceGlobally(assembledMap, "░", chalk.grey("█"));
+            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+            resolve()
+        })
+        
+    }
+     /**@deprecated handled by the terminal*/
+    unRenderAir() {
+        return new Promise(resolve => {
+            this.StripAnsi()
+            this.air.forEach(element => {
+                let indices = element.x
+                let y = element.y
+                indices.forEach(index => {
+                    this.Replace(this.currentMap, index, y, "░")
+                });
+            });
+            resolve()
+        })
+        
     }
     /**
      * @description render the end game display screen
@@ -774,14 +818,15 @@ module.exports.map = class {
     }
     /**@description open the sabotage menu and activate the keypress listener for it */
     activateSabotageSelector() {
-        if( this.FileSys.TickCount>=this.FileSys.player_1.nextSabotageTurn){
-        this.FileSys.player_1.nextSabotageTurn =this.FileSys.TickCount + this.FileSys.Config.sabotageCooldown
-        this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
-        let config = this.FileSys.Config
-        this.FileSys.sabotageMapActive = true;
-        this.FileSys.pause = true;
-        this.FileSys.map.renderBoxAroundText("Cafeteria")
-        this.FileSys.currentMenuPos = "Cafeteria";
+        console.clear()
+        if (this.FileSys.TickCount >= this.FileSys.player_1.nextSabotageTurn) {
+            this.FileSys.player_1.nextSabotageTurn = this.FileSys.TickCount + this.FileSys.Config.sabotageCooldown
+            this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
+            let config = this.FileSys.Config
+            this.FileSys.sabotageMapActive = true;
+            this.FileSys.pause = true;
+            this.FileSys.map.renderBoxAroundText("Cafeteria")
+            this.FileSys.currentMenuPos = "Cafeteria";
         }
     }
     /**@description deactivate the selector for sabotage  */
@@ -790,30 +835,30 @@ module.exports.map = class {
         this.FileSys.pause = false;
     }
     async activateVentMapSelector() {
-   
+
         this.FileSys.player_1.prevHat = this.FileSys.player_1.hat
-        this.FileSys.player_1.hat= this.FileSys.player_1.PlayerColor
+        this.FileSys.player_1.hat = this.FileSys.player_1.PlayerColor
         this.FileSys.player_1.PreviousColor = this.FileSys.player_1.PlayerColor;
         this.FileSys.player_1.PlayerColor = "▢";
         await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
-        setTimeout(async ()=>{
+        setTimeout(async () => {
             this.FileSys.player_1.hat = " "
             this.FileSys.player_1.PlayerColor = this.FileSys.player_1.PreviousColor;
             await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
-            await util.wait(this.FileSys.Config.ventAnimationLength/2)
+            await util.wait(this.FileSys.Config.ventAnimationLength / 2)
             this.FileSys.player_1.hat = " "
             this.FileSys.player_1.PlayerColor = "▢";
             await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
-        },this.FileSys.Config.ventAnimationLength/2)
-        if(this.FileSys.TickCount >=this.FileSys.player_1.nextVentTurn || this.FileSys.player_1.IsDead){
-            this.FileSys.player_1.nextVentTurn =this.FileSys.TickCount + this.FileSys.Config.ventCooldown
-        this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
-        let config = this.FileSys.Config
-        this.FileSys.ventMapActive = true;
-        this.FileSys.pause = true;
-        if (this.FileSys.word == "none") this.FileSys.word = "Cafeteria"
-        this.FileSys.map.renderBoxAroundText(this.FileSys.word)
-        this.FileSys.currentMenuPos = this.FileSys.word;
+        }, this.FileSys.Config.ventAnimationLength / 2)
+        if (this.FileSys.TickCount >= this.FileSys.player_1.nextVentTurn || this.FileSys.player_1.IsDead) {
+            this.FileSys.player_1.nextVentTurn = this.FileSys.TickCount + this.FileSys.Config.ventCooldown
+            this.sabotageMap = require("../FileSys/SabatageMap").split("\n");
+            let config = this.FileSys.Config
+            this.FileSys.ventMapActive = true;
+            this.FileSys.pause = true;
+            if (this.FileSys.word == "none") this.FileSys.word = "Cafeteria"
+            this.FileSys.map.renderBoxAroundText(this.FileSys.word)
+            this.FileSys.currentMenuPos = this.FileSys.word;
         }
     }
     /**@description deactivate the selector for sabotage  */
@@ -843,6 +888,7 @@ module.exports.map = class {
             }
             let newPos = currentPos[key];
             if (newPos != null) {
+                console.clear()
                 this.eraseBoxFromText(currentPos["name"])
                 this.FileSys.map.renderBoxAroundText(newPos)
                 this.FileSys.currentMenuPos = newPos;
@@ -863,6 +909,7 @@ module.exports.map = class {
             }
             let newPos = currentPos[key];
             if (newPos != null) {
+                console.clear()
                 this.eraseBoxFromText(currentPos["name"])
                 this.FileSys.map.renderBoxAroundText(newPos)
                 this.FileSys.currentMenuPos = newPos;
@@ -879,6 +926,7 @@ module.exports.map = class {
             }
             let newPos = currentPos[key];
             if (newPos != null) {
+                console.clear()
                 this.eraseBoxFromText(currentPos["name"])
                 this.FileSys.map.renderBoxAroundText(newPos)
                 this.FileSys.currentMenuPos = newPos;
@@ -961,19 +1009,19 @@ module.exports.map = class {
             let i = 5;
             let Msgarr = []
             await falsePlayers.forEach(player => {
-                if (player.isRendered && !player.isCorpse || player.isGhost){
+                if (player.isRendered && !player.isCorpse || player.isGhost) {
                     Msgarr.push(x.toString() + ": " + this.FileSys.Config.replaceArr[0])
                 }
                 x++
             });
-            
-            
+
+
             Msgarr.push(x.toString() + ": skip vote")
             Msgarr.push("")
             Msgarr.push("NAMES")
             await falsePlayers.forEach(player => {
-                if (player.isRendered && !player.isCorpse || player.isGhost){
-                    Msgarr.push(this.FileSys.Config.replaceArr[0] + " : " +player.userName)
+                if (player.isRendered && !player.isCorpse || player.isGhost) {
+                    Msgarr.push(this.FileSys.Config.replaceArr[0] + " : " + player.userName)
                 }
                 x++
             });
@@ -1009,17 +1057,17 @@ module.exports.map = class {
                     this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PreviousColor + " : dead ");
                 } else {
                     this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0] + "        ", player.PlayerColor + " : alive")
-                    
+
                 }
                 i++
             });
-            i +=3
+            i += 3
             falsePlayers.forEach(player => {
                 if (!player.isRendered && !player.isGhost) return;
                 this.currentEmergencyMap[i] = this.currentEmergencyMap[i].replace(this.FileSys.Config.replaceArr[0], player.PlayerColor);
                 i++
             });
-            
+
 
             process.stdout.write("\x1b[?25l");
             var readline = require("readline");
@@ -1467,20 +1515,20 @@ module.exports.map = class {
                     let obj = await this.FileSys.getPlayersAndTick(player)
                     let players = await obj["players"]
                     let exists = false;
-                    if(!this.FileSys.Config.infiniteColors)
-                    players.forEach(play => {
-                        if (play.PlayerColor == colors[this.lastColor](this.FileSys.Config.PlayerIcon)) {
-                            exists = true;
-                        }
-                    });
-                    if(!exists){
-                    player.PlayerColor = colors[this.lastColor](this.FileSys.Config.PlayerIcon);
-                    this.FileSys.player_1 = player
-                    this.FileSys.selectedColor = this.lastColor;
-                    this.FileSys.colorPickerActive = false;
-                    clearInterval(timer)
-                    resolve()
-                    }else{
+                    if (!this.FileSys.Config.infiniteColors)
+                        players.forEach(play => {
+                            if (play.PlayerColor == colors[this.lastColor](this.FileSys.Config.PlayerIcon)) {
+                                exists = true;
+                            }
+                        });
+                    if (!exists) {
+                        player.PlayerColor = colors[this.lastColor](this.FileSys.Config.PlayerIcon);
+                        this.FileSys.player_1 = player
+                        this.FileSys.selectedColor = this.lastColor;
+                        this.FileSys.colorPickerActive = false;
+                        clearInterval(timer)
+                        resolve()
+                    } else {
                         this.FileSys.selectedColor = 0;
                         return
                     }
@@ -1493,13 +1541,13 @@ module.exports.map = class {
                     let obj = await this.FileSys.getPlayersAndTick(player)
                     let players = await obj["players"]
                     let exists = false;
-                    if(!this.FileSys.Config.infiniteColors)
-                    players.forEach(play => {
-                        if (play.PlayerColor == colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)) {
-                            exists = true;
-                        }
-                    });
-                    if(player.PlayerColor ==colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)){
+                    if (!this.FileSys.Config.infiniteColors)
+                        players.forEach(play => {
+                            if (play.PlayerColor == colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)) {
+                                exists = true;
+                            }
+                        });
+                    if (player.PlayerColor == colors[this.FileSys.selectedColor](this.FileSys.Config.PlayerIcon)) {
                         exists = false;
                     }
                     if (!exists) {
@@ -1522,6 +1570,7 @@ module.exports.map = class {
      * @param {*} player, the player controlled by this client
      */
     async openCustomMenu(player, menu) {
+        console.clear()
         let prompt = require("prompt-sync")();
         switch (menu) {
             case "change_hat":
@@ -1532,32 +1581,32 @@ module.exports.map = class {
                 let color = await this.chooseColor(player);
                 console.clear()
                 this.FileSys.pause = false
-                
+
                 break
             case "change_username":
                 console.clear();
                 this.FileSys.pause = true
-               
+
                 let username = prompt("please enter your username below (less than 15 charecters)")
-                while(username.length >= 15){
-                  username = prompt("enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:")
+                while (username.length >= 15) {
+                    username = prompt("enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:")
                 }
                 this.FileSys.player_1.userName = username;
                 this.FileSys.pause = false
                 break;
             case "SNAKE":
-                
+
                 let snake = require("../minigames/snake").main
                 let goal = prompt("how many points would you like to get before the game ends?")
-                if(isNaN(goal)){
+                if (isNaN(goal)) {
                     console.log("u suck, stop tring to brake this (you didn't enter a integer)")
-                }else{
+                } else {
                     this.FileSys.pause = true
                     await snake(goal)
                     this.FileSys.pause = false;
                 }
                 console.clear()
-                
+
                 break;
             default:
                 break;
@@ -1722,7 +1771,7 @@ module.exports.map = class {
      * @returns boolean 
      */
     isLetter(str) {
-        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i)|| str.match(/2/i) || str.match(/▢/i);
+        return str.length === 1 && str.match(/[a-z]/i) || str.match(/_/i) || str.match(/2/i) || str.match(/▢/i);
     }
     /**
      * @description replace a char in an array with an x y cord system
@@ -1795,8 +1844,8 @@ module.exports.map = class {
             this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
         });
         var assembledMap = this.currentMap.join(this.FileSys.Config.ReplaceIcon);
-            var coloredMap = assembledMap.replace(/▢/, this.FileSys.Config.AirIcon);
-            this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
+        var coloredMap = assembledMap.replace(/▢/, this.FileSys.Config.AirIcon);
+        this.currentMap = coloredMap.split(this.FileSys.Config.ReplaceIcon);
     }
     /**
      * @description render players onto a specified map

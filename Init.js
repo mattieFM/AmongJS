@@ -533,7 +533,7 @@ const init = class {
   async StartGame() {
 
     this.timer = setInterval(async () => {
-      await this.map.UpdateMapStatuses(this.player_1);
+      await this.map.UpdateMapStatuses(this.player_1, false);
 
     }, this.Config.delay)
   }

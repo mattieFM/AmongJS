@@ -87,7 +87,7 @@ let timer
 let trueEnd = false;
 
 module.exports = async function main() {
-  msg="use the up and down arrows to select the wire then press \"enter\" to start"
+  msg="use the up and down arrows to select the wire then press \"q\" to start"
   quit = false;
   
   gameHasEnded = false;
@@ -102,7 +102,7 @@ module.exports = async function main() {
       key.name == "right" ||
       key.name == "up" ||
       key.name == "down" ||
-      key.name =="return"
+      key.name =="q"
     ) {
       changeDirection(key.name);
     }
@@ -224,9 +224,9 @@ function writeScore(msg) {
 function select(key) {
   renderAllWires(wires);
   colorBoard();
-  msg="use the up and down arrows to select the wire then press \"enter\" to start"
+  msg="use the up and down arrows to select the wire then press \"q\" to start"
   
-  if(key == "return"){
+  if(key == "q"){
     shouldDraw= false;
     msg="use the arrow keys and connect the wire"
     let y = workingWires[0][selected].y
