@@ -248,13 +248,13 @@ const init = class {
           if (this.pause == true && this.emergency == false) await this.util.wait(6000);
           clearInterval(this.timer)
           clearInterval(this.emergencyInterval)
-          await this.FsController.FileSys.map.endGameDisplay(["Turn Num: " + this.TickCount, "Imposters Win", "", ""], this.player_1);
+          await this.FsController.FileSys.map.endGameDisplay(["Turn Num: " + this.TickCount, "Imposters Win", "", "", "",], this.player_1);
           process.exit(0)
         } else if (data2.includes("InnocentWin")) {
           if (this.pause == true && this.emergency == false) await this.util.wait(6000);
           clearInterval(this.timer)
           clearInterval(this.emergencyInterval)
-          await this.FsController.FileSys.map.endGameDisplay(["Turn Num: " + this.TickCount, "Crewmates Win", "", ""], this.player_1);
+          await this.FsController.FileSys.map.endGameDisplay(["Turn Num: " + this.TickCount, "Crewmates Win", "", "", "",], this.player_1);
           process.exit(0)
         }
         //
@@ -569,6 +569,15 @@ const init = class {
       username = prompt("enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:")
     }
     this.player_1.userName = username;
+    console.log()
+    console.log();
+    console.log("please enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+    let hat = prompt(":")
+    while(this.map.isLetter(hat) || hat == this.Config.PlayerIcon ||hat == this.Config.VentIcon || hat.length > 1){
+        console.log(chalk.red("invalid HAT") +"\nplease enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+        hat = prompt(":")
+    }
+    this.player_1.hat = hat;
   }
   /**@description by creating a new init object the game is started */
   constructor() {

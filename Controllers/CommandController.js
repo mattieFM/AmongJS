@@ -157,7 +157,9 @@ module.exports.CMD = class {
                         this.FileSys.pause = true
                     }
                     break;
-                
+                case "exit": 
+                    process.exit(0);
+                    break;
                 case "longMsg":
                     let msgArr =[]
                     args.forEach(arg => {

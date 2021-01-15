@@ -10,6 +10,7 @@ Programmer: Matt/AuthoredEntropy
 const chalk = require('chalk');
 const colors = require('colors/safe');
 const stripAnsi = require('strip-ansi');
+const { Z_HUFFMAN_ONLY } = require('zlib');
 const { player } = require('../FileSys/Player');
 const utility = require("../Utility/util");
 /** @description the current message that is actively being displayed to the user on the main map screen 
@@ -1574,7 +1575,17 @@ module.exports.map = class {
         let prompt = require("prompt-sync")();
         switch (menu) {
             case "change_hat":
-                //open hat menu
+                this.FileSys.pause = true
+                console.clear();
+                console.log("please enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+                let hat = prompt(":")
+                while(this.isLetter(hat) || hat == this.FileSys.Config.PlayerIcon ||hat == this.FileSys.Config.VentIcon || hat.length > 1){
+                    console.log(chalk.red("invalid HAT") +"\nplease enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+                    hat = prompt(":")
+                }
+                this.FileSys.player_1.hat = hat
+                await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
+                this.FileSys.pause = false
                 break;
             case "change_color":
                 this.FileSys.pause = true
