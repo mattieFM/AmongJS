@@ -8,6 +8,7 @@ const { player } = require("./FileSys/Player");
 
 const that = this;
 const init = class {
+  clientConfig = require("./FileSys/ClientConfig.json")
   dontRenderTasks = false;
   sabotageMsg = [""]
   selectedColor = 0;
@@ -19,7 +20,7 @@ const init = class {
   ventMapActive = false;
   currentMenuPos = "Cafeteria";
   sabotageActive = false;
-  sabotageMapActive= false;
+  sabotageMapActive = false;
   Voted = false;
   Config = require("./FileSys/Config.json");
   _FileSystem = require("./Controllers/FsController");
@@ -83,7 +84,7 @@ const init = class {
    * @param {*} subType if multiple types of sabotage are avalible for that room, the type to remove
    * @returns Promise
    */
-  completeSabotageTask(room, subType = null){
+  completeSabotageTask(room, subType = null) {
     return new Promise(resolve => {
       var net = require('net');
 
@@ -94,15 +95,15 @@ const init = class {
       });
       client.setTimeout(0);
       let obj = {
-        "room":room,
-        "type":subType
+        "room": room,
+        "type": subType
       }
       client.on('connect', function () {
         client.write('removeSabotage:' + JSON.stringify(obj));
       })
       client.on('data', (data) => {
         client.end();
-        
+
         resolve();
       });
       client.on('error', (error) => {
@@ -116,7 +117,7 @@ const init = class {
    * @param {*} subType if multiple types of sabotage are avalible for that room, the type to activate
    * @returns Promise
    */
-  triggerSabotage(room, subType = null){
+  triggerSabotage(room, subType = null) {
     return new Promise(resolve => {
       var net = require('net');
 
@@ -127,8 +128,8 @@ const init = class {
       });
       client.setTimeout(0);
       let obj = {
-        "room":room,
-        "type":subType
+        "room": room,
+        "type": subType
       }
       client.on('connect', function () {
         client.write('triggerSabotage:' + JSON.stringify(obj));
@@ -197,7 +198,7 @@ const init = class {
 
   }
   /**@description connect to the server and remove specified client*/
-  removePlayerFromServer(id){
+  removePlayerFromServer(id) {
     return new Promise(resolve => {
       var net = require('net');
 
@@ -218,7 +219,7 @@ const init = class {
         if (this.Config.Verbose) console.log('removePlayer: ' + id);
       });
     })
-    
+
   }
   /**
    * @description sends the player object to the server
@@ -366,9 +367,9 @@ const init = class {
         if (!isNaN(num) && !this.Voted) {
 
           client.write("sendMsgsToServer: " + this.player_1.PlayerColor + " : " + "vote" + msg);
-          if(num < this.allPlayers.length){
-          if (!this.allPlayers[parseInt(num) - 1].IsDead) this.Voted = true;
-          }else{
+          if (num < this.allPlayers.length) {
+            if (!this.allPlayers[parseInt(num) - 1].IsDead) this.Voted = true;
+          } else {
             this.Voted = true
           }
         } else if (!isNaN(num)) {
@@ -504,31 +505,62 @@ const init = class {
     });
   }
   /**@description ask if the player wants to play the game, then run connectPlayer() if they answer y */
-  async BasicGameInit() {
-    const prompt = require('prompt-sync')();
-    var msgArr = MSGs.WelcomeMsg.split("\n")
-
-    for (let i = 0; i < msgArr.length; i++) {
-      const element = msgArr[i];
-      console.log(element.gray);
-      await this.util.wait(100);
-    }
-    const YesNo = prompt("[y/n]: ")
-    if (YesNo == null || YesNo == "") {
-      console.log("you didn't answer anything so i took the liberty to kill you, hope that was ok...");
-      process.exit(0);
-    }
-    if (YesNo.toLowerCase() == "y") {
-      try {
-        return this.ConnectPlayer(this.player_1);
-      } catch (error) {
-        console.log("err: Could not connect");
+  async BasicGameInit(that) {
+    let colors = require("colors")
+    return new Promise( async resolve => {
+      const prompt = require('prompt-sync')();
+      var msgArr = MSGs.WelcomeMsg;
+      let sentence = msgArr
+      for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(50)
+      }
+      console.log()
+      const YesNo = prompt("[y/n]: ")
+      if (YesNo == null || YesNo == "") {
+         sentence = colors.red("you didn't answer anything so i took the liberty to kill you, hope that was ok...")
+        for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(50)
+      }
         process.exit(0);
       }
-
-    } else {
-      process.exit(0);
-    }
+      if (YesNo.toLowerCase() == "y") {
+        sentence = (MSGs.doYouNeedHelpMsg)
+        for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(50)
+      }
+      console.log()
+      const needsHelp = prompt("[y/n]: ")
+      if(needsHelp){
+        sentence = (MSGs.newHelpMsg)
+        for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(50)
+      }
+      console.log()
+      }else{
+        sentence = (MSGs.NoHelpNeeded)
+        for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(50)
+      }
+      console.log()
+      }
+        try {
+          return this.ConnectPlayer(this.player_1);
+        } catch (error) {
+          console.log("err: Could not connect");
+          process.exit(0);
+        }
+  
+      } else {
+        process.exit(0);
+      }
+      resolve()
+    })
+    
   }
   async StartGame() {
 
@@ -537,7 +569,7 @@ const init = class {
 
     }, this.Config.delay)
   }
-/**@description loads filesystem into all controllers and loads all controllers into filesystem */
+  /**@description loads filesystem into all controllers and loads all controllers into filesystem */
   BaseInit() {
     //initalizing controllers into filesystem
     this.FsController = new this._FileSystem.fs();
@@ -563,27 +595,232 @@ const init = class {
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into Command Controller--")
     this.IOController.LoadFileSys(this)
     if (this.Config.Verbose) console.log("--Init: FileSystem Initialized into IO Controller--")
-    let prompt = require("prompt-sync")();
-    let username = prompt("please enter your username below (less than 15 charecters)")
-    while(username.length >= 15){
-      username = prompt("enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:")
-    }
-    this.player_1.userName = username;
-    console.log()
-    console.log();
-    console.log("please enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
-    let hat = prompt(":")
-    while(this.map.isLetter(hat) || hat == this.Config.PlayerIcon ||hat == this.Config.VentIcon || hat.length > 1){
-        console.log(chalk.red("invalid HAT") +"\nplease enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+  }
+  userNameAndHat(that) {
+    return new Promise (async (resolve) => {
+      let colors = require("colors")
+      let prompt = require("prompt-sync")();
+      let sentence = "please enter your username below (less than 15 charecters)"
+        for (let i = 0; i < sentence.length; i++) {
+          process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
+          await that.util.wait(25)
+        }
+        console.log();
+      let username = prompt(colors.blue(":"))
+      while (username.length >= 15) {
+        sentence = "enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:"
+        for (let i = 0; i < sentence.length; i++) {
+          process.stdout.write(colors.red(sentence.substring(0 + i, 1 + i)))
+          await that.util.wait(25)
+        }
+        console.log();
+      username = prompt(colors.blue(":"))
+
+      }
+      this.player_1.userName = username;
+      console.log();
+      console.log();
+      console.log();
+      sentence = "please enter your new hat \nhats can be any single character that meets the requirements below:"
+        for (let i = 0; i < sentence.length; i++) {
+          process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
+          await that.util.wait(25)
+        }
+      sentence = "\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon"
+      for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(25)
+      }
+      console.log();
+      let hat = prompt(colors.blue(" :"))
+      
+      while (this.map.isLetter(hat) || hat == this.Config.PlayerIcon || hat == this.Config.VentIcon || hat.length > 1) {
+        console.log(chalk.red("invalid HAT") + "\nplease enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
         hat = prompt(":")
+      }
+      this.player_1.hat = hat;
+      console.log();
+      console.log();
+      console.log();
+      resolve()
+    })
+    
+  }
+  async getSentence() {
+    let randNum = Math.floor(Math.random() * 24)
+
+    switch (randNum) {
+      case 0:
+        return "loading colorblind mode"
+        break;
+      case 1:
+        return "executing non colored mode"
+        break;
+      case 2:
+        return "ensuring you are color blind"
+        break;
+      case 3:
+        return "jk lol just loading 16mil true color library"
+        break;
+      case 4:
+        return "attaching memory editor"
+        break;
+      case 5:
+        return "attaching color blind color fixer"
+        break;
+      case 6:
+        return "booting up the decolorizing dragon"
+        break;
+      case 7:
+        return "calling the ANSI Stripper (they will arrive in 5 min)"
+        break;
+      case 8:
+        return "adding color just to remove it"
+        break;
+      case 9:
+        return "recoloring the sun"
+        break;
+      case 10:
+        return "installing the decolorizing virus"
+        break;
+      case 11:
+        return "booting into safe mode"
+        break;
+      case 12:
+        return "booting into color Blind mode"
+        break;
+      case 13:
+        return "initalizing blinding radiance"
+        break;
+      case 14:
+        return "spoiling the end game movie (you can't see it, im using the right colors)"
+        break;
+      case 15:
+        return "trolling trolls on reddit by telling them they are colorblind and making them waste time taking a test, just to figure out that they are colorblind and i get sent to the principles office of reddit for bulling"
+        break;
+      case 16:
+        return "initalizing dusk soundtrack and mapping the beats to grayscale values"
+        break;
+      case 17:
+        return "watching a wonderful life in black and white"
+        break;
+      case 18:
+        return "adding colors to the world again"
+        break;
+      case 19:
+        return "firing the decolorizing dragon"
+        break;
+      case 20:
+        return "hiring a new decolorizing dragon"
+        break;
+      case 21:
+        return "proving the world is flat by showing how colors don't properly bounce in the atmosphere"
+        break;
+      case 22:
+        return "initalizing cool color creation colorization colonization coding COD"
+        break;
+      case 23:
+        return "See the same colors the same way when you and me see? Is my red blue for you, or my green your green too? Could it be true we see different hues? And, say, we do, then how would we discover this fact? And even if we did, would there be any impact? I don't think this would affect us personally, But I think it would have ripple effects throughout the interior design industry."
+        break;
+
+
+
+      default:
+        break;
     }
-    this.player_1.hat = hat;
+  }
+  processArgs(that) {
+    return new Promise(resolve => {
+      process.argv.forEach(async function (val, index, array) {
+        if (index >= 2) {
+          let prefix = val.substring(0, 1);
+          if (val.substring(1, 2) == "-") {
+            prefix == "--"
+          }
+          switch (prefix) {
+            case "-":
+              //client Launch Options
+              switch (val) {
+                case "-ClrBlindMode":
+                  let colors = require("colors")
+                  that.clientConfig.clrBlindMod = true
+
+                  console.log(colors.america("launching into Color Blind Mode"))
+                  await that.util.wait(100)
+                  for (let index = 0; index < 15; index++) {
+                    let sentence = await that.getSentence();
+                    for (let i = 0; i < sentence.length; i++) {
+                      process.stdout.write(colors.random(sentence.substring(0 + i, 1 + i)))
+                      await that.util.wait(25)
+                    }
+                    process.stdout.write("\n")
+
+                  }
+                  process.stdout.write("\n")
+                  process.stdout.write("\n")
+                  process.stdout.write("\n")
+                  process.stdout.write(colors.red("COLOR BLIND MODE INITIALIZED"))
+                  process.stdout.write("\n")
+                  process.stdout.write("\n")
+                  process.stdout.write("\n")
+                  resolve()
+                  break;
+
+                default:
+                  resolve()
+                  break;
+              }
+              break;
+            case "--":
+              //server Launch Options
+              break;
+
+            default:
+              resolve()
+              break;
+          }
+        }
+      });
+      resolve()
+    })
+
+  }
+  loadTunes(that) {
+    return new Promise(async resolve => {
+      let colors = require("colors")
+      let sentence = "LOADING TUNES"
+      for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.red(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(500)
+      }
+      process.stdout.write("\n")
+      sentence = "LOADED TUNES"
+      for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.green(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(25)
+      }
+      process.stdout.write("\n")
+      process.stdout.write("\n")
+      process.stdout.write("\n")
+      resolve()
+    })
+    
   }
   /**@description by creating a new init object the game is started */
   constructor() {
+    console.clear()
+    console.log(MSGs.opening)
     this.BaseInit();
-    var client = this.BasicGameInit();
-    this.StartGame();
+    this.processArgs(this).then(() => {this.loadTunes(this).then(()=> {
+      this.userNameAndHat(this).then(()=> {
+        this.BasicGameInit(this).then(()=>{
+          this.StartGame();
+        });
+        
+      })
+      
+    })})
+
   }
 }
 var TempSys = new init();

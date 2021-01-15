@@ -1919,7 +1919,7 @@ module.exports.map = class {
                 const player = players[indexhrsh];
                 for (let index2 = 0; index2 < this.FileSys.Config.replaceArr.length; index2++) {
                     const char = this.FileSys.Config.replaceArr[index2];
-                    if (player.ReplacedChar == char) {
+                    if (player.ReplacedChar == char && !this.FileSys.clientConfig.clrBlindMod) {
                         map[player.y] = map[player.y].replace(char, player.PlayerColor);
                     }
                 }
