@@ -533,7 +533,7 @@ const init = class {
       }
       console.log()
       const needsHelp = prompt("[y/n]: ")
-      if(needsHelp){
+      if(needsHelp == "y"){
         sentence = (MSGs.newHelpMsg)
         for (let i = 0; i < sentence.length; i++) {
         process.stdout.write(colors.grey(sentence.substring(0 + i, 1 + i)))
@@ -737,6 +737,7 @@ const init = class {
           if (val.substring(1, 2) == "-") {
             prefix == "--"
           }
+          
           switch (prefix) {
             case "-":
               //client Launch Options
@@ -770,18 +771,17 @@ const init = class {
                   resolve()
                   break;
               }
-              break;
             case "--":
+              resolve()
               //server Launch Options
               break;
-
             default:
               resolve()
               break;
           }
         }
+        if(process.argv.length <3)resolve()
       });
-      resolve()
     })
 
   }

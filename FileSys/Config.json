@@ -5,7 +5,7 @@
     "Completions": ".help .error .warp .exit .quit .stopEme .log .q localhost .map .tasks .CompTasks .NotCompTasks .updateMap .randMap .home .resetMap .deColorMap .changeArrowMoveAmount .death .pause .sendMsg .longMsg .shortMsg",
     "PlayerIcon": "ඞ",
     "VentIcon": "▢",
-    "KillRange": 5,
+    "KillRange": 3,
     "killCooldown": 25,
     "ventCooldown": 25,
     "sabotageCooldown": 25,
