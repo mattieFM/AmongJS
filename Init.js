@@ -275,7 +275,7 @@ const init = class {
           completeData = completeData + data2;
          
           if(completeData.includes("EndOfTransmission")){
-            console.log("recived Data")
+            if (this.Config.Verbose)console.log("recived Data")
             completeData = completeData.replace("EndOfTransmission","")
             completeData = completeData.replace("StartOfTransmission","")
             var players2 = completeData.slice(20);
@@ -527,6 +527,11 @@ const init = class {
   async BasicGameInit(that) {
     let colors = require("colors")
     return new Promise( async resolve => {
+      if(this.quickStart){
+        this.ConnectPlayer(this.player_1)
+        resolve()
+        return;
+      }
       const prompt = require('prompt-sync')();
       var msgArr = MSGs.WelcomeMsg;
       let sentence = msgArr
@@ -621,7 +626,9 @@ const init = class {
     return new Promise (async (resolve) => {
       let colors = require("colors")
       let prompt = require("prompt-sync")();
-      let sentence = "please enter your username below (less than 15 charecters)"
+      let sentence;
+      if(!this.quickStart){
+      sentence = "please enter your username below (less than 15 charecters)"
         for (let i = 0; i < sentence.length; i++) {
           process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
           await that.util.wait(25)
@@ -639,9 +646,26 @@ const init = class {
 
       }
       this.player_1.userName = username;
+    }else{
+      sentence = "please enter your username below (less than 15 charecters)"
+      
+      console.log(sentence);
+      console.log();
+    let username = prompt(colors.blue(":"))
+    while (username.length >= 15) {
+      sentence = "enter your username, and now that you didn't listen to me you only get 13 chars for you username\n i hope your happy \n enter below:"
+      console.log(sentence);
+      console.log();
+    username = prompt(colors.blue(":"))
+   
+    }
+    this.player_1.userName = username;
+  }
+      
       console.log();
       console.log();
       console.log();
+      if(!this.quickStart){
       sentence = "please enter your hat \nhats can be any single character that meets the requirements below:"
         for (let i = 0; i < sentence.length; i++) {
           process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
@@ -660,6 +684,22 @@ const init = class {
         hat = prompt(":")
       }
       this.player_1.hat = hat;
+    }else{
+      let sentence;
+      sentence = "please enter your hat \nhats can be any single character that meets the requirements below:"
+      console.log(sentence)
+      sentence = "\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon"
+      console.log(sentence)
+      console.log();
+      let hat = prompt(colors.blue(" :"))
+      let chalk = require("chalk")
+      while (this.map.isLetter(hat) || hat == this.Config.PlayerIcon || hat == this.Config.VentIcon || hat.length > 1) {
+        console.log(chalk.red("invalid HAT") + "\nplease enter your hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+        hat = prompt(":")
+      }
+      this.player_1.hat = hat;
+    }
+      
       console.log();
       console.log();
       console.log();

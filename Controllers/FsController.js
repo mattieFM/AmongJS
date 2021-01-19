@@ -650,7 +650,7 @@ module.exports.map = class {
 
             return;
         } else {
-            console.log(`you cannot move (you may only move ${this.FileSys.Config.MovesPerTurn} spaces per second)`)
+            if (this.FileSys.Config.Verbose)console.log(`you cannot move (you may only move ${this.FileSys.Config.MovesPerTurn} spaces per second)`)
             return;
         }
     }
