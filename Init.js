@@ -9,6 +9,7 @@ const { fs } = require("./Controllers/FsController");
 
 const that = this;
 const init = class {
+  skipAll = false;
   quickStart = false;
   clientConfig = require("./FileSys/ClientConfig.json")
   dontRenderTasks = false;
@@ -806,6 +807,10 @@ const init = class {
                 case"-QuickStart":
                 that.quickStart = true;
                 break
+                case"-SkipAll":
+                that.quickStart = true;
+                that.skipAll = true;
+                break
                 case "-ClrBlindMode":
                   let colors = require("colors")
                   that.clientConfig.clrBlindMod = true
@@ -849,6 +854,32 @@ const init = class {
     })
 
   }
+  EPILEPSYWarn(that){
+    let colors = require("colors")
+    return new Promise(async resolve => {
+      let sentence = "EPILEPSY WARNING \nTHIS GAME MAY RANDOMLY START FLASHING COLORS AND OCCASIONALLY PURPOSEFULLY,\nIF YOU HAVE EPILEPSY OR ARE SENSITIVE TO FLASHING LIGHTS PLEASE CLOSE THIS IMMEDIATELY"
+      if(this.skipAll){
+        process.stdout.write("\n")
+        process.stdout.write("\n")
+        console.log(sentence.red)
+        process.stdout.write("\n")
+        process.stdout.write("\n")
+        resolve()
+        return;
+      }
+      
+      process.stdout.write("\n")
+      
+      for (let i = 0; i < sentence.length; i++) {
+        process.stdout.write(colors.red(sentence.substring(0 + i, 1 + i)))
+        await that.util.wait(25)
+      }
+      process.stdout.write("\n")
+      process.stdout.write("\n")
+      resolve()
+    })
+    
+  }
   loadTunes(that) {
     return new Promise(async resolve => {
       let colors = require("colors")
@@ -865,7 +896,7 @@ const init = class {
       }
       process.stdout.write("\n")
       process.stdout.write("\n")
-      process.stdout.write("\n")
+     
       resolve()
     })
     
@@ -874,21 +905,26 @@ const init = class {
   constructor() {
     console.clear()
     console.log(MSGs.opening)
-    this.BaseInit();
-    this.processArgs(this).then(() => {
-      if(!this.quickStart)
-      this.loadTunes(this).then(()=> {
-      this.userNameAndHat(this).then(()=> {
-        this.BasicGameInit(this).then(()=>{
-          this.StartGame();
-        })})})
-      if(this.quickStart)this.userNameAndHat(this).then(()=> {
-        this.BasicGameInit(this).then(()=>{
-          this.StartGame();
+      this.BaseInit();
+      this.processArgs(this).then(() => {
+        if(!this.quickStart)
+        this.EPILEPSYWarn(this).then(()=>{
+          this.loadTunes(this).then(()=> {
+            this.userNameAndHat(this).then(()=> {
+              this.BasicGameInit(this).then(()=>{
+                this.StartGame();
+              })})})
         })
         
-      })
-      })
+        if(this.quickStart)this.EPILEPSYWarn(this).then(()=>{this.userNameAndHat(this).then(()=> {
+          this.BasicGameInit(this).then(()=>{
+            this.StartGame()});
+          })
+          
+        })
+        })
+    
+    
 
   }
 }

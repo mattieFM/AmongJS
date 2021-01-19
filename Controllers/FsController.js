@@ -1799,7 +1799,16 @@ module.exports.map = class {
         String.prototype.replaceAt = function (index, replacement) {
             return this.substr(0, x) + replacement + this.substr(index + replacement.length);
         }
-        Arr[y] = Arr[y].replaceAt(x, Char)
+        try {
+            Arr[y] = Arr[y].replaceAt(x, Char)
+        } catch (error) {
+            for (let index = 0; index < 100; index++) {
+                console.log(chalk.red("YOU WENT NEAR THE WALL") + chalk.hex("#0a0a0a")("MOVE AWAY FROM THE WALL (press down a few times)") + chalk.red("I TOLD YOU NOT TO TOUCH THE WALL"))
+            }
+            console.clear();
+            
+        }
+        
         return Arr;
     }
     /**
