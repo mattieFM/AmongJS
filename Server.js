@@ -3,6 +3,7 @@
  ahhhheeee, its the server file....
 */
 const { random } = require('colors/safe');
+let shouldSendConfig = true;
 let criticalTimer;
 let msgs = [" "];
 let emeMsg = [""]
@@ -346,6 +347,7 @@ server.on('connection', function (socket) {
         case "Electrical":
           emeMsg = ["Lights have been","sabotaged, fix them","to see again"]
           Config.VisionTiles = 1
+          shouldSendConfig = true
           break;
         case "Storage":
 
@@ -362,6 +364,7 @@ server.on('connection', function (socket) {
         case "Cafeteria":
           emeMsg = ["the Cafe has been", "sabotaged... so","your slow...","cus you can't eat", "makes sense","right?"]
           Config.MovesPerTurn = Config.moveSpeedWhenCafeSabotage
+          shouldSendConfig = true
           break;
         case "O2":
           let timeLeft2 = Config.timeUntilO2Depletes
@@ -418,6 +421,7 @@ server.on('connection', function (socket) {
           break;
         case "Electrical":
           Config.VisionTiles = visionBase
+          shouldSendConfig = true
           break;
         case "Storage":
 
@@ -433,6 +437,7 @@ server.on('connection', function (socket) {
           break;
         case "Cafeteria":
           Config.MovesPerTurn = moveBase
+          shouldSendConfig = true
           break;
         case "O2":
           clearInterval(criticalTimer);
@@ -534,6 +539,7 @@ server.on('connection', function (socket) {
         numtimes = 0
         TotalTime = 0
       }
+      
       let tasksLeft = false;
       players.forEach(player => {
         if (!player.IsTraitor && !player.tasksCompleted || isEmergency) tasksLeft = true;
@@ -550,7 +556,7 @@ server.on('connection', function (socket) {
         "gameStarted?": true,
         isEmergency,
         allEmergencies,
-        Config,
+        "Config": null,
         emeMsg
       }
       if (gameStarted == false)
@@ -560,7 +566,7 @@ server.on('connection', function (socket) {
           "gameStarted?": false,
           isEmergency,
           allEmergencies,
-          Config
+          "Config": null
         }
       if(isEmergency){
         infoObj = {
@@ -569,12 +575,15 @@ server.on('connection', function (socket) {
           "gameStarted?": true,
           isEmergency,
           allEmergencies,
-          Config,
+          "Config": null,
           emeMsg
         }
       }
-
-      socket.write("hereAreYourPlayers: " + JSON.stringify(infoObj) + "\n");
+      if(shouldSendConfig){
+        infoObj.Config = Config;
+        shouldSendConfig = false;
+      }
+      socket.write("hereAreYourPlayers: " + "StartOfTransmission"+JSON.stringify(infoObj) +"EndOfTransmission"+ "\n");
       socket.end()
       // } else if(data1.startsWith("sendTick: ")){
       //   socket.write("hereAreYourTicks: " + turnCount + "\n");

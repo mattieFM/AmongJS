@@ -295,7 +295,7 @@ module.exports.map = class {
      * @description this is the main function that renders the game, it should be called in the main game loop
      * @param {Object} player the player controlled by this client
      */
-    async UpdateMapStatuses(player,clear = true) {
+    async UpdateMapStatuses(player,clear = false) {
         if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
         if(clear)console.clear();
         const obj = await this.FileSys.getPlayersAndTick(player);
@@ -589,6 +589,7 @@ module.exports.map = class {
      * @param {*} y y cord of position to move to
      */
     PlayerCanMove(player, tickCount, x, y) {
+        //console.log("tick="+tickCount +"playertick= " + player.currentGameTick +  "moveOverride="+player.moveOverride + "x:y" +x +':' + y)
         if (player.moveOverride == true) return (false);
         let NumOfSpaces = x * .5 + y
         var canMove = true;
@@ -603,7 +604,8 @@ module.exports.map = class {
                 }
             }
         } else {
-            player.currentGameTick = tickCount;
+            //console.log("in else"+tickCount)
+            player.currentGameTick = tickCount
             player.MovesThisTurn = 0;
             return this.PlayerCanMove(player, tickCount, x, y);
         }
@@ -648,6 +650,7 @@ module.exports.map = class {
 
             return;
         } else {
+            console.log(`you cannot move (you may only move ${this.FileSys.Config.MovesPerTurn} spaces per second)`)
             return;
         }
     }

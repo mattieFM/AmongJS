@@ -5,9 +5,11 @@
 const util = require("./Utility/util");
 const MSGs = require("./FileSys/Msg.json");
 const { player } = require("./FileSys/Player");
+const { fs } = require("./Controllers/FsController");
 
 const that = this;
 const init = class {
+  quickStart = false;
   clientConfig = require("./FileSys/ClientConfig.json")
   dontRenderTasks = false;
   sabotageMsg = [""]
@@ -266,15 +268,32 @@ const init = class {
 
           client.end();
         }
+        let completeData = "";
         if (data2.startsWith("hereAreYourPlayers: ")) {
           if (this.Config.Verbose) console.log("data = " + data2);
-          var players2 = data2.slice(20);
-          var obj = JSON.parse(players2);
-          that.FileSystem.allPlayers = obj.players;
-          that.FileSystem.TickCount = parseInt(obj.turnCount);
-          that.FileSystem.Config = obj.Config
-          resolve(obj);
-          client.end();
+          
+          completeData = completeData + data2;
+         
+          if(completeData.includes("EndOfTransmission")){
+            console.log("recived Data")
+            completeData = completeData.replace("EndOfTransmission","")
+            completeData = completeData.replace("StartOfTransmission","")
+            var players2 = completeData.slice(20);
+            
+            try {
+              var obj = JSON.parse(players2);
+            } catch (error) {
+              let fs = require("fs")
+              fs.writeFileSync(__dirname + "//obj.txt", players2)
+            }
+            
+            that.FileSystem.allPlayers = obj.players;
+            that.FileSystem.TickCount = parseInt(obj.turnCount);
+            if(obj.Config)that.FileSystem.Config = obj.Config
+            resolve(obj);
+            client.end();
+          }
+         
         }
       });
     });
@@ -549,7 +568,10 @@ const init = class {
       console.log()
       }
         try {
-          return this.ConnectPlayer(this.player_1);
+          this.ConnectPlayer(this.player_1)
+          resolve()
+          
+          
         } catch (error) {
           console.log("err: Could not connect");
           process.exit(0);
@@ -558,15 +580,14 @@ const init = class {
       } else {
         process.exit(0);
       }
-      resolve()
+      
     })
     
   }
   async StartGame() {
-
+   
     this.timer = setInterval(async () => {
-      await this.map.UpdateMapStatuses(this.player_1, false);
-
+        await this.map.UpdateMapStatuses(this.player_1, false);
     }, this.Config.delay)
   }
   /**@description loads filesystem into all controllers and loads all controllers into filesystem */
@@ -621,7 +642,7 @@ const init = class {
       console.log();
       console.log();
       console.log();
-      sentence = "please enter your new hat \nhats can be any single character that meets the requirements below:"
+      sentence = "please enter your hat \nhats can be any single character that meets the requirements below:"
         for (let i = 0; i < sentence.length; i++) {
           process.stdout.write(colors.blue(sentence.substring(0 + i, 1 + i)))
           await that.util.wait(25)
@@ -633,9 +654,9 @@ const init = class {
       }
       console.log();
       let hat = prompt(colors.blue(" :"))
-      
+      let chalk = require("chalk")
       while (this.map.isLetter(hat) || hat == this.Config.PlayerIcon || hat == this.Config.VentIcon || hat.length > 1) {
-        console.log(chalk.red("invalid HAT") + "\nplease enter your new hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
+        console.log(chalk.red("invalid HAT") + "\nplease enter your hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
         hat = prompt(":")
       }
       this.player_1.hat = hat;
@@ -742,6 +763,9 @@ const init = class {
             case "-":
               //client Launch Options
               switch (val) {
+                case"-QuickStart":
+                that.quickStart = true;
+                break
                 case "-ClrBlindMode":
                   let colors = require("colors")
                   that.clientConfig.clrBlindMod = true
@@ -811,15 +835,20 @@ const init = class {
     console.clear()
     console.log(MSGs.opening)
     this.BaseInit();
-    this.processArgs(this).then(() => {this.loadTunes(this).then(()=> {
+    this.processArgs(this).then(() => {
+      if(!this.quickStart)
+      this.loadTunes(this).then(()=> {
       this.userNameAndHat(this).then(()=> {
         this.BasicGameInit(this).then(()=>{
           this.StartGame();
-        });
+        })})})
+      if(this.quickStart)this.userNameAndHat(this).then(()=> {
+        this.BasicGameInit(this).then(()=>{
+          this.StartGame();
+        })
         
       })
-      
-    })})
+      })
 
   }
 }
