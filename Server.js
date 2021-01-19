@@ -292,6 +292,7 @@ server.on('connection', function (socket) {
           numOfRemoved++;
         }
       });
+      console.log("a player has left, there are now: " + players.length +" players in the game, type \"start\" to start the game whenever")
       socket.write(JSON.stringify(numOfRemoved));
       socket.end();
     } else if (data1.startsWith("triggerSabotage:")) {
