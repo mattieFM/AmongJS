@@ -87,6 +87,7 @@ module.exports.player = class {
     hasHat = true;
     hat = "!"
     userName = "notAssigned"
+    
   
     
 

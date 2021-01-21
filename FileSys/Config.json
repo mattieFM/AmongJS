@@ -49,7 +49,7 @@
         "á",
         "í"
     ],
-    
+    "swipeTask": true,
     "delay": 1000,
     "MovesPerTurn": 5,
     "moveSpeedWhenCafeSabotage": 3,

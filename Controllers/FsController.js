@@ -873,10 +873,12 @@ module.exports.map = class {
 
     /**@description pass a key.name and this will move the active menu accordingly*/
     async moveInMenu(key) {
+        
         let PosMap;
         if (this.FileSys.ventMapActive) {
             PosMap = require("../FileSys/selectPosMap")
             let currentPos = PosMap[this.FileSys.currentMenuPos];
+            if(currentPos == undefined) currentPos ="Cafeteria"
             if (key == "q") {
                 this.FileSys.player_1.PlayerColor = this.FileSys.player_1.PreviousColor;
                 this.FileSys.player_1.hat = this.FileSys.player_1.prevHat;
@@ -890,6 +892,7 @@ module.exports.map = class {
                 return
 
             }
+            
             let newPos = currentPos[key];
             if (newPos != null) {
                 console.clear()
@@ -1159,6 +1162,11 @@ module.exports.map = class {
      * @description change statuses on map based on what task quests are active
      */
     async setupTasks() {
+        if(this.FileSys.Config.swipeTask){
+            this.TaskStatuses.Admin = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Admin = this.StatusTypes.TASKSAVAILABLE
+        }
+
         if (this.FileSys.player_1.gasQuestActive) {
             this.TaskStatuses.Upper_Engine = this.StatusTypes.TASKSAVAILABLE
             this.Statuses.Lower_Engine = this.StatusTypes.UNAVALIBLE
@@ -1168,10 +1176,10 @@ module.exports.map = class {
             this.TaskStatuses.Storage = this.StatusTypes.TASKSAVAILABLE
         }
         if (this.FileSys.player_1.uploadTaskActive) {
-            this.TaskStatuses.Admin = this.StatusTypes.TASKSAVAILABLE
-            this.Statuses.Admin = this.StatusTypes.TASKSAVAILABLE
-            this.TaskStatuses.Security = this.StatusTypes.TASKSAVAILABLE
-            this.Statuses.Security = this.StatusTypes.UNAVALIBLE;
+            this.TaskStatuses.Navigation = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Navigation = this.StatusTypes.TASKSAVAILABLE
+            this.TaskStatuses.Shields = this.StatusTypes.TASKSAVAILABLE
+            this.Statuses.Shields = this.StatusTypes.UNAVALIBLE;
         }
         if (this.FileSys.player_1.startEngineQuestActive) {
             this.TaskStatuses.Reactors = this.StatusTypes.TASKSAVAILABLE
@@ -1190,12 +1198,42 @@ module.exports.map = class {
                     let wiring = require("../minigames/wiring")
                     this.FileSys.pause = true;
                     result = await wiring();
-
                 }
                 break;
-
+                case "Cafeteria":
+                    if (this.FileSys.player_1.fixElecQuestActive == true) {
+                        let snake = require("../minigames/snake").main
+                        this.FileSys.pause = true;
+                        result = await snake(this.FileSys.Config.snakeGameGoal, "I guess you're just that bad at eating food that you have to play a mini-game to do it (use arrow keys to move) GOAL:")
+                    }
+                    break;
             default:
-                result = "win"
+                let rand3Max = Math.floor(Math.random() *4)
+                switch (rand3Max) {
+                    case 0:
+                        let snake = require("../minigames/snake").main
+                        this.FileSys.pause = true;
+                        result = await snake((this.FileSys.Config.snakeGameGoal +Math.floor(Math.random() *10) - Math.floor(Math.random() *10)), "Default quest triggered: Snake (use arrow keys to move) GOAL:")
+                        break;
+                    case 1:
+                        let wiring = require("../minigames/wiring")
+                        this.FileSys.pause = true;
+                        result = await wiring();
+                        break;
+                    case 2:
+                        result = await this.swipeCard(this);
+                        break;
+                    case 3:
+                        let repeat = require("../minigames/repeteAfterMe")
+                        result = await repeat();
+                    break;
+                    default:
+                        snake = require("../minigames/snake").main
+                        this.FileSys.pause = true;
+                        result = await snake((this.FileSys.Config.snakeGameGoal +Math.floor(Math.random() *10) - Math.floor(Math.random() *10)), "Default quest triggered: Snake (use arrow keys to move) GOAL:")
+                        break;
+                        
+                }
                 break;
         }
         if (result == "win") {
@@ -1265,21 +1303,13 @@ module.exports.map = class {
                     }
                     break
                 case "Admin":
-                    if (this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData) {
-                        result = await download();
-                        this.FileSys.player_1.hasData = true;
-                        this.Statuses.Security = this.StatusTypes.HIGHLIGHT;
-                    } else {
+                        if(this.FileSys.Config.swipeTask)
                         result = await this.swipeCard(this);
-                    }
+                    
                     break;
                 case "Security":
-                    if (this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData) {
-                        result = await upload();
-                        this.FileSys.player_1.hasData = false;
-                        this.Statuses.Security = this.TaskStatuses.Security;
-                    } else if (this.FileSys.player_1.snake) {
-                        result = await snake(this.FileSys.Config.snakeGameGoal)
+                    if (this.FileSys.player_1.snake) {
+                        result = await snake(this.FileSys.Config.snakeGameGoal, "I guess you need to play snake to fix security? makes sense, right? GOAL:")
                     } else {
                         //add game
                     }
@@ -1294,10 +1324,51 @@ module.exports.map = class {
                     break;
                 case "Reactors":
                     if (this.FileSys.player_1.startEngineQuestActive)
+                    
                         result = await repeat();
                     break;
-                default:
+                case "Navigation":
+                    if (this.FileSys.player_1.uploadTaskActive == true && !this.FileSys.player_1.hasData) {
+                        result = await download();
+                        this.FileSys.player_1.hasData = true;
+                        this.Statuses.Security = this.StatusTypes.HIGHLIGHT;
+                    }
                     break;
+                case "Shields":
+                    if (this.FileSys.player_1.uploadTaskActive == true && this.FileSys.player_1.hasData) {
+                        result = await upload();
+                        this.FileSys.player_1.hasData = false;
+                        this.Statuses.Security = this.TaskStatuses.Security;
+                    } 
+                    break;
+                    default:
+                        let rand3Max = Math.floor(Math.random() *4)
+                        switch (rand3Max) {
+                            case 0:
+                                let snake = require("../minigames/snake").main
+                                this.FileSys.pause = true;
+                                result = await snake((this.FileSys.Config.snakeGameGoal +Math.floor(Math.random() *10) - Math.floor(Math.random() *10)), "Default quest triggered: Snake (use arrow keys to move) GOAL:")
+                                break;
+                            case 1:
+                                let wiring = require("../minigames/wiring")
+                                this.FileSys.pause = true;
+                                result = await wiring();
+                                break;
+                            case 2:
+                                result = await this.swipeCard(this);
+                                break;
+                            case 3:
+                                let repeat = require("../minigames/repeteAfterMe")
+                                result = await repeat();
+                            break;
+                            default:
+                                snake = require("../minigames/snake").main
+                                this.FileSys.pause = true;
+                                result = await snake((this.FileSys.Config.snakeGameGoal +Math.floor(Math.random() *10) - Math.floor(Math.random() *10)), "Default quest triggered: Snake (use arrow keys to move) GOAL:")
+                                break;
+                                
+                        }
+                        break;
             }
 
 
