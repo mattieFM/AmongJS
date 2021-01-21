@@ -9,9 +9,10 @@
         { x: 101, y: 25 },
         { x: 103, y: 25 }];
     let score = 5;
+    let msgLine = "use arrow keys to move, eat apples   GOAL:"
     const endLine = `══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════`
     const line = `║                                                                                                                                                                                                        ║`;
-    const board = [endLine,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,endLine]
+    const board = ["",endLine,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,line,endLine]
     let currentBoard = board;
     let gameHasStarted = false;
     let changingDirection = false;
@@ -26,7 +27,8 @@
         process.stdout.write(board.join("\n"));
         process.stdout.write("\x1b[?25h");
     }
-    module.exports.main = function main(goal) {
+    module.exports.main = function main(goal,optMsg = msgLine) {
+        board[0] = msgLine + " "+ goal
         quit = false;
         snakeBody =[
             { x: 95, y: 25 },
