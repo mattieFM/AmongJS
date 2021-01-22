@@ -30,7 +30,7 @@ const reportWaiters = []
 let votes = [];
 TraitorWin = false;
 InnocentWin = false;
-const Config = require("./FileSys/Config.json");
+let Config = require("./FileSys/Config.json");
 let visionBase = Config.VisionTiles;
 let moveBase =  Config.MovesPerTurn;
 var turnCount = 0;
@@ -168,7 +168,8 @@ const { player } = require('./FileSys/Player');
 const { indexOf } = require('./FileSys/BaseMap');
 const stripAnsi = require('strip-ansi');
 const { spawn } = require('child_process');
-const { kill } = require('process');
+const { kill, config } = require('process');
+const { fs } = require('./Controllers/FsController');
 server.on('connection', function (socket) {
   if (!GameHasStarted) StartGame();
   server.getConnections(function (error, count) {
@@ -462,7 +463,7 @@ server.on('connection', function (socket) {
       if (gameStarted == true) return socket.write("cannot join game has started");
       var NewPlayer = JSON.parse(data1.slice(11));
       var randNum = Math.floor(Math.random() * 100000);
-      const Config = require("./FileSys/Config.json");
+      
       const chalk = require("chalk");
       let colorArr = [chalk.blue, chalk.blueBright, chalk.cyan, chalk.cyanBright, chalk.green, chalk.greenBright, chalk.magenta, chalk.magentaBright, chalk.yellow, chalk.yellowBright]
       let color = Math.floor(Math.random() * colorArr.length)
@@ -582,7 +583,6 @@ server.on('connection', function (socket) {
       }
       if(shouldSendConfig){
         infoObj.Config = Config;
-        shouldSendConfig = false;
       }
       socket.write("hereAreYourPlayers: " + "StartOfTransmission"+JSON.stringify(infoObj) +"EndOfTransmission"+ "\n");
       socket.end()
@@ -625,7 +625,12 @@ server.on('listening', function () {
 });
 
 
-
+if(process.argv[2]){
+  let fs2 = require("fs")
+  let temp = fs2.readFileSync(process.argv[2])
+  Config = JSON.parse(temp.toString());
+  console.log(Config)
+}
 const port = prompt('What port do you want to host a server on, type \"-99\" for automatically assigned port: ')
 if (port == "-99") {
   server.listen(async function () {

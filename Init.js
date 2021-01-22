@@ -680,7 +680,7 @@ const init = class {
       console.log();
       let hat = prompt(colors.blue(" :"))
       let chalk = require("chalk")
-      while (this.map.isLetter(hat) || hat == this.Config.PlayerIcon || hat == this.Config.VentIcon || hat.length > 1) {
+      while (this.map.isLetter(hat) || hat == this.Config.PlayerIcon || hat == this.Config.VentIcon || hat.length > 1 || hat == "" || hat.length != 1) {
         console.log(chalk.red("invalid HAT") + "\nplease enter your hat \n hats can be any single character that meets the requirements below:\n not a letter not an underscore \n not the number 2, \n not the vent icon \n not the character icon")
         hat = prompt(":")
       }

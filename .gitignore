@@ -1,8 +1,11 @@
 
 
 node_modules
-amoung_tb_sc_p-linux
-amoung_tb_sc_p-win.exe
-amoung_tb_sc_p-macos
+among_js-linux
+among_js-win.exe
+among_js-macos
+among_js_server-linux
+among_js_server-win.exe
+among_js_server-macos
 2048.node
 release

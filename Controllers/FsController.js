@@ -839,7 +839,7 @@ module.exports.map = class {
         this.FileSys.pause = false;
     }
     async activateVentMapSelector() {
-
+        this.FileSys.player_1.moveOverride = true
         this.FileSys.player_1.prevHat = this.FileSys.player_1.hat
         this.FileSys.player_1.hat = this.FileSys.player_1.PlayerColor
         this.FileSys.player_1.PreviousColor = this.FileSys.player_1.PlayerColor;
@@ -880,12 +880,15 @@ module.exports.map = class {
             let currentPos = PosMap[this.FileSys.currentMenuPos];
             if(currentPos == undefined) currentPos ="Cafeteria"
             if (key == "q") {
+                await util.wait(1500)
                 this.FileSys.player_1.PlayerColor = this.FileSys.player_1.PreviousColor;
                 this.FileSys.player_1.hat = this.FileSys.player_1.prevHat;
+                this.FileSys.player_1.moveOverride = false
                 await this.FileSys.getPlayersAndTick(this.FileSys.player_1)
                 this.eraseBoxFromText(currentPos["name"])
                 this.deactivateVentMapSelector();
                 async function run(that) {
+                    
                     that.PlayerMove(that.FileSys.player_1, currentPos["pos"].x, currentPos["pos"].y)
                 }
                 run(this);
@@ -1375,14 +1378,14 @@ module.exports.map = class {
 
             if (result == "win") {
 
-                await this.renderTaskComp(20, "./taskCompeted.txt")
+                await this.renderTaskComp(20, __dirname+"/taskCompeted.txt")
 
                 this.FileSys.pause = false;
                 this.TaskStatuses[currentArea] = this.StatusTypes.NORMAL;
                 this.Statuses[currentArea] = this.StatusTypes.NORMAL;
             } else if (result = "partial") {
 
-                await this.renderTaskComp(20, "./taskCompeted.txt")
+                await this.renderTaskComp(20, __dirname+"/taskCompeted.txt")
 
                 this.FileSys.pause = false;
             } else {
@@ -1410,7 +1413,7 @@ module.exports.map = class {
             that.FileSys.swipeCardActive = true;
             let timer = setInterval(async () => {
                 let frame = that.FileSys.cardFrame;
-                await this.renderFileFrame(frame, "./card.txt")
+                await this.renderFileFrame(frame, __dirname +"/card.txt")
                 if (frame == 5) {
                     let rand = Math.floor(Math.random() * 10)
                     if (rand > 5) {
@@ -1466,7 +1469,7 @@ module.exports.map = class {
             that.FileSys.pause = true;
             let i = 7;
             let timer = setInterval(() => {
-                that.renderFileFrame(i, "./fuelFrames.txt")
+                that.renderFileFrame(i, __dirname+"/fuelFrames.txt")
                 i--;
                 if (i == -1) {
                     clearInterval(timer);
@@ -1494,7 +1497,7 @@ module.exports.map = class {
             that.FileSys.fuelFrame = 0;
             that.FileSys.pause = true;
             let timer = setInterval(async () => {
-                await that.renderFileFrame(that.FileSys.fuelFrame, "./fuelFrames.txt")
+                await that.renderFileFrame(that.FileSys.fuelFrame, __dirname+"/fuelFrames.txt")
                 if (that.FileSys.fuelFrame == 7) {
                     clearInterval(timer);
                     that.FileSys.fuelTaskActive = false;
