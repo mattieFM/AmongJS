@@ -1,9 +1,12 @@
 {
-  "name": "among_js_server",
+  "name": "among_js",
   "version": "2.0.1",
   "description": "javascript, terminal based graphics, welcome to hell",
-  "main": "Server.js",
+  "main": "Init.js",
   "bin": "bin.js",
+  "pkg": {
+    "assets": "card.txt,NOTE.txt,obj.txt,taskCompeted.txt,tempFile.txt,minigames"
+  },
   "dependencies": {
     "audio-loader": "^1.0.3",
     "audio-play": "^2.2.1",

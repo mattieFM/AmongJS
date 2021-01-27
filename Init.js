@@ -19,7 +19,7 @@ const init = class {
   colorMenuActive = false;
   colorPickerActive = false;
   customMenuActive = false;
-  gameStarted = false;
+  gameStarted = true;
   ventMapActive = false;
   currentMenuPos = "Cafeteria";
   sabotageActive = false;
@@ -166,17 +166,32 @@ const init = class {
       host: this.IpAdress
     });
     client.on('data', function (data) {
+      
       //
       var data2 = data.toString();
       if (data2.startsWith("SendPlayerWithIdBack: ")) {
-        let fs = require("fs")
-        let parsedData = JSON.parse(data2.slice(22));
-        var UpdatedPlayer = parsedData[0]
-        that.FileSystem.player_1 = UpdatedPlayer;
-        that.FileSystem.Config = parsedData[1]
-        that.FileSystem.ReportPlayer(that.FileSystem.player_1)
-        that.FileSystem.PlayerDeath(that.FileSystem.player_1)
-        client.end();
+        let completeData = "";
+        
+         completeData = completeData + data2;
+         
+          if(completeData.includes("EndOfTransmission")){
+           
+            completeData = completeData.replace("EndOfTransmission","")
+            completeData = completeData.replace("StartOfTransmission","")
+            var data = completeData.slice("SendPlayerWithIdBack: ".length);
+            
+            let fs = require("fs")
+            let parsedData = JSON.parse(data);
+            
+            var UpdatedPlayer = parsedData[0]
+            that.FileSystem.player_1 = UpdatedPlayer;
+            that.FileSystem.Config = parsedData[1]
+            that.FileSystem.ReportPlayer(that.FileSystem.player_1)
+            that.FileSystem.PlayerDeath(that.FileSystem.player_1)
+           
+            client.end();
+          }
+        
       }
       if (data2.startsWith("hereAreYourPlayers: ")) {
         var players2 = data2.slice(20);
@@ -529,6 +544,7 @@ const init = class {
     let colors = require("colors")
     return new Promise( async resolve => {
       if(this.quickStart){
+        console.log("hell123l123")
         this.ConnectPlayer(this.player_1)
         resolve()
         return;
@@ -593,6 +609,7 @@ const init = class {
   async StartGame() {
    
     this.timer = setInterval(async () => {
+     
         await this.map.UpdateMapStatuses(this.player_1, false);
     }, this.Config.delay)
   }

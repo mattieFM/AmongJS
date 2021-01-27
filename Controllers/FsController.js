@@ -296,10 +296,11 @@ module.exports.map = class {
      * @param {Object} player the player controlled by this client
      */
     async UpdateMapStatuses(player,clear = false) {
+        console.log("here1")
         if (this.FileSys.pause | this.FileSys.emergency | this.sabotageMapActive) { if (util.Verbose) console.log("PAUSED"); return }
         if(clear)console.clear();
         const obj = await this.FileSys.getPlayersAndTick(player);
-        
+        console.log("here2")
         if (obj["gameStarted?"] == false) {
             this.FileSys.gameStarted = false;
             this.once = false;
@@ -307,8 +308,9 @@ module.exports.map = class {
             //player.moveOverride = true;
             this.currentMap = require("../FileSys/lobbyMap").split("\n")
         } else {
+            
             if (!this.once) {
-                this.FileSys.gameStarted = true;
+                
                 this.currentMap = this.BaseMap.split("\n")
                 this.PlayerMove(player, player.spawnPos.x, player.spawnPos.y)
                 player.moveOverride = false;
@@ -1378,14 +1380,14 @@ module.exports.map = class {
 
             if (result == "win") {
 
-                await this.renderTaskComp(20, __dirname+"/../taskCompeted.txt")
+                await this.renderTaskComp(20, "./taskCompeted.txt")
 
                 this.FileSys.pause = false;
                 this.TaskStatuses[currentArea] = this.StatusTypes.NORMAL;
                 this.Statuses[currentArea] = this.StatusTypes.NORMAL;
             } else if (result = "partial") {
 
-                await this.renderTaskComp(20, __dirname+"/../taskCompeted.txt")
+                await this.renderTaskComp(20, "./taskCompeted.txt")
 
                 this.FileSys.pause = false;
             } else {
@@ -1413,7 +1415,7 @@ module.exports.map = class {
             that.FileSys.swipeCardActive = true;
             let timer = setInterval(async () => {
                 let frame = that.FileSys.cardFrame;
-                await this.renderFileFrame(frame, __dirname +"/../card.txt")
+                await this.renderFileFrame(frame, "./card.txt")
                 if (frame == 5) {
                     let rand = Math.floor(Math.random() * 10)
                     if (rand > 5) {
@@ -1469,7 +1471,7 @@ module.exports.map = class {
             that.FileSys.pause = true;
             let i = 7;
             let timer = setInterval(() => {
-                that.renderFileFrame(i, __dirname+"/../fuelFrames.txt")
+                that.renderFileFrame(i, "./fuelFrames.txt")
                 i--;
                 if (i == -1) {
                     clearInterval(timer);
@@ -1497,7 +1499,7 @@ module.exports.map = class {
             that.FileSys.fuelFrame = 0;
             that.FileSys.pause = true;
             let timer = setInterval(async () => {
-                await that.renderFileFrame(that.FileSys.fuelFrame, __dirname+"/../fuelFrames.txt")
+                await that.renderFileFrame(that.FileSys.fuelFrame, "./fuelFrames.txt")
                 if (that.FileSys.fuelFrame == 7) {
                     clearInterval(timer);
                     that.FileSys.fuelTaskActive = false;
